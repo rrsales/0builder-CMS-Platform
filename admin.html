@@ -1,24 +1,27 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin Panel — Honest News</title>
 <style>
   :root{--bg:#0b1220;--card:#071227;--muted:#9fb0c8;--accent:#06b6d4;--glass:rgba(255,255,255,0.03)}
-  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;color:#e6eef6}
+  html,body{margin:0;height:100%;font-family:Inter,ui-sans-serif,sans-serif;color:#e6eef6;background:linear-gradient(180deg,#041322 0%,#071b2a 100%)}
   .btn{background:var(--accent);border:none;color:#022;padding:8px 12px;border-radius:8px;cursor:pointer}
   .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-  input,select,textarea{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;width:100%}
-  .small{font-size:13px;color:var(--muted)}
-  .grid{display:grid;grid-template-columns:320px 1fr;gap:16px;margin:20px}
-  .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+  /* Login panel centered */
+  #loginPanel{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
+  #loginPanel input{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:transparent;color:inherit;margin-top:8px;width:200px}
+  #loginPanel label{margin-bottom:6px}
+  #loginPanel button{margin-top:12px}
+  /* Admin grid hidden initially */
+  #adminPanel{display:none;max-width:1100px;margin:20px auto;padding:18px}
 </style>
 </head>
 <body>
 
-<!-- LOGIN PANEL -->
-<div id="loginPanel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+<!-- LOGIN -->
+<div id="loginPanel">
   <label>Password</label>
   <input type="password" id="passwordInput" placeholder="Enter password">
   <button id="loginBtn" class="btn">Log In</button>
@@ -26,446 +29,322 @@
 </div>
 
 <!-- ADMIN PANEL -->
-<div id="adminPanel" style="display:none">
-  <!-- Your admin grid and content go here -->
-</div>
-
-<script>
-// --- PASSWORD LOGIN ---
-const PASSWORD = "password123"; // <-- change this to whatever you want
-
-document.getElementById('loginBtn').addEventListener('click', ()=>{
-  const input = document.getElementById('passwordInput').value;
-  if(input === PASSWORD){
-    document.getElementById('loginPanel').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
-    initAdmin(); // your function to load admin
-  } else {
-    document.getElementById('loginMsg').textContent = 'Wrong password!';
-  }
-});
-</script>
-
-
-<!-- ADMIN PANEL -->
-<div id="adminPanel" style="display:none">
+<div id="adminPanel">
+  <h1>Admin Panel — Honest News</h1>
   <div class="grid">
-    <!-- Sidebar -->
-    <aside class="card">
-      <label>Global Settings</label>
-      <div><input type="checkbox" id="transparentHeader"><label class="small"> Transparent header on all pages</label></div>
-
-      <hr>
-      <label>Image Library</label>
-      <input type="file" id="imageUpload" accept="image/*" multiple>
-      <div id="imageLibrary" class="list"></div>
-
-      <hr>
-      <label>Site Data</label>
-      <button id="downloadJson" class="btn">Download data.json</button>
-      <button id="loadRemote" class="btn secondary">Reload from remote</button>
-    </aside>
-
-    <!-- Main panel -->
-    <main class="card">
-      <section>
-        <label>Pages — Page Manager</label>
-        <div style="display:flex;gap:8px;margin-bottom:8px">
-          <input id="newTitle" type="text" placeholder="Page title">
-          <input id="newSlug" type="text" placeholder="slug">
-          <button id="addPage" class="btn">Add page</button>
-        </div>
-        <div id="pagesList" class="list"></div>
-      </section>
-
-      <hr>
-
-      <section id="pageEditor" style="display:none">
-        <h3 id="editingTitle">Editing — </h3>
-        <div class="controls">
-          <button id="saveBtn" class="btn">Save</button>
-          <button id="deletePageBtn" class="btn secondary">Delete</button>
-        </div>
-        <!-- Placeholder for future hero, slides, blocks -->
-        <div id="editorContent">Editor will appear here</div>
-      </section>
-    </main>
+    <!-- Sidebar and main content will be added in next section -->
   </div>
 </div>
 
 <script>
+const PASSWORD = "password123"; // <-- Change this to your desired password
+document.getElementById('loginBtn').addEventListener('click', ()=>{
+  const input = document.getElementById('passwordInput').value;
+  if(input === PASSWORD){
+    document.getElementById('loginPanel').style.display='none';
+    document.getElementById('adminPanel').style.display='block';
+    initAdmin(); // JS function to initialize admin (next section)
+  } else {
+    document.getElementById('loginMsg').textContent='Wrong password!';
+  }
+});
+</script>
+  <div class="grid" style="display:grid;grid-template-columns:320px 1fr;gap:16px">
+
+  <!-- SIDEBAR -->
+  <aside style="background:var(--card);border-radius:12px;padding:12px;overflow:auto;height:calc(100vh - 36px)">
+    <label>Global Settings</label>
+    <div class="checkbox" style="margin-bottom:12px">
+      <input type="checkbox" id="transparentHeader">
+      <label for="transparentHeader" class="small">Transparent header on all pages</label>
+    </div>
+
+    <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+    <label>Image Library</label>
+    <input type="file" id="imageUpload" accept="image/*" multiple style="margin-bottom:8px">
+    <div id="imageLibrary" class="list"></div>
+
+    <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+    <label>Site Data</label>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button id="downloadJson" class="btn">Download data.json</button>
+      <button id="loadRemote" class="btn secondary">Reload from repo</button>
+    </div>
+  </aside>
+
+  <!-- MAIN PANEL -->
+  <main style="background:var(--card);border-radius:12px;padding:12px;overflow:auto;height:calc(100vh - 36px)">
+    <!-- Page Manager -->
+    <section>
+      <label>Pages — Page Manager</label>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input type="text" id="newTitle" placeholder="Page title (eg: Home)">
+        <input type="text" id="newSlug" placeholder="slug (eg: /)">
+        <button id="addPage" class="btn">Add page</button>
+      </div>
+      <div id="pagesList" class="list"></div>
+    </section>
+
+    <hr style="margin:18px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+    <!-- Page Editor -->
+    <section id="pageEditor" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 id="editingTitle">Editing — </h3>
+        <div style="display:flex;gap:8px">
+          <button id="saveBtn" class="btn">Save (download JSON)</button>
+          <button id="deletePageBtn" class="btn secondary">Delete</button>
+        </div>
+      </div>
+
+      <!-- Hero Settings -->
+      <label>Hero — per-page</label>
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:12px;align-items:start">
+        <div>
+          <label>Hero Behavior</label>
+          <select id="heroBehavior">
+            <option value="still">Still Image</option>
+            <option value="parallax">Slow Parallax Scroll</option>
+            <option value="carousel">Auto-Rotating Slides</option>
+            <option value="video">Embedded Video</option>
+            <option value="none">None</option>
+          </select>
+
+          <label style="margin-top:8px">Hero Size</label>
+          <select id="heroSize">
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
+            <option value="full">Full screen</option>
+          </select>
+
+          <label style="margin-top:8px">Hero Media URL (image/video)</label>
+          <input type="text" id="heroMedia" placeholder="paste URL or pick from library">
+
+          <div class="checkbox" style="margin-top:8px">
+            <input type="checkbox" id="heroParallax">
+            <label class="small">Enable parallax</label>
+          </div>
+
+          <label style="margin-top:8px">Slides (carousel)</label>
+          <div id="slidesEditor"></div>
+        </div>
+
+        <!-- Hero Preview -->
+        <div>
+          <div id="heroPreview" style="height:160px;border-radius:8px;background:#031220;display:flex;align-items:center;justify-content:center;color:var(--muted);position:relative;overflow:hidden">
+            <div class="small" id="heroModeNote">Hero preview</div>
+          </div>
+        </div>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+      <!-- Rich Text Blocks -->
+      <label>Page content — Rich text blocks</label>
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+        <input type="text" id="newBlockTitle" placeholder="Block name (eg: Hero headline)">
+        <button id="addBlock" class="btn secondary">Add block</button>
+      </div>
+      <div id="blocksList" class="list"></div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+      <!-- Color Pickers -->
+      <label>Page Colors</label>
+      <div style="display:flex;gap:12px;margin-bottom:12px">
+        <div>
+          <label>Background</label>
+          <input type="color" id="pageBgColor" value="#ffffff">
+        </div>
+        <div>
+          <label>Text</label>
+          <input type="color" id="pageTextColor" value="#000000">
+        </div>
+      </div>
+
+      <!-- JSON Preview -->
+      <label>Advanced / JSON Preview</label>
+      <pre id="jsonPreview"></pre>
+    </section>
+
+  </main>
+
+</div>
+
+  <script>
 // --- ADMIN PANEL LOGIC ---
 
 let data = null;
 let editingPageId = null;
-const ADMIN_PASSWORD = "password123"; // ← CHANGE THIS PASSWORD
 
-function q(id){return document.getElementById(id)}
+// helpers
+function uid(){return 'id-'+Math.random().toString(36).slice(2,9);}
+function q(id){return document.getElementById(id);}
+function escapeHtml(s){return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// --- LOGIN ---
-q('loginBtn').addEventListener('click',()=>{
-  const pass = q('adminPassword').value;
-  if(pass === ADMIN_PASSWORD){
-    q('adminLogin').style.display='none';
-    q('adminPanel').style.display='block';
-    initAdmin();
-  } else {
-    q('loginMsg').textContent='Wrong password!';
+// --- LOAD / SAVE ---
+const DATA_URL = 'data.json';
+async function loadData(){
+  try{
+    const res = await fetch(DATA_URL+'?_='+Date.now());
+    if(!res.ok) throw new Error('Not found');
+    data = await res.json();
+  }catch(e){
+    console.warn('Failed to load data.json, using default', e);
+    data = { settings:{transparentHeader:false}, images:[], pages:[{id:'id-home',title:'Home',slug:'/',hero:{behavior:'carousel',size:'full',media:'',parallax:false,slides:[]},blocks:[],styles:{background:'#ffffff',text:'#000000'}}]};
   }
+  saveLocal();
+  renderAll();
+}
+function saveLocal(){localStorage.setItem('static_admin_data',JSON.stringify(data));q('jsonPreview').textContent=JSON.stringify(data,null,2);}
+function downloadData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='data.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);}
+
+// --- IMAGE LIBRARY ---
+q('imageUpload').addEventListener('change',async e=>{
+  const files=Array.from(e.target.files);
+  for(const f of files){
+    const url = await new Promise(res=>{const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f);});
+    data.images.unshift({id:uid(),name:f.name,url});
+  }
+  saveLocal(); renderImages(); e.target.value='';
 });
-
-// --- INIT ADMIN ---
-function initAdmin(){
-  const local = localStorage.getItem('static_admin_data');
-  if(local) data = JSON.parse(local);
-  else data = { settings:{transparentHeader:false}, images:[], pages:[] };
-  console.log('Admin initialized', data);
-}
-</script>
-
-  <script>
-// --- PAGE MANAGER & EDITOR ---
-
-function saveLocal(){
-  localStorage.setItem('static_admin_data', JSON.stringify(data));
-  q('editorContent').textContent = JSON.stringify(data,null,2);
-}
-
-function renderPages(){
-  const node = q('pagesList');
-  node.innerHTML = '';
-  data.pages.forEach(p=>{
-    const el = document.createElement('div');
-    el.className='list-item';
-    el.style.display='flex';
-    el.style.justifyContent='space-between';
-    el.style.marginBottom='4px';
-    el.innerHTML = `<strong>${escapeHtml(p.title)}</strong> <div>
-      <button class="btn secondary">Edit</button>
-      <button class="btn secondary">Del</button>
-    </div>`;
-    const [editBtn, delBtn] = el.querySelectorAll('button');
-    editBtn.addEventListener('click',()=>openEditor(p.id));
-    delBtn.addEventListener('click',()=>{
-      if(confirm('Delete this page?')){
-        data.pages = data.pages.filter(x=>x.id!==p.id);
-        saveLocal(); renderPages();
-        if(editingPageId===p.id) closeEditor();
-      }
-    });
-    node.appendChild(el);
-  });
+function renderImages(){
+  const node = q('imageLibrary'); node.innerHTML='';
+  if(!data.images.length){ node.innerHTML='<div class="small">No images yet.</div>'; return;}
+  for(const img of data.images){
+    const wrap=document.createElement('div'); wrap.className='list-item';
+    const left=document.createElement('div'); left.style.display='flex'; left.style.gap='8px';
+    const im=document.createElement('img'); im.className='thumb'; im.src=img.url;
+    const meta=document.createElement('div'); meta.innerHTML=`<div>${img.name}</div><div class="small">${img.id}</div>`;
+    left.appendChild(im); left.appendChild(meta);
+    const controls=document.createElement('div'); controls.className='controls';
+    const useBtn=document.createElement('button'); useBtn.className='btn secondary'; useBtn.textContent='Use';
+    useBtn.onclick=()=>{if(editingPageId){const p=data.pages.find(x=>x.id===editingPageId); if(p){p.hero.media=img.url;p.hero.slides=[img.url]; renderHeroPreview(); saveLocal(); renderPages();}} else alert('Open a page first');};
+    const del=document.createElement('button'); del.className='btn secondary'; del.textContent='Delete';
+    del.onclick=()=>{if(confirm('Delete image?')){data.images=data.images.filter(x=>x.id!==img.id); saveLocal(); renderImages();}};
+    controls.appendChild(useBtn); controls.appendChild(del);
+    wrap.appendChild(left); wrap.appendChild(controls); node.appendChild(wrap);
+  }
 }
 
+// --- PAGES ---
 q('addPage').addEventListener('click',()=>{
-  const t = q('newTitle').value.trim()||'Untitled';
-  const s = q('newSlug').value.trim()||('/'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
-  const p = {id:uid(), title:t, slug:s, hero:{behavior:'still',size:'medium',media:'',parallax:false,slides:[]}, blocks:[]};
-  data.pages.push(p);
-  saveLocal(); renderPages();
-  openEditor(p.id);
+  const t=q('newTitle').value.trim()||'Untitled';
+  const s=q('newSlug').value.trim()||('/'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+  const p={id:uid(),title:t,slug:s,hero:{behavior:'still',size:'medium',media:'',parallax:false,slides:[]},blocks:[],styles:{background:'#ffffff',text:'#000000'}};
+  data.pages.push(p); saveLocal(); renderPages(); openEditor(p.id);
   q('newTitle').value=''; q('newSlug').value='';
 });
+function renderPages(){
+  const node=q('pagesList'); node.innerHTML='';
+  data.pages.forEach(p=>{
+    const el=document.createElement('div'); el.className='list-item';
+    const left=document.createElement('div'); left.style.display='flex'; left.style.flexDirection='column';
+    left.innerHTML=`<strong>${escapeHtml(p.title)}</strong><div class="small">${escapeHtml(p.slug)}</div>`;
+    const controls=document.createElement('div'); controls.className='controls';
+    const edit=document.createElement('button'); edit.className='btn secondary'; edit.textContent='Edit'; edit.onclick=()=>openEditor(p.id);
+    const del=document.createElement('button'); del.className='btn secondary'; del.textContent='Del'; del.onclick=()=>{if(confirm('Delete page?')){data.pages=data.pages.filter(x=>x.id!==p.id); saveLocal(); renderPages(); if(editingPageId===p.id) closeEditor();}};
+    controls.appendChild(edit); controls.appendChild(del);
+    el.appendChild(left); el.appendChild(controls); node.appendChild(el);
+  });
+}
 
+// --- EDITOR ---
 function openEditor(id){
-  editingPageId = id;
-  const page = data.pages.find(p=>p.id===id);
-  if(!page) return;
-  q('pageEditor').style.display='block';
-  q('editingTitle').textContent = 'Editing — '+page.title;
-  q('editorContent').textContent = JSON.stringify(page,null,2);
+  editingPageId=id; const page=data.pages.find(p=>p.id===id); if(!page) return;
+  q('pageEditor').style.display='block'; q('editingTitle').textContent='Editing — '+page.title;
+  q('heroBehavior').value=page.hero.behavior||'still'; q('heroSize').value=page.hero.size||'medium';
+  q('heroMedia').value=page.hero.media||''; q('heroParallax').checked=!!page.hero.parallax;
+  renderSlidesEditor(page.hero.slides||[]); renderBlocks(); loadPageColors(page); renderHeroPreview();
+}
+function closeEditor(){editingPageId=null; q('pageEditor').style.display='none';}
 
-  // Make title/slug editable live
-  q('editingTitle').innerHTML = `Editing — <input type="text" id="editTitle" value="${escapeHtml(page.title)}"> <input type="text" id="editSlug" value="${escapeHtml(page.slug)}">`;
-  q('editTitle').addEventListener('input',()=>{ page.title=q('editTitle').value; saveLocal(); renderPages(); });
-  q('editSlug').addEventListener('input',()=>{ page.slug=q('editSlug').value; saveLocal(); });
+// --- HERO ---
+function renderHeroPreview(){
+  const box=q('heroPreview'); box.innerHTML=''; const page=data.pages.find(p=>p.id===editingPageId);
+  const note=document.createElement('div'); note.className='small'; note.style.position='relative'; note.style.zIndex='2';
+  if(!page){note.textContent='No page open'; box.appendChild(note); return;}
+  note.textContent=`Mode: ${page.hero.behavior || 'still'}`; box.appendChild(note);
+  if(page.hero.behavior==='still' && page.hero.media){const img=document.createElement('img'); img.src=page.hero.media; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover'; box.appendChild(img);}
+  if(page.hero.behavior==='carousel' && page.hero.slides.length>0){const img=document.createElement('img'); img.src=page.hero.slides[0]; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover'; box.appendChild(img);}
+  if(page.hero.behavior==='video' && page.hero.media){const overlay=document.createElement('div'); overlay.className='small'; overlay.style.position='absolute'; overlay.style.bottom='8px'; overlay.style.left='8px'; overlay.style.background='rgba(0,0,0,0.4)'; overlay.style.padding='6px'; overlay.style.borderRadius='6px'; overlay.textContent='Video: '+page.hero.media; box.appendChild(overlay);}
 }
 
-function closeEditor(){
-  editingPageId=null;
-  q('pageEditor').style.display='none';
+// --- SLIDES EDITOR ---
+function renderSlidesEditor(slides){
+  const c=q('slidesEditor'); c.innerHTML='';
+  slides.forEach((s,i)=>{
+    const row=document.createElement('div'); row.className='slide-row'; row.style.display='flex'; row.style.gap='8px'; row.style.marginBottom='8px';
+    const input=document.createElement('input'); input.className='slide-input'; input.value=s||''; input.placeholder='image URL or data-URL';
+    const remove=document.createElement('button'); remove.className='btn secondary'; remove.textContent='Remove'; remove.onclick=()=>{const page=data.pages.find(p=>p.id===editingPageId); page.hero.slides.splice(i,1); saveLocal(); renderSlidesEditor(page.hero.slides);};
+    row.appendChild(input); row.appendChild(remove); c.appendChild(row);
+  });
+  const add=document.createElement('button'); add.className='btn'; add.textContent='Add Slide'; add.onclick=()=>{const page=data.pages.find(p=>p.id===editingPageId); page.hero.slides.push(''); saveLocal(); renderSlidesEditor(page.hero.slides);};
+  c.appendChild(add);
+}
+function collectSlides(){return [...document.querySelectorAll('.slide-input')].map(e=>e.value.trim()).filter(Boolean);}
+
+// --- RICH TEXT BLOCKS ---
+q('addBlock').addEventListener('click',()=>{
+  if(!editingPageId) return alert('Open a page'); const page=data.pages.find(p=>p.id===editingPageId);
+  const name=q('newBlockTitle').value.trim()||'Block '+(page.blocks.length+1);
+  const b={id:uid(),name,type:'rich-text',content:'<p>Edit me</p>'}; page.blocks.push(b); saveLocal(); renderBlocks(); q('newBlockTitle').value='';
+});
+function renderBlocks(){
+  const node=q('blocksList'); node.innerHTML=''; const page=data.pages.find(p=>p.id===editingPageId); if(!page) return;
+  if(!page.blocks.length) node.innerHTML='<div class="small">No rich text blocks yet.</div>';
+  page.blocks.forEach(b=>{
+    const wrap=document.createElement('div'); wrap.className='list-item';
+    const left=document.createElement('div'); left.style.flex='1'; left.innerHTML=`<strong>${escapeHtml(b.name)}</strong><div class="small">Type: ${b.type}</div>`;
+    const controls=document.createElement('div'); controls.className='controls';
+    const edit=document.createElement('button'); edit.className='btn secondary'; edit.textContent='Edit';
+    edit.onclick=()=>{const newName=prompt('Block name',b.name); if(newName!==null){b.name=newName; const newContent=prompt('HTML content',b.content||''); if(newContent!==null){b.content=newContent; saveLocal(); renderBlocks();}}};
+    const del=document.createElement('button'); del.className='btn secondary'; del.textContent='Del'; del.onclick=()=>{if(confirm('Delete block?')){page.blocks=page.blocks.filter(x=>x.id!==b.id); saveLocal(); renderBlocks();}};
+    controls.appendChild(edit); controls.appendChild(del); wrap.appendChild(left); wrap.appendChild(controls); node.appendChild(wrap);
+  });
 }
 
-// Save button placeholder
+// --- COLOR PICKERS ---
+function loadPageColors(page){q('pageBgColor').value=page.styles.background||'#ffffff'; q('pageTextColor').value=page.styles.text||'#000000';}
+function savePageColors(page){page.styles.background=q('pageBgColor').value; page.styles.text=q('pageTextColor').value;}
+
+// --- SAVE / DELETE ---
 q('saveBtn').addEventListener('click',()=>{
-  if(!editingPageId) return alert('Open a page first');
-  saveLocal();
+  if(!editingPageId) return alert('Open a page first'); const page=data.pages.find(p=>p.id===editingPageId);
+  page.hero.behavior=q('heroBehavior').value; page.hero.size=q('heroSize').value;
+  page.hero.media=q('heroMedia').value.trim(); page.hero.parallax=q('heroParallax').checked;
+  page.hero.slides=collectSlides();
+  savePageColors(page);
+  saveLocal(); downloadData(); renderPages(); renderHeroPreview();
 });
-
-// Delete page button
 q('deletePageBtn').addEventListener('click',()=>{
-  if(!editingPageId) return;
-  if(confirm('Delete this page?')){
-    data.pages = data.pages.filter(p=>p.id!==editingPageId);
-    saveLocal(); renderPages(); closeEditor();
-  }
+  if(!editingPageId) return; if(confirm('Delete this page?')){data.pages=data.pages.filter(p=>p.id!==editingPageId); saveLocal(); renderPages(); closeEditor();}
 });
 
-// Helper functions
-function uid(){return 'id-'+Math.random().toString(36).slice(2,9)}
-function escapeHtml(s){ return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+// --- HERO INPUTS LIVE UPDATE ---
+['heroBehavior','heroSize','heroMedia','heroParallax','pageBgColor','pageTextColor'].forEach(id=>{
+  const el=q(id); if(!el) return;
+  el.addEventListener('input',()=>{
+    if(!editingPageId) return; const page=data.pages.find(p=>p.id===editingPageId);
+    page.hero.behavior=q('heroBehavior').value; page.hero.size=q('heroSize').value;
+    page.hero.media=q('heroMedia').value; page.hero.parallax=q('heroParallax').checked;
+    savePageColors(page); saveLocal(); renderHeroPreview(); renderBlocks();
+  });
+});
 
-// Initial render if data exists
-if(data) renderPages();
-
+// --- INITIALIZE ---
+function renderAll(){renderPages(); renderImages(); if(editingPageId) renderBlocks(); q('jsonPreview').textContent=JSON.stringify(data,null,2);}
+function initAdmin(){loadData();}
 </script>
 
-  <script>
-// --- HERO & SLIDES ---
-
-// Add hero controls to the page editor
-function renderHeroControls(page){
-  const container = q('editorContent');
-  container.innerHTML = `
-    <label>Hero Behavior:</label>
-    <select id="heroBehavior">
-      <option value="still">Still Image</option>
-      <option value="parallax">Slow Parallax Scroll</option>
-      <option value="carousel">Auto-Rotating Slides</option>
-      <option value="video">Embedded Video</option>
-      <option value="none">None</option>
-    </select>
-
-    <label>Hero Size:</label>
-    <select id="heroSize">
-      <option value="small">Small</option>
-      <option value="medium">Medium</option>
-      <option value="large">Large</option>
-      <option value="full">Full screen</option>
-    </select>
-
-    <label>Hero Media URL:</label>
-    <input type="text" id="heroMedia" placeholder="Image or video URL">
-
-    <div id="slidesEditor"></div>
-    <div id="heroPreview" style="height:160px;background:#031220;color:#9fb0c8;margin-top:8px;display:flex;align-items:center;justify-content:center;">Hero preview</div>
-  `;
-
-  q('heroBehavior').value = page.hero.behavior;
-  q('heroSize').value = page.hero.size;
-  q('heroMedia').value = page.hero.media;
-
-  // Hero behavior live update
-  ['heroBehavior','heroSize','heroMedia'].forEach(id=>{
-    q(id).addEventListener('input',()=>{
-      page.hero.behavior=q('heroBehavior').value;
-      page.hero.size=q('heroSize').value;
-      page.hero.media=q('heroMedia').value;
-      renderHeroPreview(page);
-      saveLocal();
-    });
-  });
-
-  renderSlidesEditor(page);
-  renderHeroPreview(page);
-}
-
-// Slides editor
-function renderSlidesEditor(page){
-  const container = q('slidesEditor');
-  container.innerHTML='<label>Slides (carousel)</label>';
-  if(!page.hero.slides) page.hero.slides=[];
-  page.hero.slides.forEach((s,i)=>{
-    const row = document.createElement('div');
-    row.style.display='flex'; row.style.gap='4px'; row.style.marginBottom='4px';
-    const input = document.createElement('input');
-    input.value = s || '';
-    input.placeholder = 'Slide URL';
-    input.style.flex='1';
-    input.addEventListener('input',()=>{ page.hero.slides[i]=input.value; renderHeroPreview(page); saveLocal(); });
-    const remove = document.createElement('button');
-    remove.textContent='Remove';
-    remove.className='btn secondary';
-    remove.addEventListener('click',()=>{
-      page.hero.slides.splice(i,1);
-      renderSlidesEditor(page);
-      renderHeroPreview(page);
-      saveLocal();
-    });
-    row.appendChild(input);
-    row.appendChild(remove);
-    container.appendChild(row);
-  });
-  const add = document.createElement('button');
-  add.textContent='Add Slide';
-  add.className='btn';
-  add.addEventListener('click',()=>{
-    page.hero.slides.push('');
-    renderSlidesEditor(page);
-    renderHeroPreview(page);
-    saveLocal();
-  });
-  container.appendChild(add);
-}
-
-// Hero preview
-function renderHeroPreview(page){
-  const box = q('heroPreview');
-  box.innerHTML='';
-  const note = document.createElement('div');
-  note.style.position='absolute'; note.style.zIndex='2'; note.style.color='#9fb0c8';
-  note.textContent = `Mode: ${page.hero.behavior}`;
-  box.appendChild(note);
-
-  if(page.hero.behavior==='still' && page.hero.media){
-    const img = document.createElement('img');
-    img.src=page.hero.media;
-    img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
-    box.appendChild(img);
-  }
-  if(page.hero.behavior==='carousel' && page.hero.slides.length>0){
-    const img = document.createElement('img');
-    img.src=page.hero.slides[0];
-    img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
-    box.appendChild(img);
-  }
-  if(page.hero.behavior==='video' && page.hero.media){
-    const overlay = document.createElement('div');
-    overlay.textContent='Video: '+page.hero.media;
-    overlay.style.position='absolute'; overlay.style.bottom='4px'; overlay.style.left='4px';
-    overlay.style.background='rgba(0,0,0,0.4)'; overlay.style.padding='4px'; overlay.style.borderRadius='4px';
-    box.appendChild(overlay);
-  }
-}
-
-// Override openEditor to include hero controls
-const originalOpenEditor = openEditor;
-openEditor = function(id){
-  originalOpenEditor(id);
-  const page = data.pages.find(p=>p.id===id);
-  if(page) renderHeroControls(page);
-};
-</script>
-
-  <script>
-// --- HERO & SLIDES ---
-
-// Add hero controls to the page editor
-function renderHeroControls(page){
-  const container = q('editorContent');
-  container.innerHTML = `
-    <label>Hero Behavior:</label>
-    <select id="heroBehavior">
-      <option value="still">Still Image</option>
-      <option value="parallax">Slow Parallax Scroll</option>
-      <option value="carousel">Auto-Rotating Slides</option>
-      <option value="video">Embedded Video</option>
-      <option value="none">None</option>
-    </select>
-
-    <label>Hero Size:</label>
-    <select id="heroSize">
-      <option value="small">Small</option>
-      <option value="medium">Medium</option>
-      <option value="large">Large</option>
-      <option value="full">Full screen</option>
-    </select>
-
-    <label>Hero Media URL:</label>
-    <input type="text" id="heroMedia" placeholder="Image or video URL">
-
-    <div id="slidesEditor"></div>
-    <div id="heroPreview" style="height:160px;background:#031220;color:#9fb0c8;margin-top:8px;display:flex;align-items:center;justify-content:center;">Hero preview</div>
-  `;
-
-  q('heroBehavior').value = page.hero.behavior;
-  q('heroSize').value = page.hero.size;
-  q('heroMedia').value = page.hero.media;
-
-  // Hero behavior live update
-  ['heroBehavior','heroSize','heroMedia'].forEach(id=>{
-    q(id).addEventListener('input',()=>{
-      page.hero.behavior=q('heroBehavior').value;
-      page.hero.size=q('heroSize').value;
-      page.hero.media=q('heroMedia').value;
-      renderHeroPreview(page);
-      saveLocal();
-    });
-  });
-
-  renderSlidesEditor(page);
-  renderHeroPreview(page);
-}
-
-// Slides editor
-function renderSlidesEditor(page){
-  const container = q('slidesEditor');
-  container.innerHTML='<label>Slides (carousel)</label>';
-  if(!page.hero.slides) page.hero.slides=[];
-  page.hero.slides.forEach((s,i)=>{
-    const row = document.createElement('div');
-    row.style.display='flex'; row.style.gap='4px'; row.style.marginBottom='4px';
-    const input = document.createElement('input');
-    input.value = s || '';
-    input.placeholder = 'Slide URL';
-    input.style.flex='1';
-    input.addEventListener('input',()=>{ page.hero.slides[i]=input.value; renderHeroPreview(page); saveLocal(); });
-    const remove = document.createElement('button');
-    remove.textContent='Remove';
-    remove.className='btn secondary';
-    remove.addEventListener('click',()=>{
-      page.hero.slides.splice(i,1);
-      renderSlidesEditor(page);
-      renderHeroPreview(page);
-      saveLocal();
-    });
-    row.appendChild(input);
-    row.appendChild(remove);
-    container.appendChild(row);
-  });
-  const add = document.createElement('button');
-  add.textContent='Add Slide';
-  add.className='btn';
-  add.addEventListener('click',()=>{
-    page.hero.slides.push('');
-    renderSlidesEditor(page);
-    renderHeroPreview(page);
-    saveLocal();
-  });
-  container.appendChild(add);
-}
-
-// Hero preview
-function renderHeroPreview(page){
-  const box = q('heroPreview');
-  box.innerHTML='';
-  const note = document.createElement('div');
-  note.style.position='absolute'; note.style.zIndex='2'; note.style.color='#9fb0c8';
-  note.textContent = `Mode: ${page.hero.behavior}`;
-  box.appendChild(note);
-
-  if(page.hero.behavior==='still' && page.hero.media){
-    const img = document.createElement('img');
-    img.src=page.hero.media;
-    img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
-    box.appendChild(img);
-  }
-  if(page.hero.behavior==='carousel' && page.hero.slides.length>0){
-    const img = document.createElement('img');
-    img.src=page.hero.slides[0];
-    img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
-    box.appendChild(img);
-  }
-  if(page.hero.behavior==='video' && page.hero.media){
-    const overlay = document.createElement('div');
-    overlay.textContent='Video: '+page.hero.media;
-    overlay.style.position='absolute'; overlay.style.bottom='4px'; overlay.style.left='4px';
-    overlay.style.background='rgba(0,0,0,0.4)'; overlay.style.padding='4px'; overlay.style.borderRadius='4px';
-    box.appendChild(overlay);
-  }
-}
-
-// Override openEditor to include hero controls
-const originalOpenEditor = openEditor;
-openEditor = function(id){
-  originalOpenEditor(id);
-  const page = data.pages.find(p=>p.id===id);
-  if(page) renderHeroControls(page);
-};
-</script>
+  
 
 </body>
 </html>
+
 
 
 
