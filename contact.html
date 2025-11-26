@@ -10,8 +10,25 @@
 <script src="https://cdn.jsdelivr.net/gh/rrsales/Honest-News@master/live.js"></script>
 
 <style>
-  
-  main{padding:120px 1rem 4rem;text-align:center}
+  body{margin:0;background:#111;color:#fff}
+  header{background:#000;padding:1rem 0;position:fixed;width:100%;top:0;z-index:1000}
+  .site-inner{max-width:1200px;margin:auto;padding:0 1rem;display:flex;justify-content:space-between;align-items:center}
+  .logo{font-size:1.8rem;font-weight:bold}
+  .nav-menu{list-style:none;display:flex;gap:2rem}
+  .nav-menu a{color:#fff;text-decoration:none}
+  .mobile-menu-toggle{display:none}
+  @media(max-width:768px){.mobile-menu-toggle{display:block;font-size:2rem}}  .hero-carousel{position:relative;height:100vh;overflow:hidden;color:white}
+  .slide{position:absolute;inset:0;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;text-align:center}
+  .slide::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,0.55)}
+  .slide-content{position:relative;max-width:900px;padding:2rem}
+  .slide h1{font-size:4.5rem;line-height:1.2}
+  .slide p{font-size:1.8rem;margin:2rem 0}
+  .btn{padding:1rem 3rem;background:#0066cc;color:white;border:none;border-radius:8px;font-size:1.4rem;cursor:pointer}
+  .dots{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);display:flex;gap:12px}
+  .dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.5);cursor:pointer}
+  .dot.active{background:white}
+  .arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;width:60px;height:60px;font-size:3rem;cursor:pointer}
+  .prev{left:20px}.next{right:20px}  main{padding:120px 1rem 4rem;text-align:center}
   .episodes{max-width:900px;margin:auto;display:grid;gap:2rem;margin-top:3rem}
   .episode{background:#222;padding:2rem;border-radius:12px}
 </style>
@@ -28,14 +45,7 @@
   </div>
 </header>
 
-<div class="hero-carousel"></div>
 
-<main>
-  <h1>Latest Episodes</h1>
-  <div class="episodes">
-    <div class="episode"><h2>Coming soon…</h2><p>Episodes will appear here automatically when you add them.</p></div>
-  </div>
-</main>
 
 <script>
 const pages=[
