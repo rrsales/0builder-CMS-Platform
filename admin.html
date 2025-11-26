@@ -1,165 +1,117 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Site Admin — Static JSON Editor</title>
-<style>
-  :root{--bg:#0b1220;--card:#071227;--muted:#9fb0c8;--accent:#06b6d4;--glass:rgba(255,255,255,0.03)}
-  html,body{height:100%;margin:0;background:linear-gradient(180deg,#041322 0%, #071b2a 100%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;color:#e6eef6}
-  .app{max-width:1100px;margin:20px auto;padding:18px}
-  header{display:flex;align-items:center;gap:12px}
-  h1{font-size:18px;margin:0}
-  .grid{display:grid;grid-template-columns:320px 1fr;gap:16px;margin-top:14px}
-  .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
-  .side{height:calc(100vh - 120px);overflow:auto}
-  .main{height:calc(100vh - 120px);overflow:auto}
-  label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
-  input[type=text],select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-  .row{display:flex;gap:8px;align-items:center}
-  .btn{background:var(--accent);border:none;color:#022;padding:8px 12px;border-radius:8px;cursor:pointer}
-  .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-  .list{margin-top:10px}
-  .list-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;background:var(--glass);margin-bottom:8px}
-  .small{font-size:13px;color:var(--muted)}
-  .thumb{width:72px;height:48px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.04)}
-  .controls{display:flex;gap:8px}
-  .checkbox{display:inline-flex;align-items:center;gap:8px}
-  .hero-preview{height:160px;border-radius:8px;background:#031220;display:flex;align-items:center;justify-content:center;color:var(--muted);position:relative;overflow:hidden}
-  .hero-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.4)}
-  pre{white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;font-size:12px;color:var(--muted)}
-  .slide-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
-  .slide-input{flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-  footer{margin-top:12px;display:flex;gap:8px;align-items:center}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Panel — Honest News</title>
+  <style>
+    :root{--bg:#0b1220;--card:#071227;--muted:#9fb0c8;--accent:#06b6d4;--glass:rgba(255,255,255,0.03)}
+    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;color:#e6eef6}
+    .btn{background:var(--accent);border:none;color:#022;padding:8px 12px;border-radius:8px;cursor:pointer}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+    input,select,textarea{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;width:100%}
+    .small{font-size:13px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:320px 1fr;gap:16px;margin:20px}
+    .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+    .list-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;background:var(--glass);margin-bottom:8px}
+    .hero-preview{height:160px;border-radius:8px;background:#031220;display:flex;align-items:center;justify-content:center;color:var(--muted);position:relative;overflow:hidden}
+    .hero-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.4)}
+  </style>
 </head>
 <body>
 
-<div class="app">
-  <header>
-    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#022"/></svg>
-    <div>
-      <h1>Static Admin — GitHub Pages Compatible</h1>
-      <div class="small">Loads <code>data.json</code> from the same folder. Save will download an updated <code>data.json</code> for you to commit.</div>
-    </div>
-  </header>
+<!-- LOGIN PANEL -->
+<div id="adminLogin" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
+  <label>Password</label>
+  <input type="password" id="adminPassword" placeholder="Enter password">
+  <button id="loginBtn" class="btn">Log In</button>
+  <div id="loginMsg" style="color:red;margin-top:8px"></div>
+</div>
 
-  <!-- PASSWORD PROMPT -->
-  <div id="adminLogin" style="margin:20px 0;">
-    <label>Enter Admin Password:</label>
-    <input type="password" id="adminPassword" placeholder="→ PLACE YOUR PASSWORD HERE ←">
-    <button id="loginBtn" class="btn">Login</button>
-    <div class="small" id="loginMsg"></div>
-  </div>
-
-  <!-- MAIN ADMIN PANEL -->
-  <div class="grid" id="adminPanel" style="display:none;">
-    <aside class="card side">
+<!-- ADMIN PANEL -->
+<div id="adminPanel" style="display:none">
+  <div class="grid">
+    <aside class="card">
       <label>Global Settings</label>
-      <div class="checkbox">
-        <input id="transparentHeader" type="checkbox"><label for="transparentHeader" class="small">Transparent header on all pages</label>
-      </div>
-      <div class="small" style="margin-top:8px">Images stored as data-URLs. For larger sites, paste CDN URLs into image fields.</div>
+      <div><input type="checkbox" id="transparentHeader"><label class="small"> Transparent header on all pages</label></div>
 
-      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)"/>
-
+      <hr>
       <label>Image Library</label>
-      <input id="imageUpload" type="file" accept="image/*" multiple>
-      <div id="imageLibrary" class="list" aria-live="polite">
-        <!-- → PLACE UPLOADED IMAGES HERE ← -->
-      </div>
+      <input type="file" id="imageUpload" accept="image/*" multiple>
+      <div id="imageLibrary" class="list"></div>
 
-      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)"/>
-
+      <hr>
       <label>Site Data</label>
-      <div class="row" style="margin-bottom:8px">
-        <button id="downloadJson" class="btn">Download data.json</button>
-        <button id="loadRemote" class="btn secondary">Reload from remote</button>
-      </div>
-      <div class="small">Workflow: edit → Download data.json → commit to your repo → Pages updates on refresh.</div>
+      <button id="downloadJson" class="btn">Download data.json</button>
+      <button id="loadRemote" class="btn secondary">Reload from remote</button>
     </aside>
 
-    <main class="card main">
+    <main class="card">
       <section>
         <label>Pages — Page Manager</label>
         <div style="display:flex;gap:8px;margin-bottom:8px">
-          <input id="newTitle" type="text" placeholder="Page title (eg: Home)">
-          <input id="newSlug" type="text" placeholder="slug (eg: /)">
+          <input id="newTitle" type="text" placeholder="Page title">
+          <input id="newSlug" type="text" placeholder="slug">
           <button id="addPage" class="btn">Add page</button>
         </div>
-        <div id="pagesList" class="list">
-          <!-- → PAGES LIST WILL BE POPULATED HERE ← -->
-        </div>
+        <div id="pagesList" class="list"></div>
       </section>
 
-      <hr style="margin:18px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)"/>
+      <hr>
 
       <section id="pageEditor" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h3 id="editingTitle">Editing — </h3>
-          <div class="controls">
-            <button id="saveBtn" class="btn">Save (download JSON)</button>
-            <button id="deletePageBtn" class="btn secondary">Delete</button>
-          </div>
+        <h3 id="editingTitle">Editing — </h3>
+        <div class="controls">
+          <button id="saveBtn" class="btn">Save</button>
+          <button id="deletePageBtn" class="btn secondary">Delete</button>
         </div>
 
-        <label>Hero — per-page</label>
-        <div style="display:grid;grid-template-columns:1fr 320px;gap:12px;align-items:start">
-          <div>
-            <label>Hero Behavior</label>
-            <select id="heroBehavior">
-              <option value="still">Still Image</option>
-              <option value="parallax">Slow Parallax Scroll</option>
-              <option value="carousel">Auto-Rotating Slides</option>
-              <option value="video">Embedded Video</option>
-              <option value="none">None</option>
-            </select>
+        <label>Hero</label>
+        <select id="heroBehavior">
+          <option value="still">Still Image</option>
+          <option value="parallax">Slow Parallax Scroll</option>
+          <option value="carousel">Auto-Rotating Slides</option>
+          <option value="video">Embedded Video</option>
+          <option value="none">None</option>
+        </select>
 
-            <label style="margin-top:8px">Hero Size</label>
-            <select id="heroSize">
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
-              <option value="full">Full screen</option>
-            </select>
+        <label>Hero Size</label>
+        <select id="heroSize">
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+          <option value="full">Full screen</option>
+        </select>
 
-            <label style="margin-top:8px">Hero Media URL</label>
-            <input id="heroMedia" type="text" placeholder="→ PLACE IMAGE/VIDEO URL HERE ←">
+        <label>Hero Media URL</label>
+        <input id="heroMedia" type="text" placeholder="Image or video URL">
 
-            <label style="margin-top:8px">Slides (carousel)</label>
-            <div id="slidesEditor">
-              <!-- → SLIDE INPUTS WILL APPEAR HERE ← -->
-            </div>
-          </div>
+        <label>Parallax</label>
+        <input type="checkbox" id="heroParallax">
 
-          <div>
-            <div class="hero-preview" id="heroPreview">
-              <div class="small" id="heroModeNote">Hero preview</div>
-            </div>
-          </div>
-        </div>
+        <label>Slides (carousel)</label>
+        <div id="slidesEditor"></div>
 
-        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)"/>
+        <div class="hero-preview" id="heroPreview">Hero Preview</div>
+
+        <hr>
 
         <label>Page content — Rich text blocks</label>
-        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-          <input id="newBlockTitle" type="text" placeholder="Block name (eg: Hero headline)">
-          <button id="addBlock" class="btn secondary">Add block</button>
-        </div>
+        <input id="newBlockTitle" type="text" placeholder="Block name">
+        <button id="addBlock" class="btn secondary">Add block</button>
+        <div id="blocksList" class="list"></div>
 
-        <div id="blocksList" class="list">
-          <!-- → RICH TEXT BLOCKS WILL APPEAR HERE ← -->
-        </div>
+        <hr>
 
-        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)"/>
+        <label>Page colors</label>
+        <input type="color" id="pageBgColor" title="Background color">
+        <input type="color" id="pageTextColor" title="Text color">
 
-        <label>Advanced / JSON Preview</label>
+        <hr>
+
+        <label>JSON Preview</label>
         <pre id="jsonPreview"></pre>
       </section>
-
-      <footer>
-        <div class="small">Last saved: <span id="lastSaved">never</span></div>
-      </footer>
     </main>
   </div>
 </div>
@@ -169,9 +121,8 @@
 
 let data = null;
 let editingPageId = null;
-const ADMIN_PASSWORD = "→ PLACE YOUR PASSWORD HERE ←"; // ← CHANGE THIS PASSWORD AFTER LOGIN
+const ADMIN_PASSWORD = "password123"; // ← CHANGE THIS PASSWORD
 
-// helpers
 function uid(){return 'id-'+Math.random().toString(36).slice(2,9)}
 function q(id){return document.getElementById(id)}
 function escapeHtml(s){ return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
@@ -181,7 +132,7 @@ q('loginBtn').addEventListener('click',()=>{
   const pass = q('adminPassword').value;
   if(pass === ADMIN_PASSWORD){
     q('adminLogin').style.display='none';
-    q('adminPanel').style.display='grid';
+    q('adminPanel').style.display='block';
     initAdmin();
   } else {
     q('loginMsg').textContent='Wrong password!';
@@ -190,220 +141,103 @@ q('loginBtn').addEventListener('click',()=>{
 
 // --- INIT ADMIN ---
 function initAdmin(){
-  // load local data or default
   const local = localStorage.getItem('static_admin_data');
   if(local) data = JSON.parse(local);
   else data = { settings:{transparentHeader:false}, images:[], pages:[] };
   renderAll();
-
-  // wire UI
-  q('transparentHeader').checked = data.settings.transparentHeader;
-  q('transparentHeader').addEventListener('change',()=>{
-    data.settings.transparentHeader = q('transparentHeader').checked;
-    saveLocal();
-  });
-
-  q('imageUpload').addEventListener('change',handleImageUpload);
-  q('downloadJson').addEventListener('click',downloadDataJson);
-  q('loadRemote').addEventListener('click',loadRemote);
-
-  q('addPage').addEventListener('click',()=>{
-    const t=q('newTitle').value.trim()||'Untitled';
-    const s=q('newSlug').value.trim()||('/'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
-    const p={id:uid(),title:t,slug:s,hero:{behavior:'still',size:'medium',media:'',parallax:false,slides:[]},blocks:[]};
-    data.pages.push(p);
-    saveLocal();
-    renderPages();
-    openEditor(p.id);
-    q('newTitle').value=''; q('newSlug').value='';
-  });
-
-  q('saveBtn').addEventListener('click',()=>{
-    if(!editingPageId) return alert('Open a page first');
-    applyPageInputs();
-    saveLocal();
-    downloadDataJson();
-  });
-
-  q('deletePageBtn').addEventListener('click',()=>{
-    if(!editingPageId) return;
-    if(confirm('Delete this page?')){
-      data.pages = data.pages.filter(p=>p.id!==editingPageId);
-      saveLocal(); renderPages(); closeEditor();
-    }
-  });
-
-  q('addBlock').addEventListener('click',()=>{
-    if(!editingPageId) return alert('Open a page');
-    const page = data.pages.find(p=>p.id===editingPageId);
-    const name = q('newBlockTitle').value.trim()||'Block '+(page.blocks.length+1);
-    const b={id:uid(),name,type:'rich-text',content:'<p>Edit me</p>'};
-    page.blocks.push(b);
-    saveLocal(); renderBlocks();
-    q('newBlockTitle').value='';
-  });
-
-  ['heroBehavior','heroSize','heroMedia','heroParallax'].forEach(id=>{
-    const el=q(id);
-    el.addEventListener('input',()=>{ renderHeroPreview(); });
-  });
 }
 
-// --- SAVE / LOCAL ---
-function saveLocal(){
-  localStorage.setItem('static_admin_data',JSON.stringify(data));
+// --- RENDER ---
+function renderAll(){
+  renderPages();
+  renderImages();
   q('jsonPreview').textContent = JSON.stringify(data,null,2);
-  q('lastSaved').textContent = new Date().toLocaleString();
 }
 
-// --- DOWNLOAD JSON ---
-function downloadDataJson(){
-  const content = JSON.stringify(data,null,2);
-  const blob = new Blob([content],{type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download='data.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-}
-
-// --- LOAD REMOTE ---
-async function loadRemote(){
-  try{
-    const res = await fetch('./data.json?_='+Date.now());
-    if(!res.ok) throw new Error('Not found');
-    data = await res.json();
-    saveLocal(); renderAll();
-  } catch(e){ console.warn('Could not load remote, using local or default',e); }
-}
-
-// --- IMAGES ---
-async function handleImageUpload(e){
-  const files = Array.from(e.target.files);
-  for(const f of files){
-    const url = await readFileAsDataURL(f);
-    data.images.unshift({id:uid(),name:f.name,url});
-  }
-  saveLocal(); renderImages();
-  e.target.value='';
-}
-function readFileAsDataURL(file){ return new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); }); }
-function renderImages(){
-  const node = q('imageLibrary'); node.innerHTML='';
-  if(!data.images.length){ node.innerHTML='<div class="small">No images yet.</div>'; return; }
-  data.images.forEach(img=>{
-    const wrap = document.createElement('div'); wrap.className='list-item';
-    const left = document.createElement('div'); left.style.display='flex'; left.style.gap='8px';
-    const im=document.createElement('img'); im.className='thumb'; im.src=img.url;
-    const meta=document.createElement('div'); meta.innerHTML=`<div>${img.name}</div><div class="small">${img.id}</div>`;
-    left.appendChild(im); left.appendChild(meta);
-    const controls = document.createElement('div'); controls.className='controls';
-    const useBtn = document.createElement('button'); useBtn.className='btn secondary'; useBtn.textContent='Use';
-    useBtn.onclick=()=>{ if(editingPageId){ const p = data.pages.find(x=>x.id===editingPageId); p.hero.media=img.url; renderHeroPreview(); saveLocal(); } else alert('Open a page first'); };
-    const delBtn=document.createElement('button'); delBtn.className='btn secondary'; delBtn.textContent='Delete';
-    delBtn.onclick=()=>{ if(confirm('Delete image?')){ data.images=data.images.filter(x=>x.id!==img.id); saveLocal(); renderImages(); } };
-    controls.appendChild(useBtn); controls.appendChild(delBtn);
-    wrap.appendChild(left); wrap.appendChild(controls);
-    node.appendChild(wrap);
-  });
-}
-
-// --- PAGES ---
+// Pages
 function renderPages(){
-  const node=q('pagesList'); node.innerHTML='';
+  const node = q('pagesList');
+  node.innerHTML='';
   data.pages.forEach(p=>{
-    const el=document.createElement('div'); el.className='list-item';
-    const left=document.createElement('div'); left.style.display='flex'; left.style.flexDirection='column';
-    left.innerHTML=`<strong>${escapeHtml(p.title)}</strong><div class="small">${escapeHtml(p.slug)}</div>`;
-    const controls=document.createElement('div'); controls.className='controls';
-    const editBtn=document.createElement('button'); editBtn.className='btn secondary'; editBtn.textContent='Edit';
-    editBtn.onclick=()=>openEditor(p.id);
-    const delBtn=document.createElement('button'); delBtn.className='btn secondary'; delBtn.textContent='Del';
-    delBtn.onclick=()=>{ if(confirm('Delete page?')){ data.pages=data.pages.filter(x=>x.id!==p.id); saveLocal(); renderPages(); if(editingPageId===p.id) closeEditor(); } };
-    controls.appendChild(editBtn); controls.appendChild(delBtn);
-    el.appendChild(left); el.appendChild(controls); node.appendChild(el);
+    const el = document.createElement('div'); el.className='list-item';
+    el.innerHTML=`<strong>${escapeHtml(p.title)}</strong><div class="small">${escapeHtml(p.slug)}</div>`;
+    const edit = document.createElement('button'); edit.className='btn secondary'; edit.textContent='Edit';
+    edit.onclick=()=>openEditor(p.id);
+    const del = document.createElement('button'); del.className='btn secondary'; del.textContent='Del';
+    del.onclick=()=>{ if(confirm('Delete page?')){ data.pages = data.pages.filter(x=>x.id!==p.id); saveLocal(); renderPages(); if(editingPageId===p.id) closeEditor(); } };
+    el.appendChild(edit); el.appendChild(del);
+    node.appendChild(el);
   });
 }
 
-// --- EDITOR ---
+// --- LOCAL STORAGE SAVE ---
+function saveLocal(){ localStorage.setItem('static_admin_data',JSON.stringify(data)); q('jsonPreview').textContent=JSON.stringify(data,null,2); }
+
+// --- OPEN / CLOSE EDITOR ---
 function openEditor(id){
-  editingPageId=id; const page=data.pages.find(p=>p.id===id);
+  editingPageId=id;
+  const page = data.pages.find(p=>p.id===id);
   if(!page) return;
   q('pageEditor').style.display='block';
   q('editingTitle').textContent='Editing — '+page.title;
-  q('heroBehavior').value=page.hero.behavior||'still';
-  q('heroSize').value=page.hero.size||'medium';
-  q('heroMedia').value=page.hero.media||'';
-  q('heroParallax').checked=!!page.hero.parallax;
-  renderSlidesEditor(page.hero.slides||[]);
-  renderBlocks();
-  renderHeroPreview();
-}
-function closeEditor(){ editingPageId=null; q('pageEditor').style.display='none'; }
-function applyPageInputs(){
-  const page = data.pages.find(p=>p.id===editingPageId); if(!page) return;
-  page.hero.behavior=q('heroBehavior').value;
-  page.hero.size=q('heroSize').value;
-  page.hero.media=q('heroMedia').value;
-  page.hero.parallax=q('heroParallax').checked;
-  page.hero.slides = collectSlides();
+  q('heroBehavior').value = page.hero.behavior || 'still';
+  q('heroSize').value = page.hero.size || 'medium';
+  q('heroMedia').value = page.hero.media || '';
+  q('heroParallax').checked = !!page.hero.parallax;
+  q('pageBgColor').value = page.styles?.background || '#ffffff';
+  q('pageTextColor').value = page.styles?.text || '#000000';
 }
 
-// --- SLIDES ---
-function renderSlidesEditor(slides){
-  const c=q('slidesEditor'); c.innerHTML='';
-  slides.forEach((s,i)=>{
-    const row=document.createElement('div'); row.className='slide-row';
-    const input=document.createElement('input'); input.className='slide-input'; input.value=s.image||s; input.dataset.idx=i; input.placeholder='image URL or data-URL';
-    const remove=document.createElement('button'); remove.className='btn secondary'; remove.textContent='Remove';
-    remove.onclick=()=>{ const page=data.pages.find(p=>p.id===editingPageId); page.hero.slides.splice(i,1); saveLocal(); renderSlidesEditor(page.hero.slides); };
-    row.appendChild(input); row.appendChild(remove); c.appendChild(row);
-  });
-  const add=document.createElement('button'); add.className='btn'; add.textContent='Add Slide';
-  add.onclick=()=>{ const page=data.pages.find(p=>p.id===editingPageId); page.hero.slides.push({image:''}); saveLocal(); renderSlidesEditor(page.hero.slides); };
-  c.appendChild(add);
-}
-function collectSlides(){ return [...document.querySelectorAll('.slide-input')].map(e=>({image:e.value.trim()})).filter(x=>x.image); }
+// --- ADD PAGE ---
+q('addPage').addEventListener('click',()=>{
+  const t = q('newTitle').value.trim()||'Untitled';
+  const s = q('newSlug').value.trim()||('/'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+  const p = {id:uid(), title:t, slug:s, hero:{behavior:'still',size:'medium',media:'',parallax:false,slides:[]}, blocks:[], styles:{background:'#ffffff',text:'#000000'}};
+  data.pages.push(p);
+  saveLocal();
+  renderAll();
+  openEditor(p.id);
+  q('newTitle').value=''; q('newSlug').value='';
+});
 
-// --- BLOCKS ---
-function renderBlocks(){
-  const node=q('blocksList'); node.innerHTML='';
-  const page=data.pages.find(p=>p.id===editingPageId);
-  if(!page) return;
-  if(!page.blocks.length) node.innerHTML='<div class="small">No rich text blocks yet.</div>';
-  page.blocks.forEach(b=>{
-    const wrap=document.createElement('div'); wrap.className='list-item';
-    const left=document.createElement('div'); left.style.flex='1';
-    left.innerHTML=`<strong>${escapeHtml(b.name)}</strong><div class="small">Type: ${b.type||'rich-text'}</div>`;
-    const controls=document.createElement('div'); controls.className='controls';
-    const editBtn=document.createElement('button'); editBtn.className='btn secondary'; editBtn.textContent='Edit';
-    editBtn.onclick=()=>{
-      const newName=prompt('Block name',b.name); if(newName!==null){ b.name=newName; const newContent=prompt('HTML content (paste)',b.content||''); if(newContent!==null){ b.content=newContent; saveLocal(); renderBlocks(); } }
-    };
-    const delBtn=document.createElement('button'); delBtn.className='btn secondary'; delBtn.textContent='Del';
-    delBtn.onclick=()=>{ if(confirm('Delete block?')){ page.blocks=page.blocks.filter(x=>x.id!==b.id); saveLocal(); renderBlocks(); } };
-    controls.appendChild(editBtn); controls.appendChild(delBtn);
-    wrap.appendChild(left); wrap.appendChild(controls); node.appendChild(wrap);
-  });
-}
-
-// --- HERO PREVIEW ---
-function renderHeroPreview(){
-  const box=q('heroPreview'); box.innerHTML='';
+// --- SAVE PAGE ---
+q('saveBtn').addEventListener('click',()=>{
+  if(!editingPageId) return alert('Open a page');
   const page = data.pages.find(p=>p.id===editingPageId);
-  const note=document.createElement('div'); note.className='small'; note.style.position='relative'; note.style.zIndex='2';
-  if(!page){ note.textContent='No page open'; box.appendChild(note); return; }
-  note.textContent=`Mode: ${page.hero.behavior||'still'}`; box.appendChild(note);
-  if(page.hero.behavior==='still' && page.hero.media){ const img=document.createElement('img'); img.src=page.hero.media; box.appendChild(img); }
-  if(page.hero.behavior==='carousel' && page.hero.slides && page.hero.slides.length>0){ const img=document.createElement('img'); img.src=page.hero.slides[0].image; box.appendChild(img); }
-  if(page.hero.behavior==='video' && page.hero.media){ const overlay=document.createElement('div'); overlay.className='small'; overlay.style.position='absolute'; overlay.style.bottom='8px'; overlay.style.left='8px'; overlay.style.background='rgba(0,0,0,0.4)'; overlay.style.padding='6px'; overlay.style.borderRadius='6px'; overlay.textContent='Video: '+page.hero.media; box.appendChild(overlay); }
-}
+  page.hero.behavior = q('heroBehavior').value;
+  page.hero.size = q('heroSize').value;
+  page.hero.media = q('heroMedia').value;
+  page.hero.parallax = q('heroParallax').checked;
+  page.styles.background = q('pageBgColor').value;
+  page.styles.text = q('pageTextColor').value;
+  saveLocal();
+  renderAll();
+});
 
-// --- RENDER ALL ---
-function renderAll(){ renderImages(); renderPages(); renderBlocks(); q('jsonPreview').textContent=JSON.stringify(data,null,2); }
+// --- DOWNLOAD JSON ---
+q('downloadJson').addEventListener('click',()=>{
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='data.json'; a.click(); URL.revokeObjectURL(url);
+});
 
+// --- IMAGE UPLOAD ---
+q('imageUpload').addEventListener('change', async(e)=>{
+  const files = Array.from(e.target.files);
+  for(const f of files){
+    const url = await new Promise(res=>{
+      const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f);
+    });
+    data.images.unshift({id:uid(),name:f.name,url});
+  }
+  saveLocal(); renderAll();
+  e.target.value='';
+});
 </script>
-
 
 </body>
 </html>
+
 
 
 
