@@ -2,7 +2,18 @@
   "settings": {
     "transparentHeader": false
   },
-  "images": [],
+  "images": [
+    {
+      "id": "img-1",
+      "name": "Sample Hero 1",
+      "url": "https://images.unsplash.com/photo-1519389951293-7e3e96864eae?q=80&w=2000&auto=format&fit=crop"
+    },
+    {
+      "id": "img-2",
+      "name": "Sample Hero 2",
+      "url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2000&auto=format&fit=crop"
+    }
+  ],
   "pages": [
     {
       "id": "id-home",
@@ -31,13 +42,13 @@
           "id": "block-1",
           "name": "Hero Headline",
           "type": "rich-text",
-          "content": "<h1>Honest News. Biblical Truth.</h1><p>Serving truth with compassion.</p>"
+          "content": "<h1>Welcome to Honest News</h1><p>Your source for Biblical truth.</p>"
         },
         {
           "id": "block-2",
-          "name": "Podcast Promo",
+          "name": "Intro Paragraph",
           "type": "rich-text",
-          "content": "<h2>Daily Podcast</h2><p>New episodes every Sunday</p>"
+          "content": "<p>We serve the community with integrity and compassion, reporting only the truth.</p>"
         }
       ],
       "styles": {
@@ -47,4 +58,5 @@
     }
   ]
 }
+
 
