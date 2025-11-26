@@ -64,3 +64,9 @@
     "B0D9876543"
   ]
 }
+"heroHeight": {
+  "home": "full",
+  "podcast": "medium",
+  "blog": "short",
+  "shop": "full"
+}
