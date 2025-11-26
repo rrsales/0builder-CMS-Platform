@@ -2,7 +2,23 @@
   "settings": {
     "transparentHeader": false
   },
-  "images": [],
+  "images": [
+    {
+      "id": "img-1",
+      "name": "Unsplash 1",
+      "url": "https://images.unsplash.com/photo-1519389951293-7e3e96864eae?q=80&w=2000&auto=format&fit=crop"
+    },
+    {
+      "id": "img-2",
+      "name": "Unsplash 2",
+      "url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2000&auto=format&fit=crop"
+    },
+    {
+      "id": "img-3",
+      "name": "Unsplash 3",
+      "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2000&auto=format&fit=crop"
+    }
+  ],
   "pages": [
     {
       "id": "id-home",
@@ -26,7 +42,72 @@
           }
         ]
       },
-      "blocks": []
+      "blocks": [
+        {
+          "id": "block-1",
+          "name": "Welcome Message",
+          "type": "rich-text",
+          "content": "<h2>Welcome to Honest News</h2><p>Your source for biblical truth and updates.</p>"
+        },
+        {
+          "id": "block-2",
+          "name": "CTA",
+          "type": "rich-text",
+          "content": "<p><a href='/podcast' style='color:#0066cc;'>Listen to our latest podcast</a></p>"
+        }
+      ],
+      "styles": {
+        "background": "#ffffff",
+        "text": "#000000"
+      }
+    },
+    {
+      "id": "id-podcast",
+      "title": "Podcast",
+      "slug": "/podcast",
+      "hero": {
+        "behavior": "video",
+        "size": "large",
+        "media": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "parallax": false,
+        "slides": []
+      },
+      "blocks": [
+        {
+          "id": "block-1",
+          "name": "Podcast Intro",
+          "type": "rich-text",
+          "content": "<h2>Our Podcast</h2><p>Stay updated with weekly discussions and news.</p>"
+        }
+      ],
+      "styles": {
+        "background": "#f0f0f0",
+        "text": "#222222"
+      }
+    },
+    {
+      "id": "id-about",
+      "title": "About",
+      "slug": "/about",
+      "hero": {
+        "behavior": "still",
+        "size": "medium",
+        "media": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2000&auto=format&fit=crop",
+        "parallax": true,
+        "slides": []
+      },
+      "blocks": [
+        {
+          "id": "block-1",
+          "name": "About Us",
+          "type": "rich-text",
+          "content": "<h2>About Honest News</h2><p>We provide biblical truth and insightful commentary.</p>"
+        }
+      ],
+      "styles": {
+        "background": "#ffffff",
+        "text": "#000000"
+      }
     }
   ]
 }
