@@ -1,22 +1,19 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin Panel — Honest News</title>
-  <style>
-    :root{--bg:#0b1220;--card:#071227;--muted:#9fb0c8;--accent:#06b6d4;--glass:rgba(255,255,255,0.03)}
-    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;color:#e6eef6}
-    .btn{background:var(--accent);border:none;color:#022;padding:8px 12px;border-radius:8px;cursor:pointer}
-    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-    input,select,textarea{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;width:100%}
-    .small{font-size:13px;color:var(--muted)}
-    .grid{display:grid;grid-template-columns:320px 1fr;gap:16px;margin:20px}
-    .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
-    .list-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;background:var(--glass);margin-bottom:8px}
-    .hero-preview{height:160px;border-radius:8px;background:#031220;display:flex;align-items:center;justify-content:center;color:var(--muted);position:relative;overflow:hidden}
-    .hero-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.4)}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin Panel — Honest News</title>
+<style>
+  :root{--bg:#0b1220;--card:#071227;--muted:#9fb0c8;--accent:#06b6d4;--glass:rgba(255,255,255,0.03)}
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;color:#e6eef6}
+  .btn{background:var(--accent);border:none;color:#022;padding:8px 12px;border-radius:8px;cursor:pointer}
+  .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+  input,select,textarea{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;width:100%}
+  .small{font-size:13px;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:320px 1fr;gap:16px;margin:20px}
+  .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+</style>
 </head>
 <body>
 
@@ -31,6 +28,7 @@
 <!-- ADMIN PANEL -->
 <div id="adminPanel" style="display:none">
   <div class="grid">
+    <!-- Sidebar -->
     <aside class="card">
       <label>Global Settings</label>
       <div><input type="checkbox" id="transparentHeader"><label class="small"> Transparent header on all pages</label></div>
@@ -46,6 +44,7 @@
       <button id="loadRemote" class="btn secondary">Reload from remote</button>
     </aside>
 
+    <!-- Main panel -->
     <main class="card">
       <section>
         <label>Pages — Page Manager</label>
@@ -65,52 +64,8 @@
           <button id="saveBtn" class="btn">Save</button>
           <button id="deletePageBtn" class="btn secondary">Delete</button>
         </div>
-
-        <label>Hero</label>
-        <select id="heroBehavior">
-          <option value="still">Still Image</option>
-          <option value="parallax">Slow Parallax Scroll</option>
-          <option value="carousel">Auto-Rotating Slides</option>
-          <option value="video">Embedded Video</option>
-          <option value="none">None</option>
-        </select>
-
-        <label>Hero Size</label>
-        <select id="heroSize">
-          <option value="small">Small</option>
-          <option value="medium">Medium</option>
-          <option value="large">Large</option>
-          <option value="full">Full screen</option>
-        </select>
-
-        <label>Hero Media URL</label>
-        <input id="heroMedia" type="text" placeholder="Image or video URL">
-
-        <label>Parallax</label>
-        <input type="checkbox" id="heroParallax">
-
-        <label>Slides (carousel)</label>
-        <div id="slidesEditor"></div>
-
-        <div class="hero-preview" id="heroPreview">Hero Preview</div>
-
-        <hr>
-
-        <label>Page content — Rich text blocks</label>
-        <input id="newBlockTitle" type="text" placeholder="Block name">
-        <button id="addBlock" class="btn secondary">Add block</button>
-        <div id="blocksList" class="list"></div>
-
-        <hr>
-
-        <label>Page colors</label>
-        <input type="color" id="pageBgColor" title="Background color">
-        <input type="color" id="pageTextColor" title="Text color">
-
-        <hr>
-
-        <label>JSON Preview</label>
-        <pre id="jsonPreview"></pre>
+        <!-- Placeholder for future hero, slides, blocks -->
+        <div id="editorContent">Editor will appear here</div>
       </section>
     </main>
   </div>
@@ -123,9 +78,7 @@ let data = null;
 let editingPageId = null;
 const ADMIN_PASSWORD = "password123"; // ← CHANGE THIS PASSWORD
 
-function uid(){return 'id-'+Math.random().toString(36).slice(2,9)}
 function q(id){return document.getElementById(id)}
-function escapeHtml(s){ return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
 
 // --- LOGIN ---
 q('loginBtn').addEventListener('click',()=>{
@@ -144,99 +97,354 @@ function initAdmin(){
   const local = localStorage.getItem('static_admin_data');
   if(local) data = JSON.parse(local);
   else data = { settings:{transparentHeader:false}, images:[], pages:[] };
-  renderAll();
+  console.log('Admin initialized', data);
+}
+</script>
+
+  <script>
+// --- PAGE MANAGER & EDITOR ---
+
+function saveLocal(){
+  localStorage.setItem('static_admin_data', JSON.stringify(data));
+  q('editorContent').textContent = JSON.stringify(data,null,2);
 }
 
-// --- RENDER ---
-function renderAll(){
-  renderPages();
-  renderImages();
-  q('jsonPreview').textContent = JSON.stringify(data,null,2);
-}
-
-// Pages
 function renderPages(){
   const node = q('pagesList');
-  node.innerHTML='';
+  node.innerHTML = '';
   data.pages.forEach(p=>{
-    const el = document.createElement('div'); el.className='list-item';
-    el.innerHTML=`<strong>${escapeHtml(p.title)}</strong><div class="small">${escapeHtml(p.slug)}</div>`;
-    const edit = document.createElement('button'); edit.className='btn secondary'; edit.textContent='Edit';
-    edit.onclick=()=>openEditor(p.id);
-    const del = document.createElement('button'); del.className='btn secondary'; del.textContent='Del';
-    del.onclick=()=>{ if(confirm('Delete page?')){ data.pages = data.pages.filter(x=>x.id!==p.id); saveLocal(); renderPages(); if(editingPageId===p.id) closeEditor(); } };
-    el.appendChild(edit); el.appendChild(del);
+    const el = document.createElement('div');
+    el.className='list-item';
+    el.style.display='flex';
+    el.style.justifyContent='space-between';
+    el.style.marginBottom='4px';
+    el.innerHTML = `<strong>${escapeHtml(p.title)}</strong> <div>
+      <button class="btn secondary">Edit</button>
+      <button class="btn secondary">Del</button>
+    </div>`;
+    const [editBtn, delBtn] = el.querySelectorAll('button');
+    editBtn.addEventListener('click',()=>openEditor(p.id));
+    delBtn.addEventListener('click',()=>{
+      if(confirm('Delete this page?')){
+        data.pages = data.pages.filter(x=>x.id!==p.id);
+        saveLocal(); renderPages();
+        if(editingPageId===p.id) closeEditor();
+      }
+    });
     node.appendChild(el);
   });
 }
 
-// --- LOCAL STORAGE SAVE ---
-function saveLocal(){ localStorage.setItem('static_admin_data',JSON.stringify(data)); q('jsonPreview').textContent=JSON.stringify(data,null,2); }
-
-// --- OPEN / CLOSE EDITOR ---
-function openEditor(id){
-  editingPageId=id;
-  const page = data.pages.find(p=>p.id===id);
-  if(!page) return;
-  q('pageEditor').style.display='block';
-  q('editingTitle').textContent='Editing — '+page.title;
-  q('heroBehavior').value = page.hero.behavior || 'still';
-  q('heroSize').value = page.hero.size || 'medium';
-  q('heroMedia').value = page.hero.media || '';
-  q('heroParallax').checked = !!page.hero.parallax;
-  q('pageBgColor').value = page.styles?.background || '#ffffff';
-  q('pageTextColor').value = page.styles?.text || '#000000';
-}
-
-// --- ADD PAGE ---
 q('addPage').addEventListener('click',()=>{
   const t = q('newTitle').value.trim()||'Untitled';
   const s = q('newSlug').value.trim()||('/'+t.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
-  const p = {id:uid(), title:t, slug:s, hero:{behavior:'still',size:'medium',media:'',parallax:false,slides:[]}, blocks:[], styles:{background:'#ffffff',text:'#000000'}};
+  const p = {id:uid(), title:t, slug:s, hero:{behavior:'still',size:'medium',media:'',parallax:false,slides:[]}, blocks:[]};
   data.pages.push(p);
-  saveLocal();
-  renderAll();
+  saveLocal(); renderPages();
   openEditor(p.id);
   q('newTitle').value=''; q('newSlug').value='';
 });
 
-// --- SAVE PAGE ---
+function openEditor(id){
+  editingPageId = id;
+  const page = data.pages.find(p=>p.id===id);
+  if(!page) return;
+  q('pageEditor').style.display='block';
+  q('editingTitle').textContent = 'Editing — '+page.title;
+  q('editorContent').textContent = JSON.stringify(page,null,2);
+
+  // Make title/slug editable live
+  q('editingTitle').innerHTML = `Editing — <input type="text" id="editTitle" value="${escapeHtml(page.title)}"> <input type="text" id="editSlug" value="${escapeHtml(page.slug)}">`;
+  q('editTitle').addEventListener('input',()=>{ page.title=q('editTitle').value; saveLocal(); renderPages(); });
+  q('editSlug').addEventListener('input',()=>{ page.slug=q('editSlug').value; saveLocal(); });
+}
+
+function closeEditor(){
+  editingPageId=null;
+  q('pageEditor').style.display='none';
+}
+
+// Save button placeholder
 q('saveBtn').addEventListener('click',()=>{
-  if(!editingPageId) return alert('Open a page');
-  const page = data.pages.find(p=>p.id===editingPageId);
-  page.hero.behavior = q('heroBehavior').value;
-  page.hero.size = q('heroSize').value;
-  page.hero.media = q('heroMedia').value;
-  page.hero.parallax = q('heroParallax').checked;
-  page.styles.background = q('pageBgColor').value;
-  page.styles.text = q('pageTextColor').value;
+  if(!editingPageId) return alert('Open a page first');
   saveLocal();
-  renderAll();
 });
 
-// --- DOWNLOAD JSON ---
-q('downloadJson').addEventListener('click',()=>{
-  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='data.json'; a.click(); URL.revokeObjectURL(url);
-});
-
-// --- IMAGE UPLOAD ---
-q('imageUpload').addEventListener('change', async(e)=>{
-  const files = Array.from(e.target.files);
-  for(const f of files){
-    const url = await new Promise(res=>{
-      const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f);
-    });
-    data.images.unshift({id:uid(),name:f.name,url});
+// Delete page button
+q('deletePageBtn').addEventListener('click',()=>{
+  if(!editingPageId) return;
+  if(confirm('Delete this page?')){
+    data.pages = data.pages.filter(p=>p.id!==editingPageId);
+    saveLocal(); renderPages(); closeEditor();
   }
-  saveLocal(); renderAll();
-  e.target.value='';
 });
+
+// Helper functions
+function uid(){return 'id-'+Math.random().toString(36).slice(2,9)}
+function escapeHtml(s){ return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+// Initial render if data exists
+if(data) renderPages();
+
+</script>
+
+  <script>
+// --- HERO & SLIDES ---
+
+// Add hero controls to the page editor
+function renderHeroControls(page){
+  const container = q('editorContent');
+  container.innerHTML = `
+    <label>Hero Behavior:</label>
+    <select id="heroBehavior">
+      <option value="still">Still Image</option>
+      <option value="parallax">Slow Parallax Scroll</option>
+      <option value="carousel">Auto-Rotating Slides</option>
+      <option value="video">Embedded Video</option>
+      <option value="none">None</option>
+    </select>
+
+    <label>Hero Size:</label>
+    <select id="heroSize">
+      <option value="small">Small</option>
+      <option value="medium">Medium</option>
+      <option value="large">Large</option>
+      <option value="full">Full screen</option>
+    </select>
+
+    <label>Hero Media URL:</label>
+    <input type="text" id="heroMedia" placeholder="Image or video URL">
+
+    <div id="slidesEditor"></div>
+    <div id="heroPreview" style="height:160px;background:#031220;color:#9fb0c8;margin-top:8px;display:flex;align-items:center;justify-content:center;">Hero preview</div>
+  `;
+
+  q('heroBehavior').value = page.hero.behavior;
+  q('heroSize').value = page.hero.size;
+  q('heroMedia').value = page.hero.media;
+
+  // Hero behavior live update
+  ['heroBehavior','heroSize','heroMedia'].forEach(id=>{
+    q(id).addEventListener('input',()=>{
+      page.hero.behavior=q('heroBehavior').value;
+      page.hero.size=q('heroSize').value;
+      page.hero.media=q('heroMedia').value;
+      renderHeroPreview(page);
+      saveLocal();
+    });
+  });
+
+  renderSlidesEditor(page);
+  renderHeroPreview(page);
+}
+
+// Slides editor
+function renderSlidesEditor(page){
+  const container = q('slidesEditor');
+  container.innerHTML='<label>Slides (carousel)</label>';
+  if(!page.hero.slides) page.hero.slides=[];
+  page.hero.slides.forEach((s,i)=>{
+    const row = document.createElement('div');
+    row.style.display='flex'; row.style.gap='4px'; row.style.marginBottom='4px';
+    const input = document.createElement('input');
+    input.value = s || '';
+    input.placeholder = 'Slide URL';
+    input.style.flex='1';
+    input.addEventListener('input',()=>{ page.hero.slides[i]=input.value; renderHeroPreview(page); saveLocal(); });
+    const remove = document.createElement('button');
+    remove.textContent='Remove';
+    remove.className='btn secondary';
+    remove.addEventListener('click',()=>{
+      page.hero.slides.splice(i,1);
+      renderSlidesEditor(page);
+      renderHeroPreview(page);
+      saveLocal();
+    });
+    row.appendChild(input);
+    row.appendChild(remove);
+    container.appendChild(row);
+  });
+  const add = document.createElement('button');
+  add.textContent='Add Slide';
+  add.className='btn';
+  add.addEventListener('click',()=>{
+    page.hero.slides.push('');
+    renderSlidesEditor(page);
+    renderHeroPreview(page);
+    saveLocal();
+  });
+  container.appendChild(add);
+}
+
+// Hero preview
+function renderHeroPreview(page){
+  const box = q('heroPreview');
+  box.innerHTML='';
+  const note = document.createElement('div');
+  note.style.position='absolute'; note.style.zIndex='2'; note.style.color='#9fb0c8';
+  note.textContent = `Mode: ${page.hero.behavior}`;
+  box.appendChild(note);
+
+  if(page.hero.behavior==='still' && page.hero.media){
+    const img = document.createElement('img');
+    img.src=page.hero.media;
+    img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
+    box.appendChild(img);
+  }
+  if(page.hero.behavior==='carousel' && page.hero.slides.length>0){
+    const img = document.createElement('img');
+    img.src=page.hero.slides[0];
+    img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
+    box.appendChild(img);
+  }
+  if(page.hero.behavior==='video' && page.hero.media){
+    const overlay = document.createElement('div');
+    overlay.textContent='Video: '+page.hero.media;
+    overlay.style.position='absolute'; overlay.style.bottom='4px'; overlay.style.left='4px';
+    overlay.style.background='rgba(0,0,0,0.4)'; overlay.style.padding='4px'; overlay.style.borderRadius='4px';
+    box.appendChild(overlay);
+  }
+}
+
+// Override openEditor to include hero controls
+const originalOpenEditor = openEditor;
+openEditor = function(id){
+  originalOpenEditor(id);
+  const page = data.pages.find(p=>p.id===id);
+  if(page) renderHeroControls(page);
+};
+</script>
+
+  <script>
+// --- HERO & SLIDES ---
+
+// Add hero controls to the page editor
+function renderHeroControls(page){
+  const container = q('editorContent');
+  container.innerHTML = `
+    <label>Hero Behavior:</label>
+    <select id="heroBehavior">
+      <option value="still">Still Image</option>
+      <option value="parallax">Slow Parallax Scroll</option>
+      <option value="carousel">Auto-Rotating Slides</option>
+      <option value="video">Embedded Video</option>
+      <option value="none">None</option>
+    </select>
+
+    <label>Hero Size:</label>
+    <select id="heroSize">
+      <option value="small">Small</option>
+      <option value="medium">Medium</option>
+      <option value="large">Large</option>
+      <option value="full">Full screen</option>
+    </select>
+
+    <label>Hero Media URL:</label>
+    <input type="text" id="heroMedia" placeholder="Image or video URL">
+
+    <div id="slidesEditor"></div>
+    <div id="heroPreview" style="height:160px;background:#031220;color:#9fb0c8;margin-top:8px;display:flex;align-items:center;justify-content:center;">Hero preview</div>
+  `;
+
+  q('heroBehavior').value = page.hero.behavior;
+  q('heroSize').value = page.hero.size;
+  q('heroMedia').value = page.hero.media;
+
+  // Hero behavior live update
+  ['heroBehavior','heroSize','heroMedia'].forEach(id=>{
+    q(id).addEventListener('input',()=>{
+      page.hero.behavior=q('heroBehavior').value;
+      page.hero.size=q('heroSize').value;
+      page.hero.media=q('heroMedia').value;
+      renderHeroPreview(page);
+      saveLocal();
+    });
+  });
+
+  renderSlidesEditor(page);
+  renderHeroPreview(page);
+}
+
+// Slides editor
+function renderSlidesEditor(page){
+  const container = q('slidesEditor');
+  container.innerHTML='<label>Slides (carousel)</label>';
+  if(!page.hero.slides) page.hero.slides=[];
+  page.hero.slides.forEach((s,i)=>{
+    const row = document.createElement('div');
+    row.style.display='flex'; row.style.gap='4px'; row.style.marginBottom='4px';
+    const input = document.createElement('input');
+    input.value = s || '';
+    input.placeholder = 'Slide URL';
+    input.style.flex='1';
+    input.addEventListener('input',()=>{ page.hero.slides[i]=input.value; renderHeroPreview(page); saveLocal(); });
+    const remove = document.createElement('button');
+    remove.textContent='Remove';
+    remove.className='btn secondary';
+    remove.addEventListener('click',()=>{
+      page.hero.slides.splice(i,1);
+      renderSlidesEditor(page);
+      renderHeroPreview(page);
+      saveLocal();
+    });
+    row.appendChild(input);
+    row.appendChild(remove);
+    container.appendChild(row);
+  });
+  const add = document.createElement('button');
+  add.textContent='Add Slide';
+  add.className='btn';
+  add.addEventListener('click',()=>{
+    page.hero.slides.push('');
+    renderSlidesEditor(page);
+    renderHeroPreview(page);
+    saveLocal();
+  });
+  container.appendChild(add);
+}
+
+// Hero preview
+function renderHeroPreview(page){
+  const box = q('heroPreview');
+  box.innerHTML='';
+  const note = document.createElement('div');
+  note.style.position='absolute'; note.style.zIndex='2'; note.style.color='#9fb0c8';
+  note.textContent = `Mode: ${page.hero.behavior}`;
+  box.appendChild(note);
+
+  if(page.hero.behavior==='still' && page.hero.media){
+    const img = document.createElement('img');
+    img.src=page.hero.media;
+    img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
+    box.appendChild(img);
+  }
+  if(page.hero.behavior==='carousel' && page.hero.slides.length>0){
+    const img = document.createElement('img');
+    img.src=page.hero.slides[0];
+    img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
+    box.appendChild(img);
+  }
+  if(page.hero.behavior==='video' && page.hero.media){
+    const overlay = document.createElement('div');
+    overlay.textContent='Video: '+page.hero.media;
+    overlay.style.position='absolute'; overlay.style.bottom='4px'; overlay.style.left='4px';
+    overlay.style.background='rgba(0,0,0,0.4)'; overlay.style.padding='4px'; overlay.style.borderRadius='4px';
+    box.appendChild(overlay);
+  }
+}
+
+// Override openEditor to include hero controls
+const originalOpenEditor = openEditor;
+openEditor = function(id){
+  originalOpenEditor(id);
+  const page = data.pages.find(p=>p.id===id);
+  if(page) renderHeroControls(page);
+};
 </script>
 
 </body>
 </html>
+
 
 
 
