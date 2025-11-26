@@ -1,18 +1,32 @@
 {
-  "heroSlides": [
+  "settings": {
+    "transparentHeader": false
+  },
+  "images": [],
+  "pages": [
     {
-      "image": "https://images.unsplash.com/photo-1519389951293-7e3e96864eae?q=80&w=2000&auto=format&fit=crop",
-      "title": "Honest News. Biblical Truth.",
-      "subtitle": "Serving truth with compassion."
-    },
-    {
-      "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2000&auto=format&fit=crop",
-      "title": "Daily Podcast",
-      "subtitle": "New episodes every Sunday"
+      "id": "id-home",
+      "title": "Home",
+      "slug": "/",
+      "hero": {
+        "behavior": "carousel",
+        "size": "full",
+        "media": "",
+        "parallax": false,
+        "slides": [
+          {
+            "image": "https://images.unsplash.com/photo-1519389951293-7e3e96864eae?q=80&w=2000&auto=format&fit=crop",
+            "title": "Honest News. Biblical Truth.",
+            "subtitle": "Serving truth with compassion."
+          },
+          {
+            "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2000&auto=format&fit=crop",
+            "title": "Daily Podcast",
+            "subtitle": "New episodes every Sunday"
+          }
+        ]
+      },
+      "blocks": []
     }
-  ],
-  "colors": {
-    "primary": "#0066cc",
-    "accent": "#00cc99"
-  }
+  ]
 }
