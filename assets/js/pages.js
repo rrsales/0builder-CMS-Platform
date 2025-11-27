@@ -1,33 +1,37 @@
-// pages.js — dynamic navigation
-const pages = [
+// pages.js
+// Fallback pages (used if admin hasn't created pages yet)
+const PAGES_FALLBACK = [
   { title: "Home", url: "index.html" },
   { title: "About", url: "about.html" },
   { title: "Blog", url: "blog.html" },
   { title: "Podcast", url: "podcast.html" },
-  { title: "Shop", url: "shop.html" },
   { title: "Products", url: "products.html" },
-  { title: "Contact", url: "contact.html" },
-  { title: "Donate", url: "donate.html" },
-  { title: "Events", url: "events.html" },
-  { title: "Privacy", url: "privacy.html" },
-  { title: "Support", url: "support.html" },
-  { title: "Admin", url: "site-admin.html" }
+  { title: "Contact", url: "contact.html" }
 ];
 
-function generateNav() {
-  const navs = document.querySelectorAll(".nav-menu");
-  navs.forEach(nav => {
-    nav.innerHTML = "";
-    pages.forEach(page => {
-      const link = document.createElement("a");
-      link.href = page.url;
-      link.textContent = page.title;
-      nav.appendChild(link);
-    });
-  });
+// Helper: get siteData from localStorage if present (admin writes this)
+function getSiteData() {
+  try {
+    const raw = localStorage.getItem(SITE_CONFIG.storageKey);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Failed to parse siteData", e);
+    return null;
+  }
 }
 
-document.addEventListener("DOMContentLoaded", generateNav);
+// Get pages: prefer admin-managed pages, fall back to hard-coded
+function getPages() {
+  const sd = getSiteData();
+  if (sd && Array.isArray(sd.pages) && sd.pages.length) return sd.pages;
+  return PAGES_FALLBACK;
+}
+
+// Expose small helper
+window.SitePages = {
+  getPages
+};
 
 
 
