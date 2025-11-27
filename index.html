@@ -1,343 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Honest News Network — Home</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <script src="https://cdn.jsdelivr.net/gh/rrsales/Honest-News@master/live.js"></script>
-
+  <meta charset="UTF-8">
+  <title>Honest News Network – Biblical Podcast Hosting</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Roboto', sans-serif; line-height: 1.6; background: #fff; color: #333; }
-
-    /* Header */
-    header {
-      background: rgba(0,0,0,0.15);
-      color: white;
-      padding: 1rem 0;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000;
-      transition: background 0.4s ease;
-    }
-    header.scrolled {
-      background: rgba(0,0,0,0.85);
-    }
-    .site-inner {
-      max-width: 1200px;
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 1rem;
-    }
-    .logo {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: white;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.7);
-    }
-
-    nav ul { list-style: none; display: flex; gap: 2rem; }
-    nav a { color: white; text-decoration: none; font-weight: 600; }
-
-    .mobile-menu-toggle {
-      display: none;
-      background: none;
-      border: none;
-      font-size: 2rem;
-      color: white;
-      cursor: pointer;
-    }
-
-    @media (max-width: 768px) {
-      nav ul {
-        position: absolute;
-        top: 100%; left: 0; right: 0;
-        background: #111;
-        flex-direction: column;
-        display: none;
-        padding: 1rem 0;
-        text-align: center;
-      }
-      nav ul.active {
-        display: flex;
-      }
-      .mobile-menu-toggle {
-        display: block;
-      }
-    }
-
-    /* Hero */
-    .hero-carousel {
-      position: relative;
-      height: 80vh;
-      min-height: 500px;
-      overflow: hidden;
-    }
-
-    .slide {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%;
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      transition: opacity 0.8s ease;
-    }
-    .slide.active { opacity: 1; }
-    .slide::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-    }
-    .slide-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      color: white;
-      max-width: 900px;
-      padding: 2rem;
-    }
-    .slide-content h1 {
-      font-size: 3.5rem;
-      margin-bottom: 1rem;
-    }
-    .slide-content p {
-      font-size: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .arrow {
-      position: absolute;
-      top: 50%; transform: translateY(-50%);
-      background: rgba(0,0,0,0.4);
-      color: white;
-      border: none;
-      height: 50px; width: 50px;
-      font-size: 2rem;
-      cursor: pointer;
-      z-index: 5;
-    }
-    .prev { left: 20px; }
-    .next { right: 20px; }
-
-    .dots {
-      position: absolute;
-      bottom: 20px;
-      left: 50%; transform: translateX(-50%);
-      display: flex;
-      gap: 12px;
-      z-index: 5;
-    }
-    .dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.5);
-      cursor: pointer;
-    }
-    .dot.active { background: white; }
-
-    main { margin-top: 80px; }
-
-    /* Podbean Style Sections */
-    .section {
-      max-width: 1200px;
-      margin: auto;
-      padding: 6rem 1rem;
-      text-align: center;
-    }
-    .section h2 {
-      font-size: 3rem;
-      margin-bottom: 2rem;
-    }
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 4rem;
-    }
-    .feature {
-      background: #f9f9f9;
-      padding: 2rem;
-      border-radius: 12px;
-      transition: 0.3s;
-    }
-    .feature:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      gap: 2rem;
-    }
-    .stat h3 {
-      font-size: 3rem;
-      font-weight: bold;
-      color: #0066cc;
-    }
-
-    .trust {
-      display: flex;
-      justify-content: center;
-      gap: 3rem;
-      flex-wrap: wrap;
-      margin: 4rem 0;
-    }
-    .trust img { height: 40px; }
-
-    .cta {
-      background: #0066cc;
-      color: white;
-      padding: 4rem 1rem;
-      text-align: center;
-    }
-    .cta h2 { font-size: 2.5rem; }
-    .cta .btn { background: white; color: #0066cc; }
-
-    .btn {
-      padding: 1rem 2.5rem;
-      background: #0066cc;
-      color: white;
-      border-radius: 6px;
-      text-decoration: none;
-      display: inline-block;
-      font-weight: 600;
-      margin-top: 1rem;
-    }
-
-    footer {
-      background: #111;
-      color: white;
-      text-align: center;
-      padding: 2rem;
-      margin-top: 4rem;
-    }
-
-    #backTop {
-      position: fixed;
-      bottom: 20px; right: 20px;
-      background: #111;
-      color: white;
-      border: none;
-      padding: 12px 16px;
-      border-radius: 50%;
-      font-size: 1.5rem;
-      display: none;
-      cursor: pointer;
-    }
+    :root { --primary: #0066cc; --accent: #28a745; --bg: #f8f9fa; }
+    body { font-family: system-ui, sans-serif; margin: 0; line-height: 1.6; color: #333; }
+    .hero { height: 100vh; background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920') center/cover fixed; display: flex; align-items: center; justify-content: center; text-align: center; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+    .hero p { font-size: 1.2rem; margin-bottom: 2rem; }
+    .cta { background: var(--accent); color: white; padding: 15px 30px; border: none; border-radius: 6px; font-size: 1.1rem; cursor: pointer; text-decoration: none; display: inline-block; }
+    .cta:hover { background: #218838; }
+    section { padding: 60px 20px; max-width: 1200px; margin: 0 auto; }
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+    .feature { text-align: center; }
+    .feature i { font-size: 3rem; color: var(--primary); margin-bottom: 1rem; }
+    .stats { background: var(--bg); text-align: center; }
+    .stat { display: inline-block; margin: 0 2rem; }
+    .stat h3 { font-size: 2.5rem; color: var(--primary); }
+    footer { background: #333; color: white; text-align: center; padding: 20px; }
+    form { max-width: 400px; margin: 2rem auto; }
+    input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+    button[type="submit"] { background: var(--accent); color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
 <body>
-
-<header>
-  <div class="site-inner">
-    <div class="logo">Honest News Network</div>
-    <nav>
-      <ul id="nav-menu"></ul>
-      <button class="mobile-menu-toggle">☰</button>
-    </nav>
+  <!-- Hero Banner (Podbean-Style) -->
+  <div class="hero">
+    <div>
+      <h1>Everything for Biblical Podcasts</h1>
+      <p>Host, edit, distribute, and monetize your faith-based episodes – free to start.</p>
+      <a href="#signup" class="cta">Get Started Free</a>
+    </div>
   </div>
-</header>
 
-<div class="hero-carousel">
-  <button class="arrow prev">‹</button>
-  <button class="arrow next">›</button>
-  <div class="dots"></div>
-</div>
-
-<main>
-  <section class="section">
-    <h2>Everything You Need for Biblical Truth</h2>
-    <p>From recording to reaching thousands – all in one place.</p>
-
+  <!-- Create & Publish -->
+  <section id="create">
+    <h2 style="text-align: center;">Create & Publish with Ease</h2>
     <div class="features">
       <div class="feature">
-        <h3>Create Podcasts</h3>
-        <p>Record, edit, and publish episodes with AI noise reduction and transcripts.</p>
+        <i class="fas fa-microphone"></i>
+        <h3>Record Anywhere</h3>
+        <p>Use our app for mobile recording – perfect for sermons on the go.</p>
       </div>
       <div class="feature">
-        <h3>Promote & Grow</h3>
-        <p>Distribute to Spotify, Apple Podcasts, YouTube, and more.</p>
+        <i class="fas fa-magic"></i>
+        <h3>AI Editing</h3>
+        <p>Noise reduction, auto-transcripts, and filler-word removal for crystal-clear truth.</p>
       </div>
       <div class="feature">
-        <h3>Monetize with Amazon</h3>
-        <p>Earn from book and resource recommendations.</p>
+        <i class="fas fa-upload"></i>
+        <h3>One-Click Publish</h3>
+        <p>Upload audio/video and go live across platforms.</p>
       </div>
     </div>
   </section>
 
-  <section class="section stats">
-    <div class="stat"><h3>1,000+</h3><p>Episodes Hosted</p></div>
-    <div class="stat"><h3>50K+</h3><p>Listeners Reached</p></div>
-    <div class="stat"><h3>100%</h3><p>Biblical Truth</p></div>
+  <!-- Grow & Monetize -->
+  <section id="grow" style="background: var(--bg);">
+    <h2 style="text-align: center;">Grow & Monetize Your Ministry</h2>
+    <div class="features">
+      <div class="feature">
+        <i class="fas fa-share-alt"></i>
+        <h3>Global Distribution</h3>
+        <p>Auto-submit to Spotify, Apple Podcasts, YouTube – reach thousands with the Gospel.</p>
+        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 1rem;">
+          <i class="fab fa-spotify" style="font-size: 2rem; color: #1db954;"></i>
+          <i class="fab fa-apple" style="font-size: 2rem; color: #999;"></i>
+          <i class="fab fa-youtube" style="font-size: 2rem; color: #ff0000;"></i>
+        </div>
+      </div>
+      <div class="feature">
+        <i class="fas fa-dollar-sign"></i>
+        <h3>Earn with Amazon</h3>
+        <p>Embed affiliate links for Bibles/books – turn listeners into supporters.</p>
+        <a href="https://www.amazon.com" class="cta" style="display: inline-block; margin-top: 1rem;">Shop Now</a>
+      </div>
+      <div class="feature">
+        <i class="fas fa-chart-line"></i>
+        <h3>Analytics</h3>
+        <p>Track downloads, listener demographics – measure your impact.</p>
+      </div>
+    </div>
   </section>
 
-  <section class="section trust">
-    <img src="https://via.placeholder.com/100x40/0066cc/ffffff?text=Spotify" />
-    <img src="https://via.placeholder.com/100x40/0066cc/ffffff?text=Apple" />
-    <img src="https://via.placeholder.com/100x40/0066cc/ffffff?text=YouTube" />
+  <!-- Stats (Podbean Trust Signals) -->
+  <section class="stats">
+    <h2 style="text-align: center;">Join 1,000+ Ministries Worldwide</h2>
+    <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
+      <div class="stat"><h3>1K+</h3><p>Episodes Hosted</p></div>
+      <div class="stat"><h3>50K+</h3><p>Listeners Reached</p></div>
+      <div class="stat"><h3>100%</h3><p>Biblical Truth</p></div>
+    </div>
   </section>
 
-  <section class="section">
-    <h2>Start Your Truth Journey</h2>
-    <p>Your platform for biblical teaching and honest news.</p>
-    <a href="podcast.html" class="btn">Get Started Free</a>
+  <!-- Sign-Up CTA -->
+  <section id="signup">
+    <h2 style="text-align: center;">Start Your Podcast Journey</h2>
+    <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST"> <!-- Replace with your Formspree ID -->
+      <input type="email" name="email" placeholder="Your email" required>
+      <input type="text" name="podcast" placeholder="Podcast Name">
+      <textarea name="message" placeholder="Tell us about your ministry"></textarea>
+      <button type="submit">Get Started Free</button>
+    </form>
   </section>
-</main>
 
-<section class="cta">
-  <h2>Ready to Share Biblical Truth?</h2>
-  <p>Join thousands who trust us for honest teaching.</p>
-  <a href="support.html" class="btn">Support Now</a>
-</section>
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Honest News Network | <a href="support.html" style="color: white;">Support</a> | <a href="podcast.html" style="color: white;">Podcasts</a></p>
+  </footer>
 
-<footer>
-  © 2025 Honest News Network | <a href="admin.html" style="color:white">Admin</a>
-</footer>
-
-<button id="backTop">↑</button>
-
-<script>
-const pages = [
-  { name: "Home", url: "index.html" },
-  { name: "Podcast", url: "podcast.html" },
-  { name: "Blog", url: "blog.html" },
-  { name: "Shop", url: "shop.html" },
-  { name: "Events", url: "events.html" },
-  { name: "Support", url: "support.html" },
-  { name: "Contact", url: "contact.html" }
-];
-
-document.addEventListener("DOMContentLoaded", () => {
-  const menu = document.getElementById("nav-menu");
-  menu.innerHTML = pages.map(p => `<li><a href="${p.url}">${p.name}</a></li>`).join("");
-
-  document.querySelector(".mobile-menu-toggle").addEventListener("click", () => {
-    menu.classList.toggle("active");
-  });
-
-  const btn = document.getElementById("backTop");
-  window.addEventListener("scroll", () => {
-    btn.style.display = window.scrollY > 300 ? "block" : "none";
-    document.querySelector("header").classList.toggle("scrolled", window.scrollY > 100);
-  });
-  btn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
-});
-</script>
+  <script>
+    // Simple parallax enhancement (if hero image changes via admin)
+    window.addEventListener('scroll', () => {
+      const scrolled = window.pageYOffset;
+      const hero = document.querySelector('.hero');
+      hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+    });
+  </script>
+</body>
+</html>
 
 </body>
 </html>
