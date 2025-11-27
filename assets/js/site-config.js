@@ -15,3 +15,10 @@ const SITE_CONFIG = {
 
 if (SITE_CONFIG.debug) console.log("Site config loaded", SITE_CONFIG);
 
+// site-config.js - site-wide config
+const SITE = {
+  name: "Honest News Network",
+  version: "1.0",
+  debug: false
+};
+console.log("site-config loaded", SITE);
