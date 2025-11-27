@@ -1,278 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Honest News – Site Editor</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    body { margin: 0; font-family: system-ui, sans-serif; background: #f8fafc; color: #1e293b; height: 100vh; display: flex; flex-direction: column; }
-    .header { background: white; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-    .header h1 { margin: 0; font-size: 1.4rem; }
-    .header button { background: #4338ca; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-    .main { flex: 1; display: flex; overflow: hidden; }
-    .sidebar { width: 280px; background: white; border-right: 1px solid #e5e7eb; padding: 20px; overflow-y: auto; }
-    .page-item { padding: 16px; margin: 8px 0; background: #f8fafc; border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: 600; }
-    .page-item:hover, .page-item.active { background: #e0e7ff; }
-    .content { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
-    .card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-    input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #d1d5db; background: white; font-size: 16px; box-sizing: border-box; }
-    button { background: #4338ca; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; margin: 10px 5px 0 0; }
-    button:hover { background: #3730a3; }
-    button.small { padding: 8px 16px; font-size: 14px; }
-    .block { margin: 20px 0; padding: 20px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; position: relative; min-height: 50px; }
-    .block:hover { border-color: #4338ca; }
-    .block-tools { position: absolute; top: 8px; right: 8px; opacity: 0; transition: 0.2s; }
-    .block:hover .block-tools { opacity: 1; }
-    .block-tools button { background: none; border: none; cursor: pointer; font-size: 18px; margin: 0 4px; color: #6366f1; }
-    .preview { margin-top: 40px; padding: 30px; background: #f8fafc; border-radius: 12px; border: 1px solid #e5e7eb; min-height: 400px; }
-    .hero-preview { height: 300px; background: center/cover no-repeat; border-radius: 8px; margin: 20px 0; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-    .hero-preview::before { content: attr(data-overlay); position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold; text-shadow: 0 0 20px black; background: rgba(0,0,0,0.5); }
-    @media (max-width: 768px) { .sidebar { width: 100%; height: auto; } .content { padding: 20px; } }
-  </style>
+<meta charset="UTF-8">
+<title>Honest News – Admin Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body,html{margin:0;height:100%;font-family:system-ui,sans-serif;background:#0d1117;color:white;display:flex;align-items:center;justify-content:center}
+  .login-box{background:#161b22;padding:60px 50px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.6);text-align:center;width:380px;border:1px solid #30363d}
+  h1{font-size:2.2rem;margin-bottom:10px;color:#58a6ff}
+  p{font-size:1rem;margin-bottom:30px;opacity:0.9}
+  input{width:100%;padding:16px;margin:10px 0;border-radius:8px;border:1px solid #30363d;background:#21262d;color:white;font-size:1.1rem}
+  button{width:100%;padding:16px;background:#238636;color:white;border:none;border-radius:8px;font-size:1.1rem;font-weight:bold;cursor:pointer;margin-top:10px}
+  button:hover{background:#1f6feb}
+  #error{color:#f85149;margin-top:15px;display:none}
+</style>
 </head>
 <body>
 
-<div class="header">
-  <h1>Honest News – Site Editor</h1>
-  <div>
-    <button onclick="addBlock('heading')">+ Heading</button>
-    <button onclick="addBlock('paragraph')">+ Paragraph</button>
-    <button onclick="addBlock('image')">+ Image</button>
-    <button onclick="addBlock('youtube')">+ YouTube</button>
-    <button onclick="addBlock('button')">+ Button</button>
-    <button onclick="publish()">Publish Site</button>
-    <a href="/" target="_blank" style="color: #4338ca; text-decoration: none; margin-left: 20px;">Live Site →</a>
-  </div>
-</div>
-
-<div class="main">
-  <div class="sidebar">
-    <h3>Pages</h3>
-    <div id="pageList"></div>
-    <button onclick="newPage()" style="width: 100%; margin-top: 20px;">+ New Page</button>
-  </div>
-
-  <div class="content">
-    <h2 id="editingTitle">Select a page to edit</h2>
-    <div id="editor"></div>
-    <div class="preview">
-      <h3>Live Preview</h3>
-      <div id="previewContent"></div>
-    </div>
-  </div>
+<div class="login-box">
+  <h1>Honest News</h1>
+  <p>Admin Panel</p>
+  <input type="password" id="pass" placeholder="Enter password" autocomplete="off">
+  <button id="login">Log In</button>
+  <div id="error">Wrong password</div>
 </div>
 
 <script>
-const PASSWORD = 'jesus2025';
-if (prompt('Enter password to access editor') !== PASSWORD) {
-  alert('Access denied');
-  location.reload();
-}
+const PASS = "jesus2025"; // change anytime
 
-let siteData = { pages: [] };
-
-function loadData() {
-  fetch('site-data.json')
-    .then(response => response.json())
-    .then(data => {
-      siteData = data;
-      renderPages();
-      if (siteData.pages.length > 0) {
-        selectPage(0);
-      }
-    })
-    .catch(() => {
-      // Default starter data
-      siteData = {
-        pages: [
-          {
-            title: 'Home',
-            hero: {
-              bg: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80',
-              overlay: 'Honest News Network',
-              sub: 'Biblical Truth • Podcast Hosting • Global Reach',
-              size: 'large',
-              parallax: true
-            },
-            blocks: [
-              { type: 'heading', content: 'Everything for Biblical Podcasts' },
-              { type: 'paragraph', content: 'Free hosting, AI editing, distribution to Spotify & Apple, Amazon monetization—100% faith-aligned.' },
-              { type: 'button', text: 'Start Free', url: '#' }
-            ]
-          },
-          {
-            title: 'Podcast',
-            hero: {
-              bg: 'https://images.unsplash.com/photo-1508700112060-9d1b2e00a847?auto=format&fit=crop&w=1920&q=80',
-              overlay: 'Your Podcast Ministry',
-              sub: 'Record, edit, and share the Gospel worldwide',
-              size: 'medium',
-              parallax: true
-            },
-            blocks: []
-          },
-          {
-            title: 'Shop',
-            hero: {
-              bg: 'https://images.unsplash.com/photo-1556742049-0cf82e0d9a8d?auto=format&fit=crop&w=1920&q=80',
-              overlay: 'Ministry Resources',
-              sub: 'Books, Bibles, and tools for your journey',
-              size: 'medium',
-              parallax: false
-            },
-            blocks: []
-          }
-        ]
-      };
-      renderPages();
-      selectPage(0);
-    });
-}
-
-let currentPage = null;
-
-function renderPages() {
-  const list = document.getElementById('pageList');
-  list.innerHTML = siteData.pages.map((page, index) => `
-    <div class="page-item ${currentPage === page ? 'active' : ''}" onclick="selectPage(${index})">
-      ${page.title}
-    </div>
-  `).join('');
-}
-
-function selectPage(index) {
-  currentPage = siteData.pages[index];
-  document.getElementById('editingTitle').textContent = `Editing: ${currentPage.title}`;
-  renderEditor();
-  renderPreview();
-}
-
-function newPage() {
-  const title = prompt('New page title?');
-  if (title) {
-    const newPage = {
-      title,
-      hero: {
-        bg: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80',
-        overlay: title,
-        sub: '',
-        size: 'medium',
-        parallax: true
-      },
-      blocks: []
-    };
-    siteData.pages.push(newPage);
-    selectPage(siteData.pages.length - 1);
+document.getElementById("login").onclick = () => {
+  const input = document.getElementById("pass").value;
+  if(input === PASS){
+    localStorage.setItem("hn_logged","yes");
+    location.href = "dashboard.html"; // next file we'll build
+  }else{
+    document.getElementById("error").style.display = "block";
   }
+};
+
+// Auto-enter if already logged in
+if(localStorage.getItem("hn_logged")==="yes"){
+  location.href = "dashboard.html";
 }
-
-function renderEditor() {
-  if (!currentPage) return;
-  const editor = document.getElementById('editor');
-  editor.innerHTML = `
-    <div class="card">
-      <h3>Hero Settings</h3>
-      <input value="${currentPage.hero.bg}" placeholder="Hero Image URL" onchange="currentPage.hero.bg = this.value; renderPreview();">
-      <input value="${currentPage.hero.overlay}" placeholder="Overlay Title" onchange="currentPage.hero.overlay = this.value; renderPreview();">
-      <input value="${currentPage.hero.sub}" placeholder="Subtitle" onchange="currentPage.hero.sub = this.value; renderPreview();">
-      <select onchange="currentPage.hero.size = this.value; renderPreview();">
-        <option value="small" ${currentPage.hero.size === 'small' ? 'selected' : ''}>Small</option>
-        <option value="medium" ${currentPage.hero.size === 'medium' ? 'selected' : ''}>Medium</option>
-        <option value="large" ${currentPage.hero.size === 'large' ? 'selected' : ''}>Large</option>
-      </select>
-      <label><input type="checkbox" ${currentPage.hero.parallax ? 'checked' : ''} onchange="currentPage.hero.parallax = this.checked; renderPreview();"> Parallax Effect</label>
-      <div class="hero-preview" data-overlay="${currentPage.hero.overlay}" style="background-image: url(${currentPage.hero.bg}); background-attachment: ${currentPage.hero.parallax ? 'fixed' : 'scroll'}; height: ${currentPage.hero.size === 'small' ? '50vh' : currentPage.hero.size === 'medium' ? '70vh' : '90vh'};"></div>
-
-      <h3 style="margin-top: 40px;">Content Blocks</h3>
-      <div id="blocksContainer"></div>
-    </div>
-  `;
-  renderBlocks();
-}
-
-function renderBlocks() {
-  const container = document.getElementById('blocksContainer');
-  if (!currentPage.blocks) currentPage.blocks = [];
-  container.innerHTML = currentPage.blocks.map((block, index) => {
-    let editor = '';
-    if (block.type === 'heading') editor = `<input value="${block.content}" placeholder="Heading text" onchange="updateBlock(${index}, 'content', this.value)">`;
-    if (block.type === 'paragraph') editor = `<textarea placeholder="Paragraph text" onchange="updateBlock(${index}, 'content', this.value)">${block.content}</textarea>`;
-    if (block.type === 'image') editor = `<input value="${block.content}" placeholder="Image URL" onchange="updateBlock(${index}, 'content', this.value)">`;
-    if (block.type === 'youtube') editor = `<input value="${block.content}" placeholder="YouTube Video ID" onchange="updateBlock(${index}, 'content', this.value)">`;
-    if (block.type === 'button') editor = `<input value="${block.text}" placeholder="Button text" onchange="updateBlock(${index}, 'text', this.value)"> <input value="${block.url}" placeholder="Button URL" onchange="updateBlock(${index}, 'url', this.value)">`;
-
-    return `
-      <div class="block" data-index="${index}">
-        ${editor}
-        <div class="block-tools">
-          <button onclick="moveBlock(${index}, -1)">↑</button>
-          <button onclick="moveBlock(${index}, 1)">↓</button>
-          <button onclick="deleteBlock(${index})">×</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function addBlock(type) {
-  if (!currentPage) return;
-  const newBlock = { type };
-  if (type === 'heading' || type === 'paragraph') newBlock.content = '';
-  if (type === 'button') { newBlock.text = 'Click Me'; newBlock.url = '#'; }
-  currentPage.blocks.push(newBlock);
-  renderBlocks();
-  renderPreview();
-}
-
-function updateBlock(index, key, value) {
-  if (currentPage.blocks[index]) currentPage.blocks[index][key] = value;
-  renderPreview();
-}
-
-function moveBlock(index, direction) {
-  if (direction < 0 && index > 0) {
-    [currentPage.blocks[index - 1], currentPage.blocks[index]] = [currentPage.blocks[index], currentPage.blocks[index - 1]];
-  } else if (direction > 0 && index < currentPage.blocks.length - 1) {
-    [currentPage.blocks[index], currentPage.blocks[index + 1]] = [currentPage.blocks[index + 1], currentPage.blocks[index]];
-  }
-  renderBlocks();
-  renderPreview();
-}
-
-function deleteBlock(index) {
-  if (confirm('Delete this block?')) {
-    currentPage.blocks.splice(index, 1);
-    renderBlocks();
-    renderPreview();
-  }
-}
-
-function renderPreview() {
-  const preview = document.getElementById('previewContent');
-  if (!currentPage) return;
-  let html = '';
-  currentPage.blocks.forEach(block => {
-    if (block.type === 'heading') html += `<h2>${block.content}</h2>`;
-    if (block.type === 'paragraph') html += `<p>${block.content}</p>`;
-    if (block.type === 'image') html += `<img src="${block.content}" style="max-width: 100%; border-radius: 8px;">`;
-    if (block.type === 'youtube') html += `<iframe src="https://www.youtube.com/embed/${block.content}" style="width: 100%; height: 315px;" frameborder="0" allowfullscreen></iframe>`;
-    if (block.type === 'button') html += `<a href="${block.url}" style="background: #4338ca; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block;">${block.text}</a>`;
-  });
-  preview.innerHTML = html;
-}
-
-function publish() {
-  const blob = new Blob([JSON.stringify(siteData, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'site-data.json';
-  a.click();
-  alert('site-data.json downloaded! Upload to repo root → site updates instantly.');
-}
-
-loadData();
 </script>
 </body>
 </html>
