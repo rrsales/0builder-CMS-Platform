@@ -2,124 +2,128 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Honest News Network – Biblical Podcast Hosting</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>Honest News Network – Biblical Podcast Hosting & Distribution</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    :root { --primary: #0066cc; --accent: #28a745; --bg: #f8f9fa; }
-    body { font-family: system-ui, sans-serif; margin: 0; line-height: 1.6; color: #333; }
-    .hero { height: 100vh; background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920') center/cover fixed; display: flex; align-items: center; justify-content: center; text-align: center; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-    .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
-    .hero p { font-size: 1.2rem; margin-bottom: 2rem; }
-    .cta { background: var(--accent); color: white; padding: 15px 30px; border: none; border-radius: 6px; font-size: 1.1rem; cursor: pointer; text-decoration: none; display: inline-block; }
-    .cta:hover { background: #218838; }
-    section { padding: 60px 20px; max-width: 1200px; margin: 0 auto; }
-    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-    .feature { text-align: center; }
-    .feature i { font-size: 3rem; color: var(--primary); margin-bottom: 1rem; }
-    .stats { background: var(--bg); text-align: center; }
-    .stat { display: inline-block; margin: 0 2rem; }
-    .stat h3 { font-size: 2.5rem; color: var(--primary); }
-    footer { background: #333; color: white; text-align: center; padding: 20px; }
-    form { max-width: 400px; margin: 2rem auto; }
-    input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-    button[type="submit"] { background: var(--accent); color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; }
+    :root { --blue: #0066cc; --green: #28a745; --dark: #121826; --gray: #f8f9fa; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+    body { background:#fff; color:#333; line-height:1.6; }
+    a { text-decoration:none; color:var(--blue); }
+    
+    /* HERO - Exact Podbean Style */
+    .hero { height:100vh; background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.6)),url('https://images.unsplash.com/photo-1519389951290-13fcd0ed16c7?w=1920') center/cover no-repeat fixed; color:white; display:flex; align-items:center; text-align:center; }
+    .hero-content { max-width:900px; margin:0 auto; padding:20px; }
+    .hero h1 { font-size:3.8rem; margin-bottom:20px; font-weight:700; }
+    .hero p { font-size:1.4rem; margin-bottom:40px; opacity:0.9; }
+    .btn { display:inline-block; padding:16px 40px; border-radius:50px; font-size:1.2rem; font-weight:600; transition:0.3s; }
+    .btn-green { background:var(--green); color:white; }
+    .btn-green:hover { background:#218838; transform:translateY(-3px); box-shadow:0 10px 30px rgba(40,167,69,0.4); }
+    
+    /* Sections */
+    section { padding:100px 20px; text-align:center; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:60px; max-width:1200px; margin:0 auto; align-items:center; }
+    .features { background:var(--gray); }
+    .feature-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:40px; max-width:1200px; margin:40px auto; }
+    .feature-card { background:white; padding:40px 30px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.1); transition:0.3s; }
+    .feature-card:hover { transform:translateY(-10px); box-shadow:0 20px 40px rgba(0,0,0,0.15); }
+    .feature-card i { font-size:3.5rem; color:var(--blue); margin-bottom:20px; }
+    
+    /* Stats */
+    .stats { background:var(--dark); color:white; padding:80px 20px; }
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:40px; max-width:1000px; margin:0 auto; }
+    .stat h3 { font-size:3rem; color:var(--green); }
+    
+    /* Footer */
+    footer { background:#121826; color:#aaa; padding:60px 20px 30px; text-align:center; }
+    .footer-links a { color:#aaa; margin:0 15px; font-size:0.95rem; }
+    
+    @media(max-width:768px){
+      .hero h1{font-size:2.8rem;}
+      .split{grid-template-columns:1fr;}
+      .split img{width:100%;max-width:300px;margin:0 auto;display:block;}
+    }
   </style>
 </head>
 <body>
-  <!-- Hero Banner (Podbean-Style) -->
-  <div class="hero">
-    <div>
-      <h1>Everything for Biblical Podcasts</h1>
-      <p>Host, edit, distribute, and monetize your faith-based episodes – free to start.</p>
-      <a href="#signup" class="cta">Get Started Free</a>
-    </div>
-  </div>
 
-  <!-- Create & Publish -->
-  <section id="create">
-    <h2 style="text-align: center;">Create & Publish with Ease</h2>
-    <div class="features">
-      <div class="feature">
-        <i class="fas fa-microphone"></i>
-        <h3>Record Anywhere</h3>
-        <p>Use our app for mobile recording – perfect for sermons on the go.</p>
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Powerful Podcast Hosting for Biblical Truth</h1>
+      <p>Free hosting • AI tools • Global distribution • Amazon monetization • 100% faith-focused</p>
+      <a href="#start" class="btn btn-green">Start Free Today →</a>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <section id="start">
+    <h2 style="font-size:2.8rem;margin-bottom:60px;">Everything Your Ministry Needs to Reach the World</h2>
+    <div class="split">
+      <div>
+        <h3>For Podcasters</h3>
+        <p style="font-size:1.2rem;margin:20px 0;">Unlimited episodes • RSS feed • Apple/Spotify submission • Analytics • Amazon affiliate integration • Live streaming</p>
+        <a href="admin.html" class="btn btn-green" style="margin-top:20px;">Open Dashboard →</a>
       </div>
-      <div class="feature">
-        <i class="fas fa-magic"></i>
-        <h3>AI Editing</h3>
-        <p>Noise reduction, auto-transcripts, and filler-word removal for crystal-clear truth.</p>
-      </div>
-      <div class="feature">
-        <i class="fas fa-upload"></i>
-        <h3>One-Click Publish</h3>
-        <p>Upload audio/video and go live across platforms.</p>
+      <div>
+        <img src="https://podbean.com/images/home/podcaster-illustration.png" alt="Podcaster">
       </div>
     </div>
   </section>
 
-  <!-- Grow & Monetize -->
-  <section id="grow" style="background: var(--bg);">
-    <h2 style="text-align: center;">Grow & Monetize Your Ministry</h2>
-    <div class="features">
-      <div class="feature">
-        <i class="fas fa-share-alt"></i>
-        <h3>Global Distribution</h3>
-        <p>Auto-submit to Spotify, Apple Podcasts, YouTube – reach thousands with the Gospel.</p>
-        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 1rem;">
-          <i class="fab fa-spotify" style="font-size: 2rem; color: #1db954;"></i>
-          <i class="fab fa-apple" style="font-size: 2rem; color: #999;"></i>
-          <i class="fab fa-youtube" style="font-size: 2rem; color: #ff0000;"></i>
-        </div>
+  <section class="features">
+    <h2 style="font-size:2.6rem;margin-bottom:60px;">Why Ministries Choose Honest News</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <i class="fas fa-microphone-alt"></i>
+        <h3>Record Anywhere</h3>
+        <p>Mobile app • Guest interviews • Sermon capture</p>
       </div>
-      <div class="feature">
+      <div class="feature-card">
+        <i class="fas fa-magic"></i>
+        <h3>AI Enhancement</h3>
+        <p>Noise removal • Transcripts • Chapter markers</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-globe"></i>
+        <h3>Global Reach</h3>
+        <p>Auto-submit to 20+ directories including Spotify & Apple</p>
+      </div>
+      <div class="feature-card">
         <i class="fas fa-dollar-sign"></i>
         <h3>Earn with Amazon</h3>
-        <p>Embed affiliate links for Bibles/books – turn listeners into supporters.</p>
-        <a href="https://www.amazon.com" class="cta" style="display: inline-block; margin-top: 1rem;">Shop Now</a>
-      </div>
-      <div class="feature">
-        <i class="fas fa-chart-line"></i>
-        <h3>Analytics</h3>
-        <p>Track downloads, listener demographics – measure your impact.</p>
+        <p>Built-in affiliate links • Donation buttons • Ad manager</p>
       </div>
     </div>
   </section>
 
-  <!-- Stats (Podbean Trust Signals) -->
   <section class="stats">
-    <h2 style="text-align: center;">Join 1,000+ Ministries Worldwide</h2>
-    <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
-      <div class="stat"><h3>1K+</h3><p>Episodes Hosted</p></div>
-      <div class="stat"><h3>50K+</h3><p>Listeners Reached</p></div>
-      <div class="stat"><h3>100%</h3><p>Biblical Truth</p></div>
+    <div class="stat-grid">
+      <div class="stat">
+        <h3>10K+</h3>
+        <p>Ministries Hosted</p>
+      </div>
+      <div class="stat">
+        <h3>5M+</h3>
+        <p>Episodes Delivered</p>
+      </div>
+      <div class="stat">
+        <h3>100%</h3>
+        <p>Biblical Truth</p>
+      </div>
     </div>
   </section>
 
-  <!-- Sign-Up CTA -->
-  <section id="signup">
-    <h2 style="text-align: center;">Start Your Podcast Journey</h2>
-    <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST"> <!-- Replace with your Formspree ID -->
-      <input type="email" name="email" placeholder="Your email" required>
-      <input type="text" name="podcast" placeholder="Podcast Name">
-      <textarea name="message" placeholder="Tell us about your ministry"></textarea>
-      <button type="submit">Get Started Free</button>
-    </form>
-  </section>
-
-  <!-- Footer -->
   <footer>
-    <p>&copy; 2025 Honest News Network | <a href="support.html" style="color: white;">Support</a> | <a href="podcast.html" style="color: white;">Podcasts</a></p>
+    <p style="font-size:1.5rem;margin-bottom:30px;color:white;">Start Your Podcast Ministry Today – Free Forever</p>
+    <a href="admin.html" class="btn btn-green" style="font-size:1.3rem;padding:18px 50px;">Get Started Free</a>
+    <div class="footer-links" style="margin-top:50px;">
+      <a href="#">About</a> • <a href="#">Contact</a> • <a href="#">Terms</a> • <a href="#">Privacy</a>
+    </div>
+    <p style="margin-top:30px;font-size:0.9rem;">© 2025 Honest News Network • Biblical Podcast Platform</p>
   </footer>
 
-  <script>
-    // Simple parallax enhancement (if hero image changes via admin)
-    window.addEventListener('scroll', () => {
-      const scrolled = window.pageYOffset;
-      const hero = document.querySelector('.hero');
-      hero.style.transform = `translateY(${scrolled * 0.5}px)`;
-    });
-  </script>
 </body>
 </html>
 
