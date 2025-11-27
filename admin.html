@@ -2,159 +2,156 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Honest News – Full Admin with All Pages</title>
+<title>Honest News – Live WordPress Editor</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  :root{--bg:#0d1117;--card:#161b22;--text:#c9d1d9;--blue:#58a6ff;--green:#238636;--border:#30363d;--red:#da3633}
-  *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
-  body{background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
-  .header{background:var(--card);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);font-size:1.4rem;font-weight:600}
-  .header button{background:var(--green);color:white;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:bold}
+  body{margin:0;font-family:system-ui;background:#f1f5f9;color:#1f2937;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  .header{background:white;padding:16px 24px;box-shadow:0 2px 10px rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center;font-size:1.4rem;font-weight:600}
   .main{flex:1;display:flex;overflow:hidden}
-  .sidebar{width:280px;background:var(--card);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto}
-  .page-item{padding:16px 28px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:0.2s;position:relative}
-  .page-item:hover{background:#21262d}
-  .page-item.active{background:var(--blue);color:black;font-weight:600}
-  .page-item i{font-size:18px;width:22px;text-align:center}
-  .page-item .delete{position:absolute;right:12px;top:50%;transform:translateY(-50%);opacity:0;transition:0.2s}
-  .page-item:hover .delete{opacity:1}
-  .content{flex:1;padding:32px;overflow-y:auto}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:24px}
-  input,textarea,select{width:100%;padding:12px;margin:10px 0;border-radius:8px;border:1px solid var(--border);background:#0d1117;color:white;font-size:15px}
-  button.small{padding:8px 16px;border-radius:6px;font-size:14px}
-  .hero-preview{border-radius:12px;overflow:hidden;margin:20px 0;box-shadow:0 20px 50px rgba(0,0,0,0.6);background:center/cover no-repeat;position:relative;height:70vh}
-  .hero-preview::after{content:attr(data-title);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:white;font-size:3.5rem;font-weight:bold;text-shadow:0 0 30px black}
-  .add-page{background:var(--green);color:white;margin:20px;padding:16px;text-align:center;cursor:pointer;border-radius:8px}
+  .sidebar{width:300px;background:white;border-right:1px solid #e5e7eb;padding:20px;overflow-y:auto}
+  .page-item{padding:16px;background:#f8fafc;border-radius:10px;margin:8px 0;cursor:pointer;transition:0.2s;font-weight:600}
+  .page-item:hover{background:#e0e7ff}
+  .page-item.active{background:#4338ca;color:white}
+  .content{flex:1;padding:40px;overflow-y:auto;background:#fff}
+  .block{margin:20px 0;padding:24px;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:16px;position:relative}
+  .block:hover{border-color:#4338ca}
+  .block-tools{position:absolute;top:10px;right:10px;opacity:0;transition:0.2s}
+  .block:hover .block-tools{opacity:1}
+  .block-tools button{background:none;border:none;cursor:pointer;font-size:20px;margin:0 6px;color:#6366f1}
+  input,textarea{width:100%;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #d1d5db;background:white;font-size:16px}
+  button{background:#4338ca;color:white;border:none;padding:14px 28px;border-radius:10px;cursor:pointer;font-weight:600;margin:10px 10px 10px 0}
+  button:hover{background:#3730a3}
+  .preview{margin-top:40px;padding:40px;background:white;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.1)}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div>Honest News Admin</div>
-  <button onclick="saveAll()">SAVE ALL PAGES</button>
+  <div>Honest News – Live Editor</div>
+  <div>
+    <button onclick="saveAndPublish()">SAVE & GO LIVE</button>
+    <a href="/" target="_blank" style="margin-left:20px;color:#4338ca;text-decoration:none">View Live Site →</a>
+  </div>
 </div>
 
 <div class="main">
-  <div class="sidebar" id="pageList">
-    <!-- Pages will be injected here -->
+  <div class="sidebar">
+    <h3>Pages</h3>
+    <div id="pageList"></div>
+    <button onclick="width:100%;padding:16px;background:#4338ca;color:white;margin-top:20px" onclick="newPage()">+ New Page</button>
   </div>
 
-  <div class="content" id="content">
-    <div class="card"><h2>Select a page from the left menu</h2></div>
+  <div class="content">
+    <h2 id="pageTitle">Select a page</h2>
+    <div id="blocks"></div>
+    <div class="preview">
+      <h3>Live Preview</h3>
+      <div id="preview"></div>
+    </div>
   </div>
 </div>
 
 <script>
 const PASS = "jesus2025";
+if(prompt("Password")!==PASS){alert("Wrong");location.reload()}
 
-// Default pages — these are YOUR current pages
-let data = {
-  pages: [
-    {id:"home",title:"Home",icon:"fas fa-home",hero:{bg:"https://images.unsplash.com/photo-1519389951290-13fcd0ed16c7?w=1920",size:"large",parallax:true}},
-    {id:"podcast",title:"Podcast",icon:"fas fa-podcast",hero:{bg:"https://images.unsplash.com/photo-1508700112060-9d1b2e00a847?w=1920",size:"medium",parallax:true}},
-    {id:"shop",title:"Shop",icon:"fas fa-shopping-cart",hero:{bg:"https://images.unsplash.com/photo-1556742049-0cf82e0d9a8d?w=1920",size:"medium",parallax:false}},
-    {id:"about",title:"About",icon:"fas fa-info-circle",hero:{bg:"https://images.unsplash.com/photo-1495467033336-2c4e83cd7e3b?w=1920",size:"medium",parallax:true}},
-    {id:"contact",title:"Contact",icon:"fas fa-envelope",hero:{bg:"https://images.unsplash.com/photo-1557425955-df376b5903c8?w=1920",size:"small",parallax:false}},
-    {id:"live",title:"Live Stream",icon:"fas fa-broadcast-tower",hero:{bg:"https://images.unsplash.com/photo-1519389951290-13fcd0ed16c7?w=1920",size:"large",parallax:true}}
-  ],
-  site:{title:"Honest News Network",transparentHeader:true}
-};
+let pages = [
+  {title:"Home",slug:"index",blocks:[
+    {type:"heading",content:"Honest News Network"},
+    {type:"paragraph",content:"Biblical truth. No compromise. Free podcast hosting for ministries."},
+    {type:"button",text:"Start Free",url:"#"}
+  ]},
+  {title:"Podcast",slug:"podcast",blocks:[]},
+  {title:"Shop",slug:"shop",blocks:[]}
+];
 
-let currentPage = data.pages[0];
+let currentPage = pages[0];
 
-function load(){const s=localStorage.getItem("hn_full_pages");if(s)data=JSON.parse(s)}
-function saveAll(){localStorage.setItem("hn_full_pages",JSON.stringify(data));alert("All pages saved!")}
-
-if(localStorage.getItem("hn_logged")!=="yes"){
-  let p=prompt("Password (jesus2025)");
-  if(p!==PASS){alert("Wrong");location.reload();}
-  localStorage.setItem("hn_logged","yes");
-}
-load();
-renderMenu();
-renderPage(currentPage);
-
-function renderMenu(){
-  let html = `<div class="add-page" onclick="addPage()">+ Add New Page</div>`;
-  data.pages.forEach((p,i)=>{
-    html += `
-      <div class="page-item ${p===currentPage?"active":""}" onclick="selectPage(${i})" draggable="true" ondragstart="dragStart(${i})">
-        <i class="${p.icon||'fas fa-file'}"></i> ${p.title}
-        <i class="fas fa-times delete" style="color:${p===currentPage?'black':'#da3633'}" onclick="event.stopPropagation();deletePage(${i})"></i>
-      </div>`;
-  });
-  document.getElementById("pageList").innerHTML = html;
-}
-
-function renderPage(page){
-  currentPage = page;
-  renderMenu();
-  document.getElementById("content").innerHTML = `
-    <div class="card">
-      <h2>Editing: <strong>${page.title}</strong></h2>
-      <input value="${page.title}" onchange="page.title=this.value;renderMenu();saveAll()" placeholder="Page title">
-      
-      <label>Hero Background Image URL</label>
-      <input value="${page.hero.bg}" onchange="page.hero.bg=this.value;saveAll();updatePreview()" placeholder="https://...">
-      
-      <label>Hero Size</label>
-      <select onchange="page.hero.size=this.value;saveAll();updatePreview()">
-        <option value="small" ${page.hero.size==="small"?"selected":""}>Small (50vh) – Mobile fast</option>
-        <option value="medium" ${page.hero.size==="medium"?"selected":""}>Medium (75vh) – Recommended</option>
-        <option value="large" ${page.hero.size==="large"?"selected":""}>Large (100vh) – Dramatic</option>
-      </select>
-      
-      <label><input type="checkbox" ${page.hero.parallax?"checked":""} onchange="page.hero.parallax=this.checked;saveAll();updatePreview()"> Enable Parallax Effect</label>
-      
-      <div class="hero-preview" data-title="${page.title}" style="background-image:url(${page.hero.bg||'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920'});background-attachment:${page.hero.parallax?"fixed":"scroll"};height:${page.hero.size==="small"?"50vh":page.hero.size==="large"?"100vh":"75vh"}"></div>
+function renderPages(){
+  document.getElementById("pageList").innerHTML = pages.map((p,i)=>`
+    <div class="page-item ${p===currentPage?"active":""}" onclick="currentPage=pages[${i}];renderEditor();">
+      ${p.title}
     </div>
-  `;
+  `).join("");
 }
-
-function selectPage(i){renderPage(data.pages[i])}
-function addPage(){
-  const name=prompt("New page name?");
-  if(name){
-    data.pages.push({
-      id:Date.now(),
-      title:name,
-      icon:"fas fa-file-alt",
-      hero:{bg:"",size:"medium",parallax:true}
-    });
-    saveAll();
-    renderMenu();
-  }
-}
-function deletePage(i){
-  if(confirm("Delete page '"+data.pages[i].title+"'?")){
-    data.pages.splice(i,1);
-    if(currentPage===data.pages[i]) currentPage=data.pages[0]||null;
-    saveAll();
-    renderMenu();
-    if(currentPage) renderPage(currentPage);
+function newPage(){
+  const title = prompt("Page title?");
+  if(title){
+    pages.push({title,slug:title.toLowerCase().replace(/[^a-z0-9]/g,"-"),blocks:[]});
+    currentPage = pages[pages.length-1];
+    renderPages();
+    renderEditor();
   }
 }
 
-function updatePreview(){renderPage(currentPage)}
+function renderEditor(){
+  document.getElementById("pageTitle").textContent = "Editing: " + currentPage.title;
+  const container = document.getElementById("blocks");
+  container.innerHTML = "";
+  currentPage.blocks.forEach((b,i)=>{
+    const div = document.createElement("div");
+    div.className = "block";
+    if(b.type==="heading") div.innerHTML = `<input value="${b.content}" onchange="currentPage.blocks[${i}].content=this.value;updatePreview()">`;
+    if(b.type==="paragraph") div.innerHTML = `<textarea onchange="currentPage.blocks[${i}].content=this.value;updatePreview()">${b.content||""}</textarea>`;
+    if(b.type==="image") div.innerHTML = `<input value="${b.content||""}" placeholder="Image URL" onchange="currentPage.blocks[${i}].content=this.value;updatePreview()">`;
+    if(b.type==="youtube") div.innerHTML = `<input value="${b.content||""}" placeholder="YouTube ID" onchange="currentPage.blocks[${i}].content=this.value;updatePreview()">`;
+    if(b.type==="button") div.innerHTML = `Text: <input value="${b.text||""}" onchange="currentPage.blocks[${i}].text=this.value"> URL: <input value="${b.url||'#'}" onchange="currentPage.blocks[${i}].url=this.value">`;
 
-// Drag to reorder pages
-let dragIdx;
-function dragStart(i){dragIdx=i}
-document.getElementById("pageList").ondrop=e=>{
-  e.preventDefault();
-  const target = e.target.closest(".page-item");
-  if(target && dragIdx!==undefined){
-    const to = Array.from(document.querySelectorAll(".page-item")).indexOf(target);
-    if(to>-1 && to!==dragIdx){
-      const [moved] = data.pages.splice(dragIdx,1);
-      data.pages.splice(to,0,moved);
-      saveAll();
-      renderMenu();
-    }
+    const tools = document.createElement("div");
+    tools.className = "block-tools";
+    tools.innerHTML = `<button onclick="move(${i},-1)">↑</button><button onclick="move(${i},1)">↓</button><button onclick="del(${i})">×</button>`;
+    div.appendChild(tools);
+    container.appendChild(div);
+  });
+  updatePreview();
+}
+
+function add(type){
+  if(!currentPage) return;
+  const block = {type};
+  if(type!=="image"&&type!=="youtube") block.content = "New " + type;
+  if(type==="button") block.text="Click Me";
+  currentPage.blocks.push(block);
+  renderEditor();
+}
+function move(i,dir){
+  const b = currentPage.blocks.splice(i,1)[0];
+  currentPage.blocks.splice(i+dir,0,b);
+  renderEditor();
+}
+function del(i){
+  if(confirm("Delete block?")) {
+    currentPage.blocks.splice(i,1);
+    renderEditor();
   }
-};
-document.getElementById("pageList").ondragover=e=>e.preventDefault();
+}
+
+function updatePreview(){
+  let html = "";
+  currentPage.blocks.forEach(b=>{
+    if(b.type==="heading") html += `<h2>${b.content}</h2>`;
+    if(b.type==="paragraph") html += `<p>${b.content}</p>`;
+    if(b.type==="image") html += `<img src="${b.content}" style="max-width:100%;border-radius:12px">`;
+    if(b.type==="youtube") html += `<iframe src="https://www.youtube.com/embed/${b.content}" style="width:100%;height:500px" allowfullscreen></iframe>`;
+    if(b.type==="button") html += `<a href="${b.url}" style="background:#4338ca;color:white;padding:16px 40px;border-radius:50px;display:inline-block;margin:20px 0">${b.text}</a>`;
+  });
+  document.getElementById("preview").innerHTML = html;
+}
+
+function saveAndPublish(){
+  localStorage.setItem("hn_live_data",JSON.stringify({pages}));
+  alert("SAVED! Your live site updated instantly.");
+}
+
+renderPages();
+renderEditor();
 </script>
+
+<div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#4338ca;color:white;padding:16px 32px;border-radius:50px;font-weight:bold">
+  + Heading  + Paragraph  + Image  + YouTube  + Button
+  <div style="margin-top:8px;font-size:12px">Click above buttons to add</div>
+</div>
+
 </body>
 </html>
