@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Honest News – Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  body{margin:0;font-family:system-ui,sans-serif;background:#f4f6f9;color:#1e293b;height:100vh;display:flex;flex-direction:column}
+  .header{background:#1e293b;color:#fff;padding:20px;display:flex;justify-content:space-between;align-items:center}
+  .header h1{font-size:1.4rem;margin:0}
+  .header a{color:#94a3b8;text-decoration:none}
+  .main{flex:1;display:flex;overflow:hidden}
+  .sidebar{width:300px;background:#fff;border-right:1px solid #e2e8f0;padding:20px;overflow-y:auto}
+  .page{padding:15px;margin:10px 0;background:#f8fafc;border-radius:10px;cursor:pointer;font-weight:600}
+  .page.active{background:#4338ca;color:#fff}
+  .content{flex:1;padding:40px;overflow-y:auto}
+  .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:30px;margin-bottom:30px;box-shadow:0 4px 20px rgba(0,0,0,0.05)}
+  input,textarea,select{width:100%;padding:14px;margin:10px 0;border-radius:10px;border:1px solid #cbd5e1;font-size:16px}
+  button{background:#28a745;color:#fff;border:none;padding:14px 28px;border-radius:10px;cursor:pointer;font-weight:600}
+  button:hover{background:#218838}
+  .block{margin:20px 0;padding:20px;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:12px;position:relative}
+  .block:hover{border-color:#28a745}
+  .tools{position:absolute;top:8px;right:8px;opacity:0;transition:0.2s}
+  .block:hover .tools{opacity:1}
+  .tools button{background:none;border:none;cursor:pointer;font-size:18px;margin:0 4px;color:#6366f1}
+  .preview{margin-top:40px;padding:40px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.1)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Honest News – Site Editor</h1>
+  <a href="/" target="_blank">View Live Site →</a>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <h3>Pages</h3>
+    <div id="pages"></div>
+    <button onclick="newPage()" style="width:100%;margin-top:20px">+ New Page</button>
+  </div>
+
+  <div class="content" id="editor">
+    <div class="card">
+      <h2>Select a page to start editing</h2>
+    </div>
+  </div>
+</div>
+
+<script>
+// Simple data structure – we'll expand this step by step
+let site = {
+  pages: [
+    {title:"Home", hero:{bg:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80", overlay:"Honest News Network", sub:"Biblical Truth • Podcast Hosting", transparentMenu:false}, blocks:[]},
+    {title:"Podcast", hero:{bg:"", overlay:"Podcast", sub:"", transparentMenu:true}, blocks:[]}
+  ]
+};
+
+let current = null;
+
+function renderPages(){
+  document.getElementById("pages").innerHTML = site.pages.map((p,i)=>`
+    <div class="page ${p===current?'active':''}" onclick="select(${i})">${p.title}</div>
+  `).join("");
+  if(!current) select(0);
+}
+
+function select(i){
+  current = site.pages[i];
+  renderPages();
+  document.getElementById("editor").innerHTML = `
+    <div class="card">
+      <h2>Editing: ${current.title}</h2>
+      <h3>Hero Settings</h3>
+      <input value="${current.hero.bg}" placeholder="Hero image URL" onchange="current.hero.bg=this.value;preview()">
+      <input value="${current.hero.overlay}" placeholder="Main title" onchange="current.hero.overlay=this.value;preview()">
+      <input value="${current.hero.sub||''}" placeholder="Subtitle (optional)" onchange="current.hero.sub=this.value;preview()">
+      <label><input type="checkbox" ${current.hero.transparentMenu?"checked":""} onchange="current.hero.transparentMenu=this.checked;preview()"> Transparent menu on this page</label>
+
+      <h3 style="margin-top:40px">Content Blocks</h3>
+      <button onclick="add('heading')">+ Heading</button>
+      <button onclick="add('paragraph')">+ Paragraph</button>
+      <button onclick="add('image')">+ Image</button>
+      <button onclick="add('button')">+ Button</button>
+      <div id="blocks"></div>
+
+      <div class="preview">
+        <h3>Live Preview</h3>
+        <div style="background:url(${current.hero.bg||'none'}) center/cover;height:400px;position:relative">
+          <div style="position:absolute;inset:0;background:rgba(0,0,0,${current.hero.transparentMenu?0.4:0.7})"></div>
+          <div style="position:relative;color:#fff;text-align:center;padding-top:120px">
+            <h1 style="font-size:3rem">${current.hero.overlay}</h1>
+            <p style="font-size:1.5rem">${current.hero.sub||''}</p>
+          </div>
+        </div>
+        <div id="blockPreview" style="padding:40px"></div>
+      </div>
+
+      <button onclick="publish()" style="background:#16a34a;font-size:1.3rem;padding:18px 40px;margin-top:40px">PUBLISH ENTIRE SITE</button>
+    </div>
+  `;
+  renderBlocks(); preview();
+}
+
+function renderBlocks(){
+  const c = document.getElementById("blocks");
+  c.innerHTML = (current.blocks||[]).map((b,i)=>`
+    <div class="block">
+      ${b.type==="heading"?`<input value="${b.content}" onchange="current.blocks[${i}].content=this.value;preview()">`:""}
+      ${b.type==="paragraph"?`<textarea onchange="current.blocks[${i}].content=this.value;preview()">${b.content||""}</textarea>`:""}
+      ${b.type==="image"?`<input value="${b.content}" placeholder="Image URL" onchange="current.blocks[${i}].content=this.value;preview()">`:""}
+      ${b.type==="button"?`Text: <input value="${b.text}" onchange="current.blocks[${i}].text=this.value"> URL: <input value="${b.url}" onchange="current.blocks[${i}].url=this.value">`:""}
+      <div class="tools">
+        <button onclick="move(${i},-1)">↑</button>
+        <button onclick="move(${i},1)">↓</button>
+        <button onclick="remove(${i})">×</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function add(type){
+  if(!current.blocks) current.blocks=[];
+  const block = {type};
+  if(type!=="image") block.content = type==="heading"?"New Heading":"Your text here";
+  if(type==="button"){ block.text="Click Me"; block.url="#"; }
+  current.blocks.push(block);
+  renderBlocks(); preview();
+}
+function move(i,d){ const b=current.blocks.splice(i,1)[0]; current.blocks.splice(i+d,0,b); renderBlocks(); preview(); }
+function remove(i){ current.blocks.splice(i,1); renderBlocks(); preview(); }
+
+function preview(){
+  let html = "";
+  (current.blocks||[]).forEach(b=>{
+    if(b.type==="heading") html+=`<h2>${b.content}</h2>`;
+    if(b.type==="paragraph") html+=`<p>${b.content.replace(/\n/g,"<br>")}</p>`;
+    if(b.type==="image") html+=`<img src="${b.content}" style="max-width:100%;border-radius:12px">`;
+    if(b.type==="button") html+=`<a href="${b.url}" style="background:#28a745;color:#fff;padding:16px 40px;border-radius:50px;display:inline-block">${b.text}</a>`;
+  });
+  document.getElementById("blockPreview").innerHTML = html;
+}
+
+function newPage(){
+  const t = prompt("Page title?");
+  if(t) site.pages.push({title:t, hero:{bg:"",overlay:t,sub:"",transparentMenu:false}, blocks:[]});
+  renderPages();
+}
+
+function publish(){
+  const blob = new Blob([JSON.stringify(site,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "site-data.json";
+  a.click();
+  alert("Download complete → upload site-data.json to your repo root → entire site updates instantly");
+}
+
+renderPages();
+</script>
+</body>
+</html>
