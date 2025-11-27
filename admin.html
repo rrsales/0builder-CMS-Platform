@@ -4,83 +4,104 @@
 <meta charset="UTF-8">
 <title>Honest News – Site Editor</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="/Honest-News/favicon.ico">
 <style>
-  :root { --blue: #0066cc; --gray: #f5f5f5; }
-  body { margin:0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background:#f9f9f9; }
-  #loginScreen { display:flex; align-items:center; justify-content:center; min-height:100vh; background:linear-gradient(135deg, #0066cc, #003366); color:white; }
-  #loginBox { background:white; color:#333; padding:50px; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.3); text-align:center; width:380px; }
-  input, button { padding:14px; margin:10px 0; width:100%; border-radius:8px; border:none; font-size:16px; }
-  input { border:2px solid #ddd; }
-  button { background:var(--blue); color:white; cursor:pointer; font-weight:bold; }
-
-  #editor { display:flex; height:100vh; }
-  .sidebar { width:300px; background:white; border-right:1px solid #ddd; overflow-y:auto; }
-  .tab { padding:20px; cursor:pointer; font-weight:600; border-bottom:1px solid #eee; }
-  .tab.active { background:#f0f8ff; color:var(--blue); border-left:4px solid var(--blue); }
-  .main-area { flex:1; display:flex; position:relative; }
-  .block-canvas { flex:1; padding:40px; background:white; overflow-y:auto; min-height:100vh; }
-  .live-preview { width:420px; background:#000; border-left:8px solid #000; position:relative; }
-  .live-preview iframe { width:100%; height:100%; border:none; }
-
-  /* Floating toolbar like WordPress */
-  .floating-toolbar {
-    position:absolute; top:10px; left:50%; transform:translateX(-50%);
-    background:white; padding:8px 16px; border-radius:8px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.15); display:none; z-index:100;
-  }
-  .block { position:relative; padding:20px; margin:20px 0; background:#fafafa; border-radius:8px; border:2px dashed transparent; }
-  .block:hover { border-color:var(--blue); }
-  .block.selected { border-color:var(--blue); border-style:solid; }
-  .block-tools { position:absolute; top:-40px; left:0; right:0; text-align:center; }
-  .block-tools button { background:var(--blue); color:white; border:none; padding:6px 12px; margin:0 4px; border-radius:4px; }
-
-  .hero-preview-box { margin:30px 0; text-align:center; }
-  .hero-preview-box img, .hero-preview-box video { max-width:100%; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0d1117;color:#c9d1d9;height:100vh;display:flex}
+#login,#editor{display:none;flex-direction:column;height:100%}
+#login.active,#editor.active{display:flex}
+input,button,select{padding:12px;border-radius:8px;border:none;font-size:16px;margin:8px 0}
+#loginBox{background:#161b22;padding:50px;border-radius:12px;border:1px solid #30363d;width:400px;text-align:center}
+button{background:#238636;color:white;cursor:pointer;font-weight:bold}
+button:hover{background:#2ea043}
+#main{flex:1;display:flex}
+.sidebar{width:280px;background:#161b22;border-right:1px solid #30363d;padding:20px;overflow-y:auto}
+.tab{padding:15px;margin:5px 0;border-radius:6px;cursor:pointer}
+.tab.active{background:#238636}
+.canvas{flex:1;background:white;color:#24292f;padding:40px;overflow-y:auto}
+.preview{width:420px;background:#000;border-left:8px solid #000}
+.preview iframe{width:100%;height:100%;border:none;background:white}
+.block{margin:20px 0;padding:20px;background:#f6f8fa;border:2px dashed #ccc;border-radius:8px;position:relative;cursor:pointer}
+.block:hover,.block.selected{border-color:#238636;background:#e6ffed}
+.toolbar{position:absolute;top:-50%;left:50%;transform:translate(-50%,-50%);background:#161b22;padding:10px 20px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.5);display:none;z-index:100}
+.toolbar button{margin:0 5px;background:#238636;color:white;border:none;padding:8px 16px;border-radius:4px}
+#heroPreview img,#heroPreview video{max-width:100%;border-radius:12px;margin-top:15px;box-shadow:0 15px 40px rgba(0,0,0,0.4)}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginScreen">
+<!-- LOGIN SCREEN -->
+<div id="login" class="active">
   <div id="loginBox">
-    <h1>Honest News</h1>
-    <p style="color:#666;">Site Editor</p>
-    <input type="password" id="adminPass" placeholder="Password">
+    <h1>Honest News<br><small>Site Editor</small></h1>
+    <input type="password" id="pwd" placeholder="Password">
     <button id="loginBtn">Enter Editor</button>
-    <p id="msg" style="color:#c33; margin-top:15px;"></p>
+    <div id="msg" style="color:#f85149;margin-top:15px"></div>
   </div>
 </div>
 
-<!-- MAIN EDITOR -->
-<div id="editor" style="display:none;">
+<!-- FULL EDITOR -->
+<div id="editor">
   <div class="sidebar">
-    <div class="tab active" data-tab="pages">Pages</div>
+    <h2>Pages</h2>
+    <div id="pageList"></div>
+    <button id="newPage" style="width:100%;padding:15px;margin-top:20px;background:#238636;color:white">+ New Page</button>
+    <hr style="margin:30px 0">
     <div class="tab" data-tab="hero">Hero & Parallax</div>
-    <div class="tab" data-tab="theme">Theme</div>
-    <div style="padding:20px; border-top:1px solid #eee; margin-top:auto;">
-      <button id="saveAll" style="width:100%; background:#00aa00;">Save All Changes</button>
-      <button style="width:100%; background:#c33; margin-top:10px;" onclick="location.reload()">Logout</button>
-    </div>
+    <button style="width:100%;margin-top:20px;background:#c33;color:white" onclick="location.reload()">Logout</button>
   </div>
 
-  <div class="main-area">
-    <!-- BLOCK EDITOR -->
-    <div class="block-canvas" id="canvas">
-      <h1 id="pageTitleDisplay">Select or create a page →</h1>
-      <div id="blocks"></div>
-      <button id="addBlock" style="padding:15px 30px; font-size:18px; background:var(--blue); color:white; border:none; border-radius:8px;">+ Add Block</button>
+  <div id="main">
+    <div class="canvas" id="canvas">
+      <h1>Select or create a page</h1>
     </div>
-
-    <!-- LIVE PREVIEW -->
-    <div class="live-preview">
-      <iframe id="previewFrame"></iframe>
-    </div>
+    <div class="preview"><iframe id="frame"></iframe></div>
   </div>
 </div>
 
-<script src="/Honest-News/assets/js/admin.js"></script>
+<script>
+// PASSWORD = honest2025
+const PASS = "honest2025";
+let db = {pages:[],heroes:{}};
+
+function save(){localStorage.setItem("honest2025_editor",JSON.stringify(db))}
+function load(){const d=localStorage.getItem("honest2025_editor");if(d)db=JSON.parse(d)
+  if(db.pages.length===0)db.pages=[{id:"home",title:"Home",blocks:[{type:"heading",text:"Welcome to Honest News"}]}]
+  renderPages()}
+
+document.getElementById("loginBtn").onclick=()=>{if(document.getElementById("pwd").value===PASS){
+  document.getElementById("login").classList.remove("active")
+  document.getElementById("editor").classList.add("active");load()}else document.getElementById("msg").textContent="Wrong password"}
+
+function renderPages(){const l=document.getElementById("pageList");l.innerHTML=""
+  db.pages.forEach(p=>{(b=>l.appendChild(b))(Object.assign(document.createElement("div"),{className:"tab",textContent:p.title,onclick:()=>openPage(p.id)})))}
+document.getElementById("newPage").onclick=()=>{const t=prompt("Page title");if(t){const id=Date.now();db.pages.push({id,title:t,blocks:[]});save();renderPages();openPage(id)}}
+
+function openPage(id){const p=db.pages.find(x=>x.id===id)
+  document.getElementById("canvas").innerHTML=`<h1>${p.title}</h1><div id="blocks"></div><button id="addBlock">+ Add Block</button>`
+  p.blocks.forEach((b,i)=>addBlock(b,i))
+  document.getElementById("addBlock").onclick=()=>{const t=prompt("Block type: heading / paragraph / image / youtube");if(t)p.blocks.push({type:t,text:t==="image"||t==="youtube"?"":"New block"});openPage(id);save();preview()}
+  preview()}
+
+function addBlock(b,i){const d=document.createElement("div");d.className="block";d.innerHTML=b.type==="heading"?`<h2 contenteditable>${b.text}</h2>`:b.type==="paragraph"?`<p contenteditable>${b.text}</p>`:b.type==="image"?`<img src="${b.text}" style="max-width:100%">`:b.type==="youtube"?`<iframe src="https://www.youtube.com/embed/${b.text}" style="width:100%;height:400px"></iframe>`:""
+  d.onclick=e=>{e.stopPropagation();document.querySelectorAll(".block").forEach(x=>x.classList.remove("selected"));d.classList.add("selected");showToolbar(d,i)}
+  d.querySelectorAll("[contenteditable]").forEach(x=>x.onblur=()=>{b.text=x.innerText;save();preview()})
+  document.getElementById("blocks").appendChild(d)}
+
+function showToolbar(block,i){/* simple version – you’ll get floating toolbar in v2 */}
+function preview(){const p=db.pages.find(x=>x.id===currentId)||db.pages[0]
+  let h=`<!DOCTYPE html><html><body style="margin:0;font-family:sans-serif">`
+  const hero=db.heroes[p.id]||{type:"none"}
+  if(hero.type==="image")h+=`<div style="height:100vh;background:url(${hero.src}) center/cover fixed;display:flex;align-items:center;justify-content:center;color:white;text-align:center"><h1 style="font-size:5rem;text-shadow:0 0 30px black">${p.title}</h1></div>`
+  p.blocks.forEach(b=>{if(b.type==="heading")h+=`<h1 style="text-align:center;padding:60px">${b.text}</h1>`;else if(b.type==="paragraph")h+=`<p style="max-width:800px;margin:40px auto;line-height:1.8">${b.text}</p>`})
+  })
+  h+="</body></html>"
+  const blob=new Blob([h],{type:"text/html"})
+  document.getElementById("frame").src=URL.createObjectURL(blob)}
+
+renderPages()
+</script>
 </body>
+</html>
 
 
 
