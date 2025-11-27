@@ -189,4 +189,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+// main.js - core client UI
+document.addEventListener('DOMContentLoaded', () => {
+  // mobile nav toggle
+  const toggles = document.querySelectorAll('.mobile-menu-toggle');
+  toggles.forEach(t => {
+    t.addEventListener('click', () => {
+      const nav = document.querySelector('.nav-menu');
+      if (nav) nav.classList.toggle('active');
+    });
+  });
 
+  // back-to-top
+  const backTop = document.getElementById('backTop');
+  if (backTop) {
+    window.addEventListener('scroll', () => {
+      backTop.style.display = window.scrollY > 250 ? 'block' : 'none';
+    });
+    backTop.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+  }
+
+  // hero slideshow simple (if .hero-slide images exist)
+  const slides = document.querySelectorAll('.hero-slide');
+  if (slides.length) {
+    let i = 0;
+    slides.forEach((s, idx) => s.style.opacity = idx === 0 ? '1' : '0');
+    setInterval(() => {
+      slides.forEach((s, idx) => s.style.opacity = (idx === i ? '1' : '0'));
+      i = (i + 1) % slides.length;
+    }, 6000);
+  }
+});
