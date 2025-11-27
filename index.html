@@ -36,14 +36,9 @@
 
 <!-- Dynamic Podbean-Style Menu -->
 <script>
-  // Check if this page should have transparent menu
-  fetch('site-data.json').then(r=>r.json()).then(data=>{
-    const page = data.pages.find(p=>p.title==="Home"); // change "Home" to match this page later
-    if(page?.hero?.transparentMenu){
-      document.body.dataset.transparent = "true";
-      document.getElementById("menu").style.background = "rgba(0,0,0,0.4)";
-    }
-  }).catch(()=>{});
+  // Temporary safe fix — menu always shows solid until we finish the full system
+  document.getElementById("menu") && (document.getElementById("menu").style.background = "rgba(0,0,0,0.9)");
+</script>
 </script>
   <ul></ul>
 </nav>
