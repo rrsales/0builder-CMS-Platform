@@ -24,42 +24,53 @@
     <!-- SIDEBAR -->
     <aside class="admin-sidebar">
       <h2>Admin</h2>
-      <div class="sidebar-btn" data-section="section-pages">Pages</div>
-      <div class="sidebar-btn" data-section="section-editPage">Edit Page</div>
-      <div class="sidebar-btn" data-section="section-appearance">Appearance</div>
-      <div class="sidebar-btn" data-section="section-heroes">Hero</div>
-      <div class="sidebar-btn" data-section="section-media">Media</div>
-      <div class="sidebar-btn" id="logoutBtn" style="background:#ff4444">Logout</div>
+      <div class="sidebar-btn" data-section="pages">Pages</div>
+      <div class="sidebar-btn" data-section="editPage">Edit Page</div>
+      <div class="sidebar-btn" data-section="heroes">Hero Settings</div>
+      <div class="sidebar-btn" data-section="appearance">Appearance</div>
+      <div class="sidebar-btn" data-section="media">Media Library</div>
+      <div class="sidebar-btn" id="logoutBtn" style="background:#ff4d4d;">Logout</div>
     </aside>
 
     <!-- WORKSPACE -->
     <div class="admin-content">
 
-      <!-- PAGES SECTION -->
+      <!-- PAGES -->
       <div id="section-pages" class="admin-section">
         <h2>Pages</h2>
         <div id="pagesList"></div>
+
         <hr>
         <h3>Add Page</h3>
-        <input id="newPageTitle" placeholder="Page title">
+        <input id="newPageTitle" type="text" placeholder="Page Title">
         <button id="addPageBtn">Add Page</button>
       </div>
 
-      <!-- EDIT PAGE SECTION -->
+      <!-- EDIT PAGE -->
       <div id="section-editPage" class="admin-section" style="display:none;">
         <h2>Edit Page</h2>
+
         <label>Title</label>
         <input id="editPageTitle">
 
-        <label>Slug (URL)</label>
+        <label>Slug</label>
         <input id="editPageSlug">
 
         <hr>
-        <h3>Hero Settings</h3>
-        <label>Type</label>
+        <h3>Rich Text Editor Coming Next (Block Editor)</h3>
+      </div>
+
+      <!-- HERO -->
+      <div id="section-heroes" class="admin-section" style="display:none;">
+        <h2>Hero Settings</h2>
+
+        <label>Select Page</label>
+        <select id="heroPageSelect"></select>
+
+        <label>Hero Type</label>
         <select id="heroType">
           <option value="none">None</option>
-          <option value="image">Image</option>
+          <option value="image">Still Image</option>
           <option value="parallax">Parallax</option>
           <option value="slideshow">Slideshow</option>
           <option value="video">Video</option>
@@ -82,25 +93,17 @@
       <!-- APPEARANCE -->
       <div id="section-appearance" class="admin-section" style="display:none;">
         <h2>Appearance</h2>
-        <label>Nav Color</label>
+        <label>Primary Color</label>
         <input type="color" id="navColor">
 
         <label>Background Color</label>
         <input type="color" id="bgColor">
       </div>
 
-      <!-- HERO SETTINGS -->
-      <div id="section-heroes" class="admin-section" style="display:none;">
-        <h2>Hero Settings</h2>
-        <label>Select Page</label>
-        <select id="heroPageSelect"></select>
-      </div>
-
       <!-- MEDIA -->
       <div id="section-media" class="admin-section" style="display:none;">
         <h2>Media Library</h2>
-        <input type="file" id="imageUpload">
-        <button id="uploadImageBtn">Upload</button>
+        <p>Upload system coming next.</p>
         <div id="imageGrid"></div>
       </div>
 
@@ -110,9 +113,9 @@
 
 <!-- SCRIPTS -->
 <script src="assets/js/admin.js"></script>
-
 </body>
 </html>
+
 
 
 
