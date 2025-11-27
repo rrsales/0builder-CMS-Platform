@@ -5,43 +5,40 @@
 <title>Honest News – Admin Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body,html{margin:0;height:100%;font-family:system-ui,sans-serif;background:#0d1117;color:white;display:flex;align-items:center;justify-content:center}
-  .login-box{background:#161b22;padding:60px 50px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.6);text-align:center;width:380px;border:1px solid #30363d}
-  h1{font-size:2.2rem;margin-bottom:10px;color:#58a6ff}
-  p{font-size:1rem;margin-bottom:30px;opacity:0.9}
-  input{width:100%;padding:16px;margin:10px 0;border-radius:8px;border:1px solid #30363d;background:#21262d;color:white;font-size:1.1rem}
-  button{width:100%;padding:16px;background:#238636;color:white;border:none;border-radius:8px;font-size:1.1rem;font-weight:bold;cursor:pointer;margin-top:10px}
-  button:hover{background:#1f6feb}
-  #error{color:#f85149;margin-top:15px;display:none}
+  body{margin:0;background:linear-gradient(135deg,#0066cc,#003366);height:100vh;display:flex;align-items:center;justify-content:center;color:#fff;font-family:system-ui,sans-serif}
+  .login-box{background:#fff;color:#333;padding:60px 50px;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;width:380px}
+  .login-box h1{color:#0066cc;margin:0 0 30px;font-size:2rem}
+  input{width:100%;padding:16px;margin:20px 0;border:2px solid #ddd;border-radius:10px;font-size:1rem}
+  button{background:#28a745;color:#fff;border:none;padding:16px;border-radius:10px;font-size:1.1rem;cursor:pointer;width:100%;font-weight:bold}
+  button:hover{background:#218838}
+  #msg{color:#c33;margin-top:15px}
 </style>
 </head>
 <body>
 
 <div class="login-box">
-  <h1>Honest News</h1>
-  <p>Admin Panel</p>
-  <input type="password" id="pass" placeholder="Enter password" autocomplete="off">
-  <button id="login">Log In</button>
-  <div id="error">Wrong password</div>
+  <h1>Honest News Admin</h1>
+  <p>Enter your password to edit the site</p>
+  <input type="password" id="pass" placeholder="jesus2025" autofocus>
+  <button id="login">Login</button>
+  <div id="msg"></div>
 </div>
 
 <script>
-const PASS = "jesus2025"; // change anytime
-
 document.getElementById("login").onclick = () => {
-  const input = document.getElementById("pass").value;
-  if(input === PASS){
-    localStorage.setItem("hn_logged","yes");
-    location.href = "dashboard.html"; // next file we'll build
-  }else{
-    document.getElementById("error").style.display = "block";
+  const pass = document.getElementById("pass").value.trim();
+  if(pass === "jesus2025"){
+    localStorage.setItem("hn_logged","yes");   // remember you're logged in
+    location.href = "dashboard.html";
+  } else {
+    document.getElementById("msg").innerText = "Wrong password";
   }
 };
 
-// Auto-enter if already logged in
-if(localStorage.getItem("hn_logged")==="yes"){
-  location.href = "dashboard.html";
-}
+// Optional: press Enter in the field
+document.getElementById("pass").addEventListener("keypress", e => {
+  if(e.key === "Enter") document.getElementById("login").click();
+});
 </script>
 </body>
 </html>
