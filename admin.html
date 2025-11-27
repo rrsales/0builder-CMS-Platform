@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HONEST NEWS – $25K Podcast Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+  :root{--p:#0066cc;--g:#28a745;--d:#dc3545;--b:#f8f9fa}
+  body{margin:0;font-family:system-ui;background:#0d1117;color:#c9d1d9;height:100vh;display:flex}
+  #login,#dash{display:none;flex-direction:column;height:100%}
+  #login.active,#dash.active{display:flex}
+  #loginBox{background:#161b22;padding:60px;border-radius:16px;border:1px solid #30363d;text-align:center;width:420px;margin:auto}
+  input,button,select{padding:14px;border-radius:8px;border:none;margin:8px 0;width:100%;font-size:16px}
+  button{background:var(--g);color:white;cursor:pointer;font-weight:bold}
+  .sidebar{width:280px;background:#161b22;border-right:1px solid #30363d;padding:20px}
+  .tab{padding:16px;margin:8px 0;border-radius:8px;cursor:pointer;background:#21262d}
+  .tab.active,.tab:hover{background:var(--p)}
+  .main{flex:1;display:flex;flex-direction:column;background:#0d1117}
+  .header{background:#161b22;padding:20px;display:flex;justify-content:space-between;align-items:center}
+  .content{flex:1;overflow:auto;padding:30px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+  .card{background:#161b22;padding:20px;border-radius:12px;border:1px solid #30363d}
+  .episode{margin:12px 0;padding:15px;background:#21262d;border-radius:8px;position:relative}
+  .episode.dragging{opacity:0.5;background:var(--p)}
+  textarea{width:100%;min-height:120px;background:#21262d;color:white;border:1px solid #30363d;border-radius:8px;padding:12px}
+</style>
+</head>
+<body>
+
+<div id="login" class="active">
+  <div id="loginBox">
+    <h1 style="color:var(--p);margin:0 0 30px">HONEST NEWS</h1>
+    <input type="password" id="pass" placeholder="Admin password">
+    <button id="enter">Enter $25,000 Dashboard</button>
+    <div id="msg" style="color:#f85149;margin-top:15px"></div>
+  </div>
+</div>
+
+<div id="dash">
+  <div class="sidebar">
+    <h2 style="color:var(--p);margin:0 0 30px">Dashboard</h2>
+    <div class="tab active" data-tab="episodes">Episodes</div>
+    <div class="tab" data-tab="rss">RSS & Distribution</div>
+    <div class="tab" data-tab="site">Site Settings</div>
+    <div class="tab" data-tab="monetize">Monetization</div>
+    <div class="tab" data-tab="analytics">Analytics</div>
+    <button style="margin-top:40px;width:100%;background:var(--d)" onclick="location.reload()">Logout</button>
+  </div>
+
+  <div class="main">
+    <div class="header">
+      <h2 id="sectionTitle">Episodes</h2>
+      <button onclick="saveAll()">SAVE ALL</button>
+    </div>
+    <div class="content" id="contentArea">
+      <p>Loading your podcast empire...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// PASSWORD: honest2025 (change anytime)
+const PASS = "honest2025";
+let db = {episodes:[],settings:{title:"Honest News",desc:"Biblical Truth Uncensored",art:"https://via.placeholder.com/1400"}};
+
+function load(){const s=localStorage.getItem("HN25K");if(s)db=JSON.parse(s)}
+function saveAll(){localStorage.setItem("HN25K",JSON.stringify(db));alert("All saved!")}
+
+document.getElementById("enter").onclick=()=>{if(document.getElementById("pass").value===PASS){
+  document.getElementById("login").classList.remove("active");
+  document.getElementById("dash").classList.add("active");
+  load(); showEpisodes();
+}else document.getElementById("msg").textContent="Wrong password"}
+
+function showEpisodes(){
+  document.getElementById("sectionTitle").textContent="Episodes";
+  let h=`<button onclick="newEpisode()" style="background:var(--g);padding:12px 24px">+ New Episode</button><div id="list" ondrop="drop(event)" ondragover="allowDrop(event)">`;
+  db.episodes.forEach((e,i)=>h+=episodeHTML(e,i));
+  h+="</div>";
+  document.getElementById("contentArea").innerHTML=h;
+}
+
+function episodeHTML(e,i){
+  return `<div class="episode" draggable="true" ondragstart="drag(${i})" id="ep${i}">
+    <strong>${e.title||"(no title)"}</strong> ${e.published?"(Published)":"(Draft)"}
+    <button onclick="editEpisode(${i})" style="float:right;background:var(--p)">Edit</button>
+  </div>`;
+}
+
+window.newEpisode=()=>{editEpisode(db.episodes.push({title:"",desc:"",audio:"",published:false,pubDate:Date.now()})-1)}
+window.editEpisode=i=>{
+  const e=db.episodes[i];
+  document.getElementById("contentArea").innerHTML=`
+    <button onclick="showEpisodes()">Back</button>
+    <h2>Edit Episode</h2>
+    <input value="${e.title}" onchange="db.episodes[${i}].title=this.value" placeholder="Episode Title" style="font-size:20px">
+    <textarea onchange="db.episodes[${i}].desc=this.value" placeholder="Description">${e.desc||""}</textarea>
+    <input value="${e.audio||""}" onchange="db.episodes[${i}].audio=this.value" placeholder="Audio URL (mp3)">
+    <input value="${e.art||""}" onchange="db.episodes[${i}].art=this.value" placeholder="Episode Art URL">
+    <label><input type="checkbox" ${e.published?"checked":""} onchange="db.episodes[${i}].published=this.checked"> Published</label>
+    <button onclick="saveAll();showEpisodes()" style="background:var(--g)">Save & Back</button>
+  `;
+}
+
+window.drag=i=>window.dragging=i;
+window.allowDrop=e=>{e.preventDefault()}
+window.drop=e=>{
+  e.preventDefault();
+  const from=window.dragging;
+  const to=[...document.querySelectorAll(".episode")].indexOf(e.target.closest(".episode"));
+  if(from!==to&&from>-1&&to>-1){
+    [db.episodes[from],db.episodes[to]]=[db.episodes[to],db.episodes[from]];
+    showEpisodes();
+  }
+}
+
+// RSS Tab (one-click copy)
+document.querySelector('[data-tab="rss"]').onclick=()=>{
+  document.getElementById("sectionTitle").textContent="RSS Feed";
+  const rss=`https://rrsales.github.io/Honest-News/rss.xml`;
+  document.getElementById("contentArea").innerHTML=`
+    <p><strong>Your live RSS feed:</strong></p>
+    <input value="${rss}" readonly style="width:100%">
+    <button onclick="navigator.clipboard.writeText('${rss}')" style="background:var(--p)">Copy RSS URL</button>
+    <p style="margin-top:20px"><a href="${rss}" target="_blank">Open RSS Feed</a></p>
+    <p>Submit this URL to Apple Podcasts, Spotify, Google Podcasts.</p>
+  `;
+}
+
+// Auto-create rss.xml on save
+saveAll=()=>{
+  localStorage.setItem("HN25K",JSON.stringify(db));
+  generateRSS();
+  alert("Saved + RSS updated!");
+}
+
+function generateRSS(){
+  let xml=`<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+<channel>
+<title>${db.settings?.title||"Honest News"}</title>
+<link>https://rrsales.github.io/Honest-News/</link>
+<description>${db.settings?.desc||"Biblical Truth"}</description>
+<itunes:image href="${db.settings?.art||""}"/>
+`;
+  db.episodes.filter(e=>e.published).forEach(e=>{
+    xml+=`<item>
+<title>${e.title}</title>
+<description>${e.desc}</description>
+<enclosure url="${e.audio}" length="0" type="audio/mpeg"/>
+<pubDate>${new Date(e.pubDate).toUTCString()}</pubDate>
+</item>`;
+  });
+  xml+="</channel></rss>";
+  const blob=new Blob([xml],{type:"application/rss+xml"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="rss.xml";a.click();
+  // In real use, you just commit the generated rss.xml to your repo
+}
+
+// Start
+showEpisodes();
+</script>
+</body>
+</html>
