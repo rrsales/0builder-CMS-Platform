@@ -1,58 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-page="home">
 <head>
 <meta charset="UTF-8">
 <title>Honest News Network – Home</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Live CMS Engine -->
+<script src="live.js" defer></script>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
   :root { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:system-ui,sans-serif; margin:0; background:#fff; color:#333; line-height:1.6; }
-  
-  <script src="live.js" defer></script>
-  
-  /* MENU – SOLID DARK, RESPONSIVE */
+
+  /* MENU – controlled by CMS (transparent toggle supported) */
   #menu {
     background:rgba(0,0,0,0.95);
     position:fixed; top:0; left:0; right:0; z-index:1000;
     display:flex; justify-content:space-between; align-items:center;
     padding:15px 30px; backdrop-filter:blur(10px);
+    transition:background .3s ease;
   }
+  #menu.transparent { background:rgba(0,0,0,0.3); }
+  
   #menu .logo { color:#fff; font-weight:700; font-size:1.5rem; text-decoration:none; }
   #menu ul { list-style:none; display:flex; gap:40px; margin:0; padding:0; }
   #menu a { color:#fff; text-decoration:none; font-weight:600; font-size:1.1rem; }
   #menu a:hover, #menu a.active { color:#28a745; border-bottom:3px solid #28a745; padding-bottom:5px; }
   .hamburger { display:none; color:#fff; font-size:1.8rem; cursor:pointer; }
 
-  main { margin-top:80px; padding:20px; }
-  .hero { height:100vh; background:linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80') center/cover fixed;
-    color:white; display:flex; align-items:center; justify-content:center; text-align:center; }
-  .hero h1 { font-size:3.5rem; margin:0; }
-  .hero p { font-size:1.3rem; margin:15px 0 30px; }
-  .cta { background:#28a745; color:white; padding:16px 40px; border-radius:50px; text-decoration:none; font-weight:600; display:inline-block; }
-  .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:40px; max-width:1200px; margin:80px auto; text-align:center; }
+  main { margin-top:80px; padding:0; }
+
+  /* HERO – now dynamically controlled by live.js */
+  #hero {
+    width:100%;
+    height:100vh;
+    background-size:cover; 
+    background-position:center;
+    background-repeat:no-repeat;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    position:relative;
+    color:white;
+    overflow:hidden;
+  }
+  #heroOverlay {
+    position:relative;
+    z-index:2;
+    padding:20px;
+  }
+  #heroOverlay h1 { font-size:3.5rem; margin:0; }
+  #heroOverlay p { font-size:1.3rem; margin:15px 0 30px; }
+
+  /* darkening overlay (controlled by transparentMenu toggle) */
+  #heroShade {
+    position:absolute; inset:0;
+    background:rgba(0,0,0,0.55);
+    z-index:1;
+    transition:background .3s ease;
+  }
+
+  /* other sections remain the same */
+  .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:40px; max-width:1200px; margin:80px auto; padding:20px; text-align:center; }
   .feature i { font-size:3.5rem; color:#0066cc; margin-bottom:20px; }
+
   .stats { background:#f8f9fa; padding:80px 20px; text-align:center; }
-  .stats h2 { margin-bottom:40px; }
   .stat-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:60px; }
   .stat h3 { font-size:3rem; color:#0066cc; margin:0; }
+
   footer { background:#111; color:#aaa; text-align:center; padding:30px; }
 
   @media (max-width:768px) {
     .hamburger { display:block; }
-    #menu ul { position:fixed; top:70px; left:-100%; width:100%; height:calc(100vh-70px);
+    #menu ul { position:fixed; top:70px; left:-100%; width:100%; height:calc(100vh - 70px);
       background:rgba(0,0,0,0.98); flex-direction:column; align-items:center; padding-top:60px;
-      transition:left 0.35s ease; gap:0; }
+      transition:left .35s ease; gap:0; }
     #menu ul.open { left:0; }
     #menu a { font-size:1.6rem; padding:20px; width:100%; }
-    .hero h1 { font-size:2.5rem; }
+    #heroOverlay h1 { font-size:2.4rem; }
   }
 </style>
 </head>
+
 <body>
 
+<!-- MENU (filled by live.js from site-data.json) -->
 <nav id="menu">
-  <a href="index.html" class="logo">Honest News</a>
+  <a class="logo" href="index.html">Honest News</a>
   <ul id="menuList"></ul>
   <div class="hamburger" onclick="document.getElementById('menuList').classList.toggle('open')">
     <i class="fas fa-bars"></i>
@@ -60,15 +97,17 @@
 </nav>
 
 <main>
-  <div class="hero">
-    <div>
-      <h1>Honest News Network</h1>
-      <p>Everything You Need for Biblical Truth</p>
-      <p>From recording to reaching thousands – all in one place.</p>
-      <a href="podcast.html" class="cta">Get Started Free</a>
-    </div>
-  </div>
 
+  <!-- CMS Hero -->
+  <section id="hero">
+    <div id="heroShade"></div>
+    <div id="heroOverlay">
+      <h1></h1>
+      <p></p>
+    </div>
+  </section>
+
+  <!-- Static Sections Below Hero -->
   <div class="features">
     <div class="feature">
       <i class="fas fa-microphone"></i>
@@ -101,32 +140,13 @@
     <p>Join thousands who trust us for honest teaching.</p>
     <a href="support.html" class="cta">Support Now</a>
   </div>
+
 </main>
 
 <footer>
   <p>© 2025 Honest News Network | All Rights Reserved</p>
 </footer>
 
-<script>
-// Fill menu + active state
-const items = [
-  {title:"Home", url:"index.html"},
-  {title:"Podcast", url:"podcast.html"},
-  {title:"Shop", url:"shop.html"},
-  {title:"About", url:"about.html"},
-  {title:"Contact", url:"contact.html"}
-];
-const ul = document.getElementById("menuList");
-items.forEach(item => {
-  const li = document.createElement("li");
-  const a = document.createElement("a");
-  a.href = item.url;
-  a.textContent = item.title;
-  if (location.pathname.endsWith(item.url) || (item.url==="index.html" && location.pathname==="/Honest-News/")) a.classList.add("active");
-  li.appendChild(a);
-  ul.appendChild(li);
-});
-</script>
-
 </body>
 </html>
+
