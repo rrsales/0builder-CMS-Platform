@@ -1,55 +1,85 @@
-<script src="live.js"></script>
 document.addEventListener("DOMContentLoaded", () => {
   const body = document.body;
-  const pageSlug = body.getAttribute("data-page") || "home";
+  const slug = body.getAttribute("data-page") || "home";
+  const hero = document.querySelector(".hero, .hero-carousel");
 
-  // The hero section on the page
-  const hero = document.querySelector(".hero");
-  if (!hero) return; // if page has no hero, do nothing
-
-  // Fetch site-data.json (must be in the repo root)
   fetch("site-data.json", { cache: "no-store" })
-    .then(res => res.json())
+    .then(r => r.json())
     .then(site => {
       if (!site.pages) return;
 
-      const page = site.pages.find(p => p.slug === pageSlug || p.title === "Home");
-      if (!page || !page.hero) return;
+      const page = site.pages.find(p => p.slug === slug);
+      if (!page) return;
 
-      const h = page.hero;
+      const h = page.hero || {};
 
-      // Apply background image
-      if (h.bg) {
-        hero.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)), url('${h.bg}')`;
+      // --------------------------------------------------------
+      // HERO BACKGROUND
+      // --------------------------------------------------------
+      if (hero && h.bg) {
+        hero.style.backgroundImage =
+          `linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)), url('${h.bg}')`;
+        hero.style.backgroundSize = "cover";
+        hero.style.backgroundPosition = "center";
       }
 
-      // Apply text (expects .hero h1 and .hero p elements)
-      const titleEl = hero.querySelector("h1");
-      const subEls = hero.querySelectorAll("p");
-      if (titleEl && h.overlay) titleEl.textContent = h.overlay;
-      if (subEls[0] && h.sub) subEls[0].textContent = h.sub;
-
-      // Apply hero size
-      let height = "100vh";
-      switch (h.size) {
-        case "small":  height = "40vh"; break;
-        case "medium": height = "60vh"; break;
-        case "large":  height = "80vh"; break;
-        case "full":   height = "100vh"; break;
-        case "custom":
-          height = h.customHeight && h.customHeight.trim() ? h.customHeight.trim() : "100vh";
-          break;
+      // --------------------------------------------------------
+      // HERO HEIGHT
+      // --------------------------------------------------------
+      if (hero) {
+        let height = "100vh";
+        switch (h.size) {
+          case "small":  height = "40vh"; break;
+          case "medium": height = "60vh"; break;
+          case "large":  height = "80vh"; break;
+          case "full":   height = "100vh"; break;
+          case "custom":
+            height = (h.customHeight || "100vh");
+            break;
+        }
+        hero.style.height = height;
       }
-      hero.style.height = height;
 
-      // Transparent menu toggle (if your header supports it)
-      if (h.transparentMenu) {
-        document.documentElement.style.setProperty("--menu-bg", "transparent");
-      } else {
-        document.documentElement.style.setProperty("--menu-bg", "rgba(0,0,0,0.95)");
+      // --------------------------------------------------------
+      // TITLE + SUBTITLE
+      // --------------------------------------------------------
+      const title = hero?.querySelector("h1");
+      const sub   = hero?.querySelector("p");
+
+      if (title) title.textContent = h.overlay || "";
+      if (sub)   sub.textContent = h.sub || "";
+
+      // --------------------------------------------------------
+      // MENU TRANSPARENCY
+      // --------------------------------------------------------
+      const header = document.querySelector("header");
+      if (header) {
+        if (h.transparentMenu) {
+          header.style.background = "transparent";
+        } else {
+          header.style.background = "rgba(0,0,0,0.95)";
+        }
+      }
+
+      // --------------------------------------------------------
+      // PARALLAX & FLOAT BEHAVIOR
+      // (basic starter — can expand later)
+      // --------------------------------------------------------
+      if (h.behavior === "parallax-medium" || h.behavior === "parallax-slow") {
+        window.addEventListener("scroll", () => {
+          const rate = h.behavior === "parallax-slow" ? 0.15 : 0.3;
+          hero.style.transform = `translateY(${window.scrollY * rate}px)`;
+        });
+      }
+
+      if (h.behavior === "float-up") {
+        hero.style.transition = "transform 1.2s ease-out";
+        hero.style.transform = "translateY(35px)";
+        setTimeout(() => {
+          hero.style.transform = "translateY(0px)";
+        }, 80);
       }
     })
-    .catch(err => {
-      console.warn("live.js could not load site-data.json", err);
-    });
+    .catch(err => console.log("live.js error:", err));
 });
+
