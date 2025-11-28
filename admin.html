@@ -24,30 +24,9 @@
     text-align:center;
     width:380px
   }
-  .login-box h1{
-    color:#0066cc;
-    margin:0 0 30px;
-    font-size:2rem
-  }
-  input{
-    width:100%;
-    padding:16px;
-    margin:20px 0;
-    border:2px solid #ddd;
-    border-radius:10px;
-    font-size:1rem
-  }
-  button{
-    background:#28a745;
-    color:#fff;
-    border:none;
-    padding:16px;
-    border-radius:10px;
-    font-size:1.1rem;
-    cursor:pointer;
-    width:100%;
-    font-weight:bold
-  }
+  .login-box h1{color:#0066cc;margin:0 0 30px;font-size:2rem}
+  input{width:100%;padding:16px;margin:20px 0;border:2px solid #ddd;border-radius:10px;font-size:1rem}
+  button{background:#28a745;color:#fff;border:none;padding:16px;border-radius:10px;font-size:1.1rem;cursor:pointer;width:100%;font-weight:bold}
   button:hover{background:#218838}
   #msg{color:#c33;margin-top:15px;font-size:.9rem}
 </style>
@@ -63,24 +42,21 @@
 </div>
 
 <script>
-// THIS IS THE ONLY THING THAT CHANGED
-// Force clean login every time you open this page
+// Always show login screen (clears any stuck flag)
 localStorage.removeItem("hn_logged");
 
-// Normal login – exactly like you had
-function doLogin(){
-  const pass = document.getElementById("pass").value.trim();
-  if (pass === "jesus2025") {
+// New password = jo5765
+document.getElementById("login").onclick = function(){
+  if(document.getElementById("pass").value.trim() === "jo5765"){
     localStorage.setItem("hn_logged","yes");
     location.href = "dashboard.html";
   } else {
     document.getElementById("msg").innerText = "Wrong password";
   }
-}
+};
 
-document.getElementById("login").onclick = doLogin;
-document.getElementById("pass").addEventListener("keypress", e => {
-  if(e.key === "Enter") doLogin();
+document.getElementById("pass").addEventListener("keypress", e=>{
+  if(e.key==="Enter") document.getElementById("login").click();
 });
 </script>
 
