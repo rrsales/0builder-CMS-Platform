@@ -67,7 +67,17 @@ textarea{resize:vertical;min-height:80px}
 </head>
 
 <body>
-
+<!-- JOSEPH WELCOME + SAVE BUTTON -->
+<div style="background:#0066cc;color:white;padding:20px 40px;text-align:center;font-size:1.4rem;font-weight:bold;position:relative;">
+  Welcome back, Joseph
+  <button onclick="localStorage.removeItem('hn_logged');location.href='admin.html'" 
+          style="position:absolute;right:20px;top:15px;background:#c33;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;">
+    Log Out
+  </button>
+  <button onclick="pushToGithub()" 
+          style="position:absolute;left:20px;top:15px;background:#16a34a;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;">
+    SAVE TO GITHUB
+  </button>
 <div class="header">
   <h1>Honest News – Site Editor</h1>
   <a href="/" target="_blank">View Live Site →</a>
