@@ -1187,6 +1187,21 @@ async function saveToGithub() {
   a.click();
   alert("Downloaded! Drag this file into your GitHub repo → site updates instantly");
 }
-</script></body>
+</script>
+
+</body>
+<script>
+async function saveToGithub() {
+  if (!confirm("Push all changes live now?")) return;
+  const data = JSON.stringify(siteData, null, 2);
+  const blob = new Blob([data], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'site-data.json';
+  a.click();
+  alert("Downloaded! Drag this file into your GitHub repo → everything updates instantly");
+}
+</script>
 </html>
 
