@@ -1,71 +1,72 @@
 {
   "menu": [
     {
-      "title": "Home",
-      "url": "index.html"
+      "id": "home",
+      "label": "Home",
+      "url": "index.html",
+      "type": "link",             // link | dropdown | mega
+      "showOn": "both",           // both | desktop | mobile | hidden
+      "subItems": []
     },
     {
-      "title": "Podcast",
-      "url": "podcast.html"
+      "id": "podcast",
+      "label": "Podcast",
+      "url": "podcast.html",
+      "type": "link",
+      "showOn": "both",
+      "subItems": []
     },
     {
-      "title": "Shop",
-      "url": "shop.html"
+      "id": "shop",
+      "label": "Shop",
+      "url": "shop.html",
+      "type": "link",
+      "showOn": "both",
+      "subItems": []
     },
     {
-      "title": "Support",
-      "url": "support.html"
+      "id": "resources",
+      "label": "Resources",
+      "url": "#",
+      "type": "mega",            // ← Podbean-style big panel
+      "showOn": "desktop",
+      "subItems": [
+        {
+          "label": "Getting started",
+          "url": "getting-started.html",
+          "description": "How Honest News + podcast + YouTube fit together."
+        },
+        {
+          "label": "For Pastors",
+          "url": "pastors.html",
+          "description": "Tools and workflows to preach, record, and publish."
+        },
+        {
+          "label": "For Listeners",
+          "url": "listeners.html",
+          "description": "Where to listen, how to subscribe, how to support."
+        }
+      ]
     },
     {
-      "title": "Contact",
-      "url": "contact.html"
+      "id": "support",
+      "label": "Support",
+      "url": "support.html",
+      "type": "link",
+      "showOn": "both",
+      "subItems": []
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "url": "contact.html",
+      "type": "link",
+      "showOn": "both",
+      "subItems": []
     }
   ],
+
   "pages": [
-    {
-      "title": "Home",
-      "slug": "home",
-      "theme": "light",
-      "hero": {
-        "bg": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
-        "overlay": "Honest News Network",
-        "sub": "Everything You Need for Biblical Truth",
-        "transparentMenu": true,
-        "behavior": "parallax-medium",
-        "size": "custom",
-        "customHeight": ""
-      },
-      "blocks": []
-    },
-    {
-      "title": "Podcast",
-      "slug": "podcast",
-      "theme": "dark",
-      "hero": {
-        "bg": "",
-        "overlay": "Latest Episodes",
-        "sub": "New episodes every Sunday",
-        "transparentMenu": true,
-        "behavior": "parallax-slow",
-        "size": "full",
-        "customHeight": ""
-      },
-      "blocks": []
-    },
-    {
-      "title": "Shop",
-      "slug": "shop",
-      "theme": "dark",
-      "hero": {
-        "bg": "",
-        "overlay": "Recommended Resources",
-        "sub": "Support your walk and support the ministry",
-        "transparentMenu": true,
-        "behavior": "still",
-        "size": "medium",
-        "customHeight": ""
-      },
-      "blocks": []
-    }
+    /* keep your existing pages array exactly as it is now */
   ]
 }
