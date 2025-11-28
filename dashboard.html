@@ -8,8 +8,7 @@
 <!-- PROTECT DASHBOARD: only enter if logged in -->
 <script>
   if (localStorage.getItem("hn_logged") !== "yes") {
-    // This does NOT change your password logic.
-    // It only sends people to admin.html if not logged in.
+    // Only sends people to admin.html if not logged in.
     location.href = "admin.html";
   }
 </script>
@@ -34,21 +33,7 @@
 
   *{box-sizing:border-box;}
 
-  body
-  
-  <!-- JOSEPH WELCOME + SAVE BUTTON -->
-<div style="background:#0066cc;color:white;padding:20px 40px;text-align:center;font-size:1.4rem;font-weight:bold;position:relative;">
-  Welcome back, Joseph
-  <button onclick="localStorage.removeItem('hn_logged');location.href='admin.html'"
-          style="position:absolute;right:20px;top:15px;background:#c33;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;">
-    Log Out
-  </button>
-  <button onclick="saveToGithub()"
-          style="position:absolute;left:20px;top:15px;background:#16a34a;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;">
-    SAVE TO GITHUB
-  </button>
-</div>
-  {
+  body{
     margin:0;
     font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     background: radial-gradient(circle at top, #e5f0ff 0, #f3f4f6 40%, #e5e7eb 100%);
@@ -56,6 +41,41 @@
     height:100vh;
     display:flex;
     flex-direction:column;
+  }
+
+  /* TOP BAR (WELCOME + SAVE TO GITHUB + LOGOUT) */
+  .top-bar{
+    background:#0066cc;
+    color:white;
+    padding:12px 40px;
+    font-size:1.05rem;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  .top-bar-buttons{
+    position:absolute;
+    right:20px;
+    display:flex;
+    gap:10px;
+  }
+  .top-bar-buttons button{
+    background:#16a34a;
+    color:white;
+    border:none;
+    padding:8px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:.85rem;
+    font-weight:600;
+  }
+  .top-bar-buttons button.logout{
+    background:#c33;
+  }
+  .top-bar-buttons button:hover{
+    opacity:0.9;
   }
 
   /* HEADER */
@@ -178,6 +198,77 @@
     font-family:inherit;
     resize:vertical;
     min-height:70px;
+  }
+
+  /* MENU DESIGNER */
+  .menu-list{
+    margin-top:6px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .menu-item-row{
+    background:#f9fafb;
+    border-radius:12px;
+    border:1px solid #e5e7eb;
+    padding:8px;
+    font-size:.78rem;
+  }
+  .menu-item-row-top{
+    display:flex;
+    gap:6px;
+    align-items:center;
+    margin-bottom:4px;
+  }
+  .menu-item-row-top input[type="text"],
+  .menu-item-row-top input[type="url"],
+  .menu-item-row-top select{
+    flex:1;
+    padding:6px 8px;
+    border-radius:8px;
+    border:1px solid #cbd5e1;
+    font-size:.78rem;
+  }
+  .menu-item-row-top .menu-actions{
+    display:flex;
+    gap:4px;
+  }
+  .menu-actions button{
+    border:none;
+    background:#e5e7eb;
+    border-radius:999px;
+    padding:4px 7px;
+    cursor:pointer;
+    font-size:.7rem;
+  }
+  .menu-actions button:hover{
+    background:#d1d5db;
+  }
+  .menu-item-row-bottom{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    margin-top:4px;
+  }
+  .menu-item-row-bottom textarea{
+    width:100%;
+    min-height:50px;
+    border-radius:8px;
+    border:1px solid #cbd5e1;
+    padding:6px 8px;
+    font-size:.76rem;
+    resize:vertical;
+  }
+  .menu-flags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    font-size:.74rem;
+  }
+  .menu-flags label{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
   }
 
   /* CONTENT AREA */
@@ -406,6 +497,17 @@
 </head>
 <body>
 
+<!-- TOP BLUE BAR -->
+<div class="top-bar">
+  <span>Welcome back, Joseph</span>
+  <div class="top-bar-buttons">
+    <button onclick="saveToGithub()">SAVE TO GITHUB</button>
+    <button class="logout" onclick="localStorage.removeItem('hn_logged');location.href='admin.html'">
+      Log Out
+    </button>
+  </div>
+</div>
+
 <div class="header">
   <div class="header-left">
     <h1>Honest News Editor</h1>
@@ -414,7 +516,7 @@
   <div class="header-right">
     <span id="saveStatus" class="pill">Clean</span>
     <button id="saveDraftBtn" class="btn secondary">
-      <i class="fa-regular fa-floppy-disk"></i> Save draft (local)
+      <i class="fa-regular fa-floppy-disk"></i> Save
     </button>
     <button id="downloadBtn" class="btn ghost">
       Download JSON
@@ -442,9 +544,9 @@
     <div style="margin-top:16px;">
       <h3>Navigation</h3>
       <p class="field-hint" style="margin-top:4px;">
-        One per line: <code>Title | URL</code>
+        Desktop + mobile menu. Each item can be <strong>simple</strong> or a future <strong>mega panel</strong>.
       </p>
-      <textarea id="menuRaw" class="textarea-small" oninput="menuFromRaw(this.value)"></textarea>
+      <div id="menuDesigner"></div>
     </div>
   </aside>
 
@@ -480,11 +582,11 @@
 
 let site = {
   menu: [
-    { title:"Home", url:"index.html" },
-    { title:"Podcast", url:"podcast.html" },
-    { title:"Shop", url:"shop.html" },
-    { title:"Support", url:"support.html" },
-    { title:"Contact", url:"contact.html" }
+    { title:"Home",    url:"index.html",  type:"simple" },
+    { title:"Podcast", url:"podcast.html",type:"simple" },
+    { title:"Shop",    url:"shop.html",   type:"simple" },
+    { title:"Support", url:"support.html",type:"simple" },
+    { title:"Contact", url:"contact.html",type:"simple" }
   ],
   pages: [
     {
@@ -552,7 +654,7 @@ function markDirty(){
 function markSavedLocal(){
   isDirty = false;
   const pill = document.getElementById("saveStatus");
-  pill.textContent = "Draft saved locally";
+  pill.textContent = "Saved";
   pill.classList.remove("dirty");
   pill.classList.add("saved");
 }
@@ -568,7 +670,7 @@ function renderPages(){
       <span class="slug">${p.slug||''}</span>
     </div>
   `).join("");
-  rawFromMenu();
+  renderMenuEditor();
 }
 
 function newPage(){
@@ -587,21 +689,128 @@ function newPage(){
 }
 
 /* =======================
-   MENU EDITOR
+   MENU DESIGNER
+   - Simple now, future-ready for mega menus & mobile rules
 ======================= */
-function rawFromMenu(){
-  const ta = document.getElementById("menuRaw");
-  if(!ta) return;
-  ta.value = site.menu.map(m=>`${m.title} | ${m.url}`).join("\n");
+function renderMenuEditor(){
+  const el = document.getElementById("menuDesigner");
+  if(!el) return;
+  if(!Array.isArray(site.menu)) site.menu = [];
+
+  if(site.menu.length === 0){
+    site.menu = [
+      { title:"Home",    url:"index.html",  type:"simple" },
+      { title:"Podcast", url:"podcast.html",type:"simple" }
+    ];
+  }
+
+  el.innerHTML = `
+    <div class="menu-list">
+      ${site.menu.map((item,i)=>menuItemRow(item,i)).join("")}
+    </div>
+    <button class="btn secondary" style="width:100%;margin-top:8px;" type="button" onclick="addMenuItem()">
+      + Add menu item
+    </button>
+  `;
 }
 
-function menuFromRaw(text){
-  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-  site.menu = lines.map(l=>{
-    const [title,url] = l.split("|").map(s=>(s||"").trim());
-    return {title:title||"Item",url:url||"#"};
+function menuItemRow(item,i){
+  const title = item.title || "";
+  const url   = item.url   || "";
+  const type  = item.type  || "simple";
+  const summary = item.summary || "";
+  const showDesktop = item.showDesktop !== false; // default true
+  const showMobile  = item.showMobile  !== false; // default true
+
+  return `
+    <div class="menu-item-row">
+      <div class="menu-item-row-top">
+        <input type="text" placeholder="Title" value="${escapeHtml(title)}"
+               onchange="updateMenuTitle(${i}, this.value)">
+        <input type="url"  placeholder="URL" value="${escapeHtml(url)}"
+               onchange="updateMenuUrl(${i}, this.value)">
+        <select onchange="updateMenuType(${i}, this.value)">
+          <option value="simple" ${type==='simple'?'selected':''}>Simple</option>
+          <option value="mega"   ${type==='mega'?'selected':''}>Mega (panel)</option>
+        </select>
+        <div class="menu-actions">
+          <button type="button" title="Move up" onclick="moveMenuItem(${i},-1)">↑</button>
+          <button type="button" title="Move down" onclick="moveMenuItem(${i},1)">↓</button>
+          <button type="button" title="Remove" onclick="removeMenuItem(${i})">×</button>
+        </div>
+      </div>
+      <div class="menu-item-row-bottom">
+        <textarea placeholder="Optional summary for dropdown / mega panel"
+                  onchange="updateMenuSummary(${i}, this.value)">${escapeHtml(summary)}</textarea>
+        <div class="menu-flags">
+          <label>
+            <input type="checkbox" ${showDesktop?'checked':''}
+                   onchange="updateMenuShowDesktop(${i}, this.checked)">
+            Show on Desktop
+          </label>
+          <label>
+            <input type="checkbox" ${showMobile?'checked':''}
+                   onchange="updateMenuShowMobile(${i}, this.checked)">
+            Show on Mobile
+          </label>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function addMenuItem(){
+  site.menu.push({
+    title:"New item",
+    url:"#",
+    type:"simple",
+    summary:"",
+    showDesktop:true,
+    showMobile:true
   });
   markDirty();
+  renderMenuEditor();
+}
+
+function updateMenuTitle(i,val){
+  site.menu[i].title = val;
+  markDirty();
+}
+function updateMenuUrl(i,val){
+  site.menu[i].url = val;
+  markDirty();
+}
+function updateMenuType(i,val){
+  site.menu[i].type = val;
+  markDirty();
+}
+function updateMenuSummary(i,val){
+  site.menu[i].summary = val;
+  markDirty();
+}
+function updateMenuShowDesktop(i,checked){
+  site.menu[i].showDesktop = checked;
+  markDirty();
+}
+function updateMenuShowMobile(i,checked){
+  site.menu[i].showMobile = checked;
+  markDirty();
+}
+function moveMenuItem(i,d){
+  const arr = site.menu;
+  const item = arr.splice(i,1)[0];
+  let newIndex = i + d;
+  if(newIndex < 0) newIndex = 0;
+  if(newIndex > arr.length) newIndex = arr.length;
+  arr.splice(newIndex,0,item);
+  markDirty();
+  renderMenuEditor();
+}
+function removeMenuItem(i){
+  if(!confirm("Remove this menu item?")) return;
+  site.menu.splice(i,1);
+  markDirty();
+  renderMenuEditor();
 }
 
 /* =======================
@@ -826,9 +1035,9 @@ function renderTabBlocks(){
 
         ${renderBlockFields(b,i)}
         <div class="tools">
-          <button onclick="moveBlock(${i},-1)">↑</button>
-          <button onclick="moveBlock(${i},1)">↓</button>
-          <button onclick="removeBlock(${i})">×</button>
+          <button onclick="moveBlock(${i},-1)" title="Move up">↑</button>
+          <button onclick="moveBlock(${i},1)" title="Move down">↓</button>
+          <button onclick="removeBlock(${i})" title="Remove block">×</button>
         </div>
       </div>
     `;
@@ -1174,34 +1383,25 @@ renderPages();
 document.getElementById("saveDraftBtn").addEventListener("click", saveDraft);
 document.getElementById("downloadBtn").addEventListener("click", downloadJson);
 document.getElementById("backupBtn").addEventListener("click", backupAll);
-</script>
-<script>
-async function saveToGithub() {
-  if (!confirm("Push all changes live now?")) return;
-  const data = JSON.stringify(siteData, null, 2);
-  const blob = new Blob([data], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'site-data.json';
-  a.click();
-  alert("Downloaded! Drag this file into your GitHub repo → site updates instantly");
-}
-</script>
 
-</body>
-<script>
+/* =======================
+   SAVE TO GITHUB BUTTON
+   (current behavior: download site-data.json;
+    your git / Grok flow still pushes it)
+======================= */
 async function saveToGithub() {
-  if (!confirm("Push all changes live now?")) return;
-  const data = JSON.stringify(siteData, null, 2);
+  if (!confirm("Download updated site-data.json now?")) return;
+  const data = JSON.stringify(site, null, 2);
   const blob = new Blob([data], {type: 'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = 'site-data.json';
   a.click();
-  alert("Downloaded! Drag this file into your GitHub repo → everything updates instantly");
+  alert("Downloaded! Commit / push this file in Git and the site will update.");
 }
 </script>
+</body>
 </html>
+
 
