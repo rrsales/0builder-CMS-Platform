@@ -1,91 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Honest News Network — Podcast</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Honest News – Podcast</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<script src="https://cdn.jsdelivr.net/gh/rrsales/Honest-News@master/live.js"></script>
+    <link rel="stylesheet" href="assets/css/site.css" />
+  </head>
+  <body data-page="podcast">
+    <header class="site-header">
+      <div class="site-header-inner">
+        <div class="site-logo">Honest News</div>
+        <nav>
+          <ul id="menuList"></ul>
+        </nav>
+      </div>
+    </header>
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#111;color:#eee;font-family:system-ui,-apple-system,sans-serif;overflow-x:hidden}
+    <section class="hero" data-hero>
+      <div class="hero-overlay-soft"></div>
+      <div class="hero-inner">
+        <h1>Honest News Podcast</h1>
+        <p>Deep dives, biblical commentary, and real conversations.</p>
+      </div>
+    </section>
 
-/* HEADER – perfect transparent + scroll dark */
-header {
-  background: transparent;
-  height: 90px;
-  transition: background .4s;
-}
-header.scrolled {
-  background: rgba(0,0,0,0.94) !important;
-}
-header.scrolled{background:rgba(0,0,0,0.94)!important}
-.logo{font-size:2rem;font-weight:900;color:white;text-shadow:0 2px 10px #000}
-.nav-menu{list-style:none;display:flex;gap:2.5rem}
-.nav-menu a{color:white;text-decoration:none;font-weight:600}
-.mobile-menu-toggle{display:none;color:white;font-size:2rem;cursor:pointer}
-@media(max-width:768px){.mobile-menu-toggle{display:block}}
+    <main>
+      <!-- Dashboard "podcast" blocks rendered here -->
+      <div data-blocks-target></div>
+    </main>
 
-/* HERO – sits perfectly behind header */
-.hero-carousel{
-  position:fixed;top:0;left:0;width:100%;height:100vh;z-index:1;
-}
+    <footer class="site-footer">
+      &copy; <span id="year"></span> Honest News Network.
+    </footer>
 
-/* MAIN CONTENT – starts below header, no overlap */
-main{
-  position:relative;z-index:10;background:#111;
-  padding-top:90px;min-height:100vh;text-align:center;
-}
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const y = document.getElementById("year");
+        if (y) y.textContent = new Date().getFullYear();
+      });
+    </script>
 
-/* SLIDE STYLES */
-.slide{position:absolute;inset:0;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center}
-.slide::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,0.58)}
-.slide-content{position:relative;max-width:900px;padding:2rem}
-.slide h1{font-size:5rem;line-height:1.1}
-.slide p{font-size:1.9rem;margin:2rem 0}
-.btn{padding:1.3rem 3.5rem;background:#0066cc;color:white;border:none;border-radius:12px;font-size:1.5rem;cursor:pointer}
-.dots{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;gap:14px}
-.dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.5);cursor:pointer}
-.dot.active{background:white}
-.arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;width:70px;height:70px;font-size:3.5rem;cursor:pointer}
-.prev{left:20px}.next{right:20px}
-</style>
-</head>
-<body>
-
-<header>
-  <div style="max-width:1200px;margin:auto;padding:0 1.5rem;display:flex;justify-content:space-between;align-items:center;height:100%">
-    <div class="logo">Honest News Network</div>
-    <nav>
-      <ul id="nav-menu" class="nav-menu"></ul>
-      <button class="mobile-menu-toggle">☰</button>
-    </nav>
-  </div>
-</header>
-
-<div class="hero-carousel"></div>
-
-<main>
-  <h1 style="margin-top:120px">Latest Episodes</h1>
-  <p style="margin:2rem;font-size:1.3rem">New episodes every Sunday</p>
-</main>
-
-<script>
-const pages=[
-  {name:"Home",url:"index.html"},
-  {name:"Podcast",url:"podcast.html"},
-  {name:"Blog",url:"blog.html"},
-  {name:"Shop",url:"shop.html"},
-  {name:"Events",url:"events.html"},
-  {name:"Support",url:"support.html"},
-  {name:"Contact",url:"contact.html"}
-];
-document.getElementById("nav-menu").innerHTML=pages.map(p=>`<li><a href="${p.url}">${p.name}</a></li>`).join("");
-document.querySelector(".mobile-menu-toggle").onclick=()=>document.getElementById("nav-menu").classList.toggle("active");
-window.addEventListener("scroll",()=>document.querySelector("header").classList.toggle("scrolled",window.scrollY>60));
-</script>
-</body>
+    <script src="assets/js/live.js"></script>
+  </body>
 </html>
+
