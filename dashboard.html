@@ -1175,51 +1175,62 @@ document.getElementById("downloadBtn").addEventListener("click", downloadJson);
 document.getElementById("backupBtn").addEventListener("click", backupAll);
 </script>
 
-<script>
-async function saveToGithub() {
+<!-- 1. The huge original script that defines 'site', renderPages, etc. -->
+  <script>
+    let site = {};
+    // … all your existing code (fetch, renderPages, addBlock, etc.) …
+  </script>
 
-  if (!confirm("Push all changes LIVE to GitHub?")) return;
+  <!-- 2. The working live-push script (AFTER the one above) -->
+  <script>
+  async function saveToGithub() {
+    if (!confirm("Push all changes LIVE to GitHub now?")) return;
 
-  // ⚠️ IMPORTANT:
-  // Do NOT put a real token here in a file that is committed to GitHub.
-  // For public GitHub Pages, use the Download JSON button and upload manually.
-  const token = "ghp_YOUR_REAL_40_CHAR_TOKEN_HERE";
+    let token = "ghp_YourNewRealTokenHere";   // ← your brand-new token
 
-  // Correct variable:
-  const data = JSON.stringify(site, null, 2);
+    if (!token || token.includes("YourNewRealTokenHere")) {
+      downloadJson();
+      alert("No token → downloaded safely. Drag file to GitHub.");
+      return;
+    }
 
-  const encoded = btoa(unescape(encodeURIComponent(data)));
+    const data = JSON.stringify(site, null, 2);
+    const encoded = btoa(unescape(encodeURIComponent(data)));
 
-  try {
-    const response = await fetch(
-      "https://api.github.com/repos/rrsales/Honest-News/contents/site-data.json",
-      {
+    try {
+      const get = await fetch("https://api.github.com/repos/rrsales/Honest-News/contents/site-data.json", {
+        headers: { "Authorization": `token ${token}` }
+      });
+      const info = await get.json();
+      if (!get.ok) throw new Error(info.message);
+
+      const put = await fetch("https://api.github.com/repos/rrsales/Honest-News/contents/site-data.json", {
         method: "PUT",
         headers: {
           "Authorization": `token ${token}`,
-          "Content-Type": "application/json",
-          "Accept": "application/vnd.github.v3+json"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          message: "Dashboard update",
+          message: `Live update – ${new Date().toLocaleString()}`,
           content: encoded,
+          sha: info.sha,
           branch: "main"
         })
+      });
+
+      if (put.ok) {
+        alert("LIVE! Site updated instantly – refresh any page in 5–10 seconds");
+      } else {
+        const err = await put.json();
+        alert("Error: " + err.message);
       }
-    );
-
-    if (response.ok) {
-      alert("LIVE! Site updated.");
-    } else {
-      const err = await response.json();
-      alert("GitHub Error: " + err.message);
+    } catch (e) {
+      alert("Failed: " + e.message);
     }
-
-  } catch (e) {
-    alert("Network error — check connection.");
   }
-}
-</script>
+  </script>
+</body>
+</html>
 
 </body>
 </html>
