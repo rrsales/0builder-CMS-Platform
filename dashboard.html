@@ -8,8 +8,7 @@
 <!-- PROTECT DASHBOARD: only enter if logged in -->
 <script>
   if (localStorage.getItem("hn_logged") !== "yes") {
-    // This does NOT change your password logic.
-    // It only sends people to admin.html if not logged in.
+    // Only sends people to admin.html if not logged in.
     location.href = "admin.html";
   }
 </script>
@@ -110,6 +109,35 @@
     min-height:0;
   }
 
+  /* TOP BLUE BAR */
+  .top-welcome{
+    background:#0066cc;
+    color:white;
+    padding:20px 40px;
+    text-align:center;
+    font-size:1.4rem;
+    font-weight:bold;
+    position:relative;
+  }
+  .top-welcome button{
+    position:absolute;
+    top:15px;
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    color:white;
+  }
+  .top-welcome .logout-btn{
+    right:20px;
+    background:#c33;
+  }
+  .top-welcome .save-btn{
+    left:20px;
+    background:#16a34a;
+  }
+
   /* SIDEBAR */
   .sidebar{
     width:270px;
@@ -140,7 +168,7 @@
     margin-top:6px;
     border-radius:12px;
     background:#f9fafb;
-    border:1px solid transparent;
+    border:1px solid.transparent;
     cursor:pointer;
     display:flex;
     align-items:center;
@@ -257,40 +285,9 @@
     margin-top:10px;
     padding-top:10px;
   }
-  .section-header{
-    width:100%;
-    background:none;
-    border:none;
-    padding:6px 0;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    cursor:pointer;
-    font-size:.86rem;
-    color:#111827;
-  }
-  .section-header .left{display:flex;align-items:center;gap:6px;}
-  .section-header .arrow{
-    font-size:.75rem;
-    color:#9ca3af;
-    transition:transform .25s ease,color .25s ease;
-  }
-  .section-header.open .arrow{
-    transform:rotate(90deg);
-    color:#4b5563;
-  }
-  .section-title{font-weight:600;}
   .section-body{
-    max-height:0;
-    opacity:0;
-    overflow:hidden;
-    transform:translateY(-4px);
-    transition:max-height .3s ease,opacity .2s ease,transform .3s ease;
-  }
-  .section-body.open{
     max-height:1400px;
     opacity:1;
-    transform:translateY(0);
   }
   .section-body-inner{padding:4px 0 8px;}
 
@@ -355,7 +352,6 @@
     position:relative;
     background-size:cover;
     background-position:center;
-    height:60vh;
   }
   #heroPreviewOverlay{
     position:absolute;
@@ -392,15 +388,13 @@
 </head>
 <body>
 
-<!-- JOSEPH WELCOME + SAVE BUTTON -->
-<div style="background:#0066cc;color:white;padding:20px 40px;text-align:center;font-size:1.4rem;font-weight:bold;position:relative;">
+<div class="top-welcome">
   Welcome back, Joseph
-  <button onclick="localStorage.removeItem('hn_logged');location.href='admin.html'"
-          style="position:absolute;right:20px;top:15px;background:#c33;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;">
+  <button class="logout-btn"
+          onclick="localStorage.removeItem('hn_logged');location.href='admin.html'">
     Log Out
   </button>
-  <button onclick="saveToGithub()"
-          style="position:absolute;left:20px;top:15px;background:#16a34a;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;">
+  <button class="save-btn" onclick="saveToGithub()">
     SAVE TO GITHUB
   </button>
 </div>
@@ -474,14 +468,15 @@
 
 <script>
 /* =======================
-   DATA MODEL
+   DEFAULT DATA MODEL
+   (will be overridden by site-data.json if present)
 ======================= */
 
 let site = {
   menu: [
-    { title:"Home", url:"index.html" },
+    { title:"Home",    url:"index.html"   },
     { title:"Podcast", url:"podcast.html" },
-    { title:"Shop", url:"shop.html" },
+    { title:"Shop",    url:"shop.html"    },
     { title:"Support", url:"support.html" },
     { title:"Contact", url:"contact.html" }
   ],
@@ -539,6 +534,25 @@ let isDirty = false;
 const DRAFT_KEY = "hn_cms_draft_v1";
 
 /* =======================
+   LOAD EXISTING site-data.json
+======================= */
+(async function loadSiteData() {
+  try {
+    const res = await fetch("site-data.json?cache-bust=" + Date.now());
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.pages) {
+        site = data;
+      }
+    }
+  } catch (e) {
+    console.warn("Could not load site-data.json, using defaults", e);
+  }
+  restoreDraftIfAny();
+  renderPages();
+})();
+
+/* =======================
    SAVE STATUS
 ======================= */
 function markDirty(){
@@ -563,8 +577,8 @@ function renderPages(){
   const container = document.getElementById("pages");
   container.innerHTML = site.pages.map((p,i)=>`
     <div class="page ${p===current?'active':''}" onclick="selectPage(${i})">
-      <span class="title">${p.title||'Untitled'}</span>
-      <span class="slug">${p.slug||''}</span>
+      <span class="title">${p.title || 'Untitled'}</span>
+      <span class="slug">${p.slug || ''}</span>
     </div>
   `).join("");
   rawFromMenu();
@@ -572,13 +586,21 @@ function renderPages(){
 
 function newPage(){
   const t = prompt("Page title?");
-  if(!t) return;
+  if (!t) return;
   const slug = t.toLowerCase().replace(/\s+/g,"-");
   site.pages.push({
     title:t,
     slug,
     theme:"dark",
-    hero:{bg:"",overlay:t,sub:"",transparentMenu:false,behavior:"still",size:"full",customHeight:""},
+    hero:{
+      bg:"",
+      overlay:t,
+      sub:"",
+      transparentMenu:false,
+      behavior:"still",
+      size:"full",
+      customHeight:""
+    },
     blocks:[]
   });
   markDirty();
@@ -591,14 +613,14 @@ function newPage(){
 function rawFromMenu(){
   const ta = document.getElementById("menuRaw");
   if(!ta) return;
-  ta.value = site.menu.map(m=>`${m.title} | ${m.url}`).join("\n");
+  ta.value = (site.menu || []).map(m=>`${m.title} | ${m.url}`).join("\n");
 }
 
 function menuFromRaw(text){
   const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
   site.menu = lines.map(l=>{
     const [title,url] = l.split("|").map(s=>(s||"").trim());
-    return {title:title||"Item",url:url||"#"};
+    return {title:title || "Item", url:url || "#"};
   });
   markDirty();
 }
@@ -608,7 +630,7 @@ function menuFromRaw(text){
 ======================= */
 function switchTab(name){
   document.querySelectorAll(".tab").forEach(t=>{
-    t.classList.toggle("active", t.dataset.tab===name);
+    t.classList.toggle("active", t.dataset.tab === name);
   });
   document.querySelectorAll(".tab-panel").forEach(p=>{
     p.style.display = (p.id === "tab-"+name) ? "block" : "none";
@@ -636,24 +658,24 @@ function selectPage(i){
 function renderTabPage(){
   const c = current;
   const el = document.getElementById("tab-page");
-  const themeLight = c.theme==="light";
+  const themeLight = c.theme === "light";
 
   el.innerHTML = `
     <h2 style="margin-top:0;">Page Settings</h2>
     <p class="card-sub">Basic details for this page.</p>
 
     <div class="section" style="border-top:none;margin-top:4px;">
-      <div class="section-body open">
+      <div class="section-body">
         <div class="section-body-inner">
           <div class="field-group">
             <div class="field-label">Title</div>
-            <input type="text" value="${c.title||''}"
+            <input type="text" value="${c.title || ''}"
               onchange="current.title=this.value;markDirty();renderPages();">
           </div>
 
           <div class="field-group">
             <div class="field-label">Slug</div>
-            <input type="text" value="${c.slug||''}"
+            <input type="text" value="${c.slug || ''}"
               placeholder="home, podcast, shop..."
               onchange="current.slug=this.value;markDirty();renderPages();">
             <div class="field-hint">
@@ -693,29 +715,29 @@ function renderTabHero(){
     <p class="card-sub">Control the big top section of this page.</p>
 
     <div class="section" style="border-top:none;margin-top:4px;">
-      <div class="section-body open">
+      <div class="section-body">
         <div class="section-body-inner">
           <div class="field-group">
             <div class="field-label">Background image URL</div>
-            <input type="url" value="${h.bg||''}" placeholder="https://..."
+            <input type="url" value="${h.bg || ''}" placeholder="https://..."
               onchange="current.hero.bg=this.value;markDirty();renderTabPreview();">
           </div>
 
           <div class="field-group">
             <div class="field-label">Main title</div>
-            <input type="text" value="${h.overlay||''}" placeholder="Main hero title"
+            <input type="text" value="${h.overlay || ''}" placeholder="Main hero title"
               onchange="current.hero.overlay=this.value;markDirty();renderTabPreview();">
           </div>
 
           <div class="field-group">
             <div class="field-label">Subtitle</div>
-            <input type="text" value="${h.sub||''}" placeholder="Optional subtitle"
+            <input type="text" value="${h.sub || ''}" placeholder="Optional subtitle"
               onchange="current.hero.sub=this.value;markDirty();renderTabPreview();">
           </div>
 
           <div class="field-group">
             <label class="inline">
-              <input type="checkbox" ${h.transparentMenu?"checked":""}
+              <input type="checkbox" ${h.transparentMenu ? "checked" : "" }
                 onchange="current.hero.transparentMenu=this.checked;markDirty();">
               Transparent header on this page
             </label>
@@ -758,7 +780,7 @@ function renderTabHero(){
                 onchange="setHeroSize('custom')">
               Custom:
             </label>
-            <input type="text" value="${h.customHeight||''}" placeholder="e.g. 520px or 80vh"
+            <input type="text" value="${h.customHeight || ''}" placeholder="e.g. 520px or 80vh"
               onchange="setHeroCustom(this.value)">
             <div class="field-hint">Custom height lets you match Podbean-style heroes exactly.</div>
           </div>
@@ -769,13 +791,13 @@ function renderTabHero(){
 }
 
 function setHeroSize(size){
-  if(!current.hero) current.hero = {};
+  if (!current.hero) current.hero = {};
   current.hero.size = size;
   markDirty();
   renderTabPreview();
 }
 function setHeroCustom(val){
-  if(!current.hero) current.hero = {};
+  if (!current.hero) current.hero = {};
   current.hero.size = "custom";
   current.hero.customHeight = val.trim();
   markDirty();
@@ -815,8 +837,8 @@ function renderTabBlocks(){
             Motion:
             <select class="motion-select"
               onchange="current.blocks[${i}].motion=this.value;markDirty();renderTabPreview();">
-              <option value="none" ${motion==='none'?'selected':''}>None</option>
-              <option value="fade" ${motion==='fade'?'selected':''}>Fade</option>
+              <option value="none"  ${motion==='none'?'selected':''}>None</option>
+              <option value="fade"  ${motion==='fade'?'selected':''}>Fade</option>
               <option value="float" ${motion==='float'?'selected':''}>Float</option>
               <option value="slide" ${motion==='slide'?'selected':''}>Slide</option>
             </select>
@@ -835,26 +857,26 @@ function renderTabBlocks(){
 }
 
 function renderBlockFields(b,i){
-  if(b.type==="heading"){
+  if (b.type==="heading"){
     return `
       <div class="field-group">
         <div class="field-label">Text</div>
-        <input type="text" value="${b.content||''}"
+        <input type="text" value="${b.content || ''}"
           onchange="current.blocks[${i}].content=this.value;markDirty();renderTabPreview();">
       </div>
     `;
   }
-  if(b.type==="paragraph"){
+  if (b.type==="paragraph"){
     return `
       <div class="field-group">
         <div class="field-label">Text</div>
         <textarea rows="4"
-          onchange="current.blocks[${i}].content=this.value;markDirty();renderTabPreview();">${b.content||''}</textarea>
+          onchange="current.blocks[${i}].content=this.value;markDirty();renderTabPreview();">${b.content || ''}</textarea>
       </div>
     `;
   }
-  if(b.type==="image"){
-    const mode = b.mode==="upload"?"upload":"url";
+  if (b.type==="image"){
+    const mode = b.mode==="upload" ? "upload" : "url";
     return `
       <div class="field-group">
         <div class="field-label">Image source</div>
@@ -869,74 +891,74 @@ function renderBlockFields(b,i){
         : `
           <div class="field-group">
             <div class="field-label">Image URL</div>
-            <input type="url" value="${b.content||''}"
+            <input type="url" value="${b.content || ''}"
               onchange="current.blocks[${i}].content=this.value;markDirty();renderTabPreview();">
           </div>`
       }
     `;
   }
-  if(b.type==="button"){
+  if (b.type==="button"){
     return `
       <div class="field-group">
         <div class="field-label">Button text</div>
-        <input type="text" value="${b.text||''}"
+        <input type="text" value="${b.text || ''}"
           onchange="current.blocks[${i}].text=this.value;markDirty();renderTabPreview();">
       </div>
       <div class="field-group">
         <div class="field-label">Button URL</div>
-        <input type="url" value="${b.url||''}"
+        <input type="url" value="${b.url || ''}"
           onchange="current.blocks[${i}].url=this.value;markDirty();renderTabPreview();">
       </div>
     `;
   }
-  if(b.type==="product"){
+  if (b.type==="product"){
     return `
       <div class="field-group">
         <div class="field-label">Product title</div>
-        <input type="text" value="${b.title||''}"
+        <input type="text" value="${b.title || ''}"
           onchange="current.blocks[${i}].title=this.value;markDirty();renderTabPreview();">
       </div>
       <div class="field-group">
         <div class="field-label">Description</div>
         <textarea rows="3"
-          onchange="current.blocks[${i}].text=this.value;markDirty();renderTabPreview();">${b.text||''}</textarea>
+          onchange="current.blocks[${i}].text=this.value;markDirty();renderTabPreview();">${b.text || ''}</textarea>
       </div>
       <div class="field-group">
         <div class="field-label">Image URL</div>
-        <input type="url" value="${b.image||''}"
+        <input type="url" value="${b.image || ''}"
           onchange="current.blocks[${i}].image=this.value;markDirty();renderTabPreview();">
       </div>
       <div class="field-group">
         <div class="field-label">Amazon affiliate URL</div>
-        <input type="url" value="${b.url||''}"
+        <input type="url" value="${b.url || ''}"
           onchange="current.blocks[${i}].url=this.value;markDirty();renderTabPreview();">
       </div>
     `;
   }
-  if(b.type==="podcast"){
+  if (b.type==="podcast"){
     return `
       <div class="field-group">
         <div class="field-label">Episode title</div>
-        <input type="text" value="${b.title||''}"
+        <input type="text" value="${b.title || ''}"
           onchange="current.blocks[${i}].title=this.value;markDirty();renderTabPreview();">
       </div>
       <div class="field-group">
         <div class="field-label">Podbean embed URL or iframe src</div>
         <textarea rows="3"
-          onchange="current.blocks[${i}].embed=this.value;markDirty();renderTabPreview();">${b.embed||''}</textarea>
+          onchange="current.blocks[${i}].embed=this.value;markDirty();renderTabPreview();">${b.embed || ''}</textarea>
       </div>
     `;
   }
-  if(b.type==="youtube"){
+  if (b.type==="youtube"){
     return `
       <div class="field-group">
         <div class="field-label">Video title</div>
-        <input type="text" value="${b.title||''}"
+        <input type="text" value="${b.title || ''}"
           onchange="current.blocks[${i}].title=this.value;markDirty();renderTabPreview();">
       </div>
       <div class="field-group">
         <div class="field-label">YouTube URL or ID</div>
-        <input type="text" value="${b.videoId||''}"
+        <input type="text" value="${b.videoId || ''}"
           onchange="current.blocks[${i}].videoId=this.value;markDirty();renderTabPreview();">
       </div>
     `;
@@ -945,15 +967,15 @@ function renderBlockFields(b,i){
 }
 
 function addBlock(type){
-  if(!current.blocks) current.blocks=[];
+  if (!current.blocks) current.blocks = [];
   const b = {type, motion:"fade"};
-  if(type==="heading") b.content="New heading";
+  if(type==="heading")   b.content="New heading";
   if(type==="paragraph") b.content="Your text here...";
-  if(type==="image"){b.mode="url"; b.content="";}
-  if(type==="button"){b.text="Learn more"; b.url="#";}
-  if(type==="product"){b.title="Product title"; b.text="Short description"; b.image=""; b.url="";}
-  if(type==="podcast"){b.title="Episode title"; b.embed="";}
-  if(type==="youtube"){b.title="Video title"; b.videoId="";}
+  if(type==="image"){    b.mode="url"; b.content=""; }
+  if(type==="button"){   b.text="Learn more"; b.url="#"; }
+  if(type==="product"){  b.title="Product title"; b.text="Short description"; b.image=""; b.url=""; }
+  if(type==="podcast"){  b.title="Episode title"; b.embed=""; }
+  if(type==="youtube"){  b.title="Video title";   b.videoId=""; }
   current.blocks.push(b);
   markDirty();
   renderTabBlocks();
@@ -964,8 +986,8 @@ function moveBlock(i,d){
   const arr = current.blocks;
   const item = arr.splice(i,1)[0];
   let newIndex = i + d;
-  if(newIndex < 0) newIndex = 0;
-  if(newIndex > arr.length) newIndex = arr.length;
+  if (newIndex < 0) newIndex = 0;
+  if (newIndex > arr.length) newIndex = arr.length;
   arr.splice(newIndex,0,item);
   markDirty();
   renderTabBlocks();
@@ -1004,8 +1026,8 @@ function renderTabPreview(){
       <div id="heroPreview">
         <div id="heroPreviewOverlay"></div>
         <div id="heroPreviewInner">
-          <h1>${escapeHtml(h.overlay||"")}</h1>
-          <p>${escapeHtml(h.sub||"")}</p>
+          <h1>${escapeHtml(h.overlay || "")}</h1>
+          <p>${escapeHtml(h.sub || "")}</p>
         </div>
       </div>
       <div id="blockPreview"></div>
@@ -1013,57 +1035,55 @@ function renderTabPreview(){
   `;
 
   const heroDiv = document.getElementById("heroPreview");
-  if(h.bg){
+  if (h.bg){
     heroDiv.style.backgroundImage = `url('${h.bg}')`;
   } else {
     heroDiv.style.backgroundImage = "none";
     heroDiv.style.backgroundColor = "#020617";
   }
 
-  // height
   let height = "60vh";
-  if(size==="small") height="40vh";
+  if(size==="small")  height="40vh";
   else if(size==="medium") height="60vh";
-  else if(size==="large") height="80vh";
-  else if(size==="full") height="100vh";
+  else if(size==="large")  height="80vh";
+  else if(size==="full")   height="100vh";
   else if(size==="custom" && h.customHeight) height = h.customHeight;
   heroDiv.style.height = height;
 
-  // blocks render
   const blocksEl = document.getElementById("blockPreview");
   const blocks = current.blocks || [];
   let html = "";
   blocks.forEach(b=>{
     if(b.type==="heading"){
-      html += `<h2 style="margin-top:1rem;">${escapeHtml(b.content||"")}</h2>`;
+      html += `<h2 style="margin-top:1rem;">${escapeHtml(b.content || "")}</h2>`;
     } else if(b.type==="paragraph"){
-      const text = (b.content||"").replace(/\n/g,"<br>");
+      const text = (b.content || "").replace(/\n/g,"<br>");
       html += `<p style="margin-top:.4rem;color:#4b5563;font-size:.9rem;">${text}</p>`;
     } else if(b.type==="image" && b.content){
       html += `<img src="${escapeHtml(b.content)}" style="max-width:100%;border-radius:12px;margin:1rem 0;">`;
     } else if(b.type==="button"){
-      html += `<a href="${escapeHtml(b.url||'#')}"
+      html += `<a href="${escapeHtml(b.url || '#')}"
         style="display:inline-block;margin:0.7rem 0;padding:0.6rem 1.6rem;border-radius:999px;background:#16a34a;color:#ecfdf5;text-decoration:none;font-weight:600;font-size:.88rem;">
-        ${escapeHtml(b.text||"Learn more")}
+        ${escapeHtml(b.text || "Learn more")}
       </a>`;
     } else if(b.type==="product"){
       html += `
         <div style="background:#020617;color:#e5e7eb;border-radius:14px;margin:0.8rem 0;padding:0.9rem;display:flex;gap:0.9rem;align-items:flex-start;">
-          ${b.image?`<img src="${escapeHtml(b.image)}" style="width:110px;border-radius:10px;object-fit:cover;">`:""}
+          ${b.image ? `<img src="${escapeHtml(b.image)}" style="width:110px;border-radius:10px;object-fit:cover;">` : ""}
           <div>
-            <h3 style="margin:0 0 .3rem;font-size:.96rem;">${escapeHtml(b.title||"")}</h3>
-            <p style="margin:0 0 .5rem;font-size:.8rem;color:#cbd5e1;">${escapeHtml(b.text||"")}</p>
-            ${b.url?`<a href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer"
+            <h3 style="margin:0 0 .3rem;font-size:.96rem;">${escapeHtml(b.title || "")}</h3>
+            <p style="margin:0 0 .5rem;font-size:.8rem;color:#cbd5e1;">${escapeHtml(b.text || "")}</p>
+            ${b.url ? `<a href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer"
                 style="display:inline-block;margin-top:0.2rem;padding:0.45rem 1.4rem;border-radius:999px;background:#22c55e;color:#022c22;font-size:.8rem;font-weight:600;text-decoration:none;">
                 Buy on Amazon
-              </a>`:""}
+              </a>` : ""}
           </div>
         </div>
       `;
     } else if(b.type==="podcast" && b.embed){
       html += `
         <div style="margin:1.2rem 0;">
-          <h3 style="margin:0 0 .3rem;">${escapeHtml(b.title||"")}</h3>
+          <h3 style="margin:0 0 .3rem;">${escapeHtml(b.title || "")}</h3>
           <iframe src="${escapeHtml(b.embed)}"
             style="width:100%;height:150px;border:none;border-radius:10px;background:#0f172a;" allow="autoplay"></iframe>
         </div>
@@ -1074,7 +1094,7 @@ function renderTabPreview(){
       if(m) id = m[1];
       html += `
         <div style="margin:1.2rem 0;">
-          <h3 style="margin:0 0 .3rem;">${escapeHtml(b.title||"")}</h3>
+          <h3 style="margin:0 0 .3rem;">${escapeHtml(b.title || "")}</h3>
           <div style="position:relative;padding-bottom:56.25%;height:0;border-radius:12px;overflow:hidden;">
             <iframe src="https://www.youtube.com/embed/${escapeHtml(id)}"
               style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
@@ -1091,7 +1111,7 @@ function renderTabPreview(){
    UTIL
 ======================= */
 function escapeHtml(str){
-  return String(str||"")
+  return String(str || "")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;");
@@ -1104,7 +1124,7 @@ function saveDraft(){
   try{
     localStorage.setItem(DRAFT_KEY, JSON.stringify(site));
     markSavedLocal();
-  }catch(e){
+  } catch(e){
     alert("Could not save draft locally.");
   }
 }
@@ -1114,7 +1134,7 @@ function restoreDraftIfAny(){
     if(!raw) return;
     const parsed = JSON.parse(raw);
     if(parsed && parsed.pages) site = parsed;
-  }catch(e){
+  } catch(e){
     console.warn("No valid draft to restore");
   }
 }
@@ -1165,51 +1185,91 @@ async function backupAll(){
 }
 
 /* =======================
-   INIT
+   INIT BUTTONS
 ======================= */
-restoreDraftIfAny();
-renderPages();
-
 document.getElementById("saveDraftBtn").addEventListener("click", saveDraft);
 document.getElementById("downloadBtn").addEventListener("click", downloadJson);
 document.getElementById("backupBtn").addEventListener("click", backupAll);
-</script>
 
-<!-- 1. The huge original script that defines 'site', renderPages, etc. -->
-  <script>
-    let site = {};
-    // … all your existing code (fetch, renderPages, addBlock, etc.) …
-  </script>
-
-<script>
+/* =======================
+   SAVE TO GITHUB (DIRECT)
+======================= */
 async function saveToGithub() {
-  if (!confirm("Push changes LIVE to the public site?")) return;
+  if (!confirm("Push changes LIVE to site-data.json on GitHub?")) return;
 
-  const data = JSON.stringify(site, null, 2);
-  const encoded = btoa(unescape(encodeURIComponent(data)));
+  // ⚠️ PASTE YOUR REAL CLASSIC TOKEN HERE (40 chars, no spaces)
+  const token = "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";
 
-  const PUBLIC_TOKEN = "ghp_YourNewPublicTokenHere";  // ← paste your new public_repo token here
+  if (!token || token === "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") {
+    alert("You must open dashboard.html and paste your real GitHub token in saveToGithub().");
+    return;
+  }
 
-  const res = await fetch("https://api.github.com/repos/rrsales/Honest-News/actions/workflows/update-site.yml/dispatches", {
-    method: "POST",
-    headers: {
-      "Accept": "application/vnd.github.v3+json",
-      "Authorization": "token " + PUBLIC_TOKEN
-    },
-    body: JSON.stringify({
-      ref: "main",
-      inputs: { content: encoded }
-    })
-  });
+  const owner  = "rrsales";
+  const repo   = "Honest-News";
+  const path   = "site-data.json";
+  const branch = "main";
 
-  if (res.ok) {
-    alert("LIVE in 15–30 seconds! GitHub Actions is updating your site.");
-  } else {
-    alert("Error – will be fixed in 1 minute");
+  try {
+    // 1) Get current file to obtain SHA (required by GitHub)
+    const getRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${branch}`,
+      {
+        headers: {
+          "Accept": "application/vnd.github.v3+json",
+          "Authorization": `token ${token}`
+        }
+      }
+    );
+
+    if (!getRes.ok) {
+      const err = await getRes.json().catch(()=>({}));
+      alert("GitHub GET error: " + (err.message || getRes.statusText));
+      return;
+    }
+
+    const currentFile = await getRes.json();
+    const sha = currentFile.sha;
+
+    // 2) Prepare new content
+    const json = JSON.stringify(site, null, 2);
+    const content = btoa(unescape(encodeURIComponent(json)));
+
+    // 3) PUT updated file
+    const putRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`,
+      {
+        method: "PUT",
+        headers: {
+          "Accept": "application/vnd.github.v3+json",
+          "Authorization": `token ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: "Dashboard update from Honest News editor",
+          content,
+          sha,
+          branch
+        })
+      }
+    );
+
+    if (!putRes.ok) {
+      const err = await putRes.json().catch(()=>({}));
+      alert("GitHub PUT error: " + (err.message || putRes.statusText));
+      return;
+    }
+
+    alert("✔ LIVE! site-data.json updated on GitHub. Refresh the public site in a few seconds.");
+
+  } catch (e) {
+    console.error(e);
+    alert("Network / auth error talking to GitHub. Check console and token.");
   }
 }
 </script>
 </body>
 </html>
+
 
 
