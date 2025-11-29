@@ -1450,7 +1450,52 @@ async function saveToGithub() {
     }
   }
 </script>
+<script>
+async function saveToGithub() {
+
+  if (!confirm("Push all changes live to GitHub now?")) return;
+
+  // 1. YOUR PERSONAL ACCESS TOKEN (replace only the token inside the quotes)
+  const token = "";
+
+  // 2. CORRECT DATA (your file uses "site", not "siteData")
+  const data = JSON.stringify(site, null, 2);
+
+  // Encode UTF-8 → Base64
+  const encodedData = btoa(unescape(encodeURIComponent(data)));
+
+  try {
+    const response = await fetch(
+      "https://api.github.com/repos/rrsales/Honest-News/contents/site-data.json",
+      {
+        method: "PUT",
+        headers: {
+          "Authorization": `token ${token}`,
+          "Content-Type": "application/json",
+          "Accept": "application/vnd.github.v3+json"
+        },
+        body: JSON.stringify({
+          message: "Auto-push from dashboard",
+          content: encodedData,
+          branch: "main"
+        })
+      }
+    );
+
+    if (!response.ok) {
+      console.error(await response.text());
+      alert("Push failed — check token, repo name, branch, or file path.");
+      return;
+    }
+
+    alert("LIVE! Site updated — refresh the public site to see changes.");
+
+  } catch (e) {
+    console.error(e);
+    alert("Error — check console for details.");
+  }
+}
+</script>
 </body>
 </html>
-
 
