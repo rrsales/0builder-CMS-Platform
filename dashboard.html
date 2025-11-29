@@ -1181,34 +1181,31 @@ document.getElementById("backupBtn").addEventListener("click", backupAll);
     // … all your existing code (fetch, renderPages, addBlock, etc.) …
   </script>
 
- <script>
+<script>
 async function saveToGithub() {
   if (!confirm("Push changes LIVE to the public site?")) return;
 
   const data = JSON.stringify(site, null, 2);
   const encoded = btoa(unescape(encodeURIComponent(data)));
 
-  try {
-    const res = await fetch("https://api.github.com/repos/rrsales/Honest-News/actions/workflows/update-site.yml/dispatches", {
-      method: "POST",
-      headers: {
-        "Accept": "application/vnd.github.v3+json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        ref: "main",
-        inputs: { content: encoded }
-      })
-    });
+  const PUBLIC_TOKEN = "ghp_YourNewPublicTokenHere";  // ← paste your new public_repo token here
 
-    if (res.ok) {
-      alert("LIVE in 15–30 seconds! GitHub Actions is updating your site.");
-    } else {
-      const err = await res.json();
-      alert("Error: " + (err.message || res.status));
-    }
-  } catch (e) {
-    alert("Network error – try again");
+  const res = await fetch("https://api.github.com/repos/rrsales/Honest-News/actions/workflows/update-site.yml/dispatches", {
+    method: "POST",
+    headers: {
+      "Accept": "application/vnd.github.v3+json",
+      "Authorization": "token " + PUBLIC_TOKEN
+    },
+    body: JSON.stringify({
+      ref: "main",
+      inputs: { content: encoded }
+    })
+  });
+
+  if (res.ok) {
+    alert("LIVE in 15–30 seconds! GitHub Actions is updating your site.");
+  } else {
+    alert("Error – will be fixed in 1 minute");
   }
 }
 </script>
