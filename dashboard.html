@@ -1401,6 +1401,55 @@ async function saveToGithub() {
   alert("Downloaded! Commit / push this file in Git and the site will update.");
 }
 </script>
+<script>
+  async function saveToGitHub() {
+    // Confirm before pushing changes
+    if (!confirm("Push all changes to GitHub now?")) {
+      return;
+    }
+
+    // Ensure the CMS config is loaded
+    if (!window.CMS_CONFIG || !window.CMS_CONFIG.token) {
+      alert("Error: Missing GitHub token in configuration.");
+      return;
+    }
+
+    // Prepare the data to be pushed
+    const data = JSON.stringify(siteData, null, 2);
+
+    // GitHub API endpoint for the file
+    const endpoint = `https://api.github.com/repos/${CMS_CONFIG.repoUser}/${CMS_CONFIG.repoName}/contents/${CMS_CONFIG.dataFile}`;
+
+    // Fetch the current file's SHA to update it properly
+    const existingFile = await fetch(endpoint, {
+      headers: { Authorization: `token ${CMS_CONFIG.token}` }
+    }).then(response => response.json());
+
+    // If the file exists, get its SHA
+    const sha = existingFile.sha;
+
+    // Push the new content to GitHub
+    const response = await fetch(endpoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `token ${CMS_CONFIG.token}`
+      },
+      body: JSON.stringify({
+        message: "Update site-data.json from dashboard",
+        content: btoa(unescape(encodeURIComponent(data))),
+        sha: sha
+      })
+    });
+
+    // Notify the user of the result
+    if (response.ok) {
+      alert("Saved! Site updates in about 5 seconds.");
+    } else {
+      alert("Error saving. Check your token or repository configuration.");
+    }
+  }
+</script>
 </body>
 </html>
 
