@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector("[data-hero]");
 
   const header = document.querySelector("header");
+  const mainEl = document.querySelector("main");
 
   // Where to render dynamic blocks on the page
   const blocksTarget = document.querySelector("[data-blocks-target]");
@@ -29,7 +30,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const r = await fetch(RAW, { cache: "no-store" });
       if (r.ok) {
-        console.log("%cLoaded site-data.json from RAW GitHub (fresh)", "color:#22c55e");
+        console.log(
+          "%cLoaded site-data.json from RAW GitHub (fresh)",
+          "color:#22c55e"
+        );
         return await r.json();
       }
     } catch (e) {
@@ -38,7 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fallback to GitHub Pages
     const r2 = await fetch(LOCAL, { cache: "no-store" });
-    console.log("%cLoaded site-data.json from GitHub Pages copy", "color:#38bdf8");
+    console.log(
+      "%cLoaded site-data.json from GitHub Pages copy",
+      "color:#38bdf8"
+    );
     return await r2.json();
   }
 
@@ -54,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       applyTheme(body, page);
       buildMenu(site.menu || [], slug);
-      applyHero(hero, header, page.hero || {});
+      applyHero(hero, header, mainEl, page.hero || {});
       if (blocksTarget) renderBlocks(blocksTarget, page.blocks || []);
     })
     .catch((err) => {
@@ -104,8 +111,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =============================================================
      HERO SETUP
+     - Handles background, text, height, behavior
+     - AND header transparency + hero-under-header layout
   ============================================================= */
-  function applyHero(heroEl, headerEl, h) {
+  function applyHero(heroEl, headerEl, mainEl, h) {
     if (!heroEl) return;
 
     // Background image
@@ -135,6 +144,8 @@ document.addEventListener("DOMContentLoaded", () => {
       case "custom":
         height = h.customHeight || "100vh";
         break;
+      default:
+        height = "100vh";
     }
     heroEl.style.height = height;
 
@@ -145,11 +156,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (title && h.overlay) title.textContent = h.overlay;
     if (sub && typeof h.sub === "string") sub.textContent = h.sub;
 
-    // Transparent header
+    // Transparent header + hero-under-header behavior
     if (headerEl) {
-      if (h.transparentMenu)
+      if (h.transparentMenu) {
         headerEl.classList.add("header--transparent");
-      else headerEl.classList.remove("header--transparent");
+        // hero should tuck under the header: remove top margin on main
+        if (mainEl) mainEl.style.marginTop = "0";
+      } else {
+        headerEl.classList.remove("header--transparent");
+        // default offset so content isn’t hidden behind fixed header
+        if (mainEl) mainEl.style.marginTop = "72px";
+      }
     }
 
     // Behavior animations
@@ -171,6 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 60);
       });
     } else {
+      // still
       heroEl.style.transform = "none";
     }
   }
@@ -213,7 +231,13 @@ document.addEventListener("DOMContentLoaded", () => {
         html += `
           <section class="block block-product">
             <div class="product-card">
-              ${b.image ? `<img src="${escapeHtml(b.image)}" class="product-image" />` : ""}
+              ${
+                b.image
+                  ? `<img src="${escapeHtml(
+                      b.image
+                    )}" class="product-image" alt="" />`
+                  : ""
+              }
               <div class="product-info">
                 <h3>${escapeHtml(b.title || "")}</h3>
                 <p>${escapeHtml(b.text || "")}</p>
@@ -221,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   b.url
                     ? `<a href="${escapeHtml(
                         b.url
-                      )}" target="_blank" class="product-btn">Buy on Amazon</a>`
+                      )}" target="_blank" rel="noopener noreferrer" class="product-btn">Buy on Amazon</a>`
                     : ""
                 }
               </div>
@@ -231,7 +255,9 @@ document.addEventListener("DOMContentLoaded", () => {
         html += `
           <section class="block block-podcast">
             <h3>${escapeHtml(b.title || "")}</h3>
-            <iframe src="${escapeHtml(b.embed)}" allow="autoplay"></iframe>
+            <iframe src="${escapeHtml(
+              b.embed
+            )}" allow="autoplay" loading="lazy"></iframe>
           </section>`;
       } else if (b.type === "youtube" && b.videoId) {
         let id = b.videoId.trim();
@@ -242,7 +268,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <section class="block block-youtube">
             <h3>${escapeHtml(b.title || "")}</h3>
             <div class="video-wrap">
-              <iframe src="https://www.youtube.com/embed/${escapeHtml(id)}" allowfullscreen></iframe>
+              <iframe src="https://www.youtube.com/embed/${escapeHtml(
+                id
+              )}" allowfullscreen loading="lazy"></iframe>
             </div>
           </section>`;
       }
