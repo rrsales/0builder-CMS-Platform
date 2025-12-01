@@ -318,6 +318,32 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
   }
+  // Entry point – glue the libs together
+window.HN = window.HN || {};
+
+(function (HN) {
+  async function init() {
+    try {
+      const data = await HN.loadData();
+      HN.renderMenu(data);
+      HN.renderPage(data);
+      HN.initMobileMenu();
+
+      // Header scroll effect for .site-header
+      const header = document.querySelector("header.site-header");
+      if (header) {
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 40) header.classList.add("scrolled");
+          else header.classList.remove("scrolled");
+        });
+      }
+    } catch (err) {
+      console.error("HN init failed", err);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})(window.HN);
 });
 
 
