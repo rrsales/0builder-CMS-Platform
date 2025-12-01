@@ -1,102 +1,70 @@
 {
   "menu": [
     {
-      "id": "home",
-      "label": "Home",
-      "url": "index.html",
-      "type": "link",
-      "showOn": "both",
-      "subItems": []
+      "title": "Home",
+      "url": "index.html"
     },
     {
-      "id": "podcast",
-      "label": "Podcast",
-      "url": "podcast.html",
-      "type": "link",
-      "showOn": "both",
-      "subItems": []
+      "title": "Podcast",
+      "url": "podcast.html"
     },
     {
-      "id": "shop",
-      "label": "Shop",
-      "url": "shop.html",
-      "type": "link",
-      "showOn": "both",
-      "subItems": []
+      "title": "Shop",
+      "url": "shop.html"
     },
     {
-      "id": "resources",
-      "label": "Resources",
-      "url": "#",
-      "type": "mega",
-      "showOn": "desktop",
-      "subItems": [
-        {
-          "label": "Getting started",
-          "url": "getting-started.html",
-          "description": "How Honest News + podcast + YouTube fit together."
-        },
-        {
-          "label": "For Pastors",
-          "url": "pastors.html",
-          "description": "Tools and workflows to preach, record, and publish."
-        },
-        {
-          "label": "For Listeners",
-          "url": "listeners.html",
-          "description": "Where to listen, how to subscribe, how to support."
-        }
-      ]
+      "title": "Support",
+      "url": "support.html"
     },
     {
-      "id": "support",
-      "label": "Support",
-      "url": "support.html",
-      "type": "link",
-      "showOn": "both",
-      "subItems": []
-    },
-    {
-      "id": "contact",
-      "label": "Contact",
-      "url": "contact.html",
-      "type": "link",
-      "showOn": "both",
-      "subItems": []
+      "title": "Contact",
+      "url": "contact.html"
     }
   ],
-
-  "heroSlides": [],
-
-  "theme": {},
-
   "pages": [
     {
       "title": "Home",
       "slug": "home",
-      "theme": "dark",
+      "theme": "light",
       "hero": {
         "bg": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
         "overlay": "Honest News Network",
         "sub": "Everything You Need for Biblical Truth",
-        "transparentMenu": false,
+        "transparentMenu": true,
         "behavior": "parallax-medium",
         "size": "full",
         "customHeight": ""
       },
-      "blocks": []
+      "blocks": [
+        {
+          "type": "youtube",
+          "motion": "fade",
+          "title": "",
+          "videoId": ""
+        },
+        {
+          "type": "heading",
+          "motion": "float",
+          "content": "About Us"
+        },
+        {
+          "type": "paragraph",
+          "motion": "fade",
+          "content": "Honest News Network exists to cut through the noise and tell the truth—plain, unapologetic, and rooted in God’s Word. In a world of spin, censorship, and confusion, we examine world events, culture, and headlines through a biblical lens so believers can understand the times and stand firm in their faith. We are not here to entertain; we are here to warn, inform, and call God’s people back to truth.\n\nWe expose the stories the mainstream ignores, the agendas they hide, and the spiritual battle behind the headlines. From politics and global crises to attacks on faith and family, Honest News Network connects the dots and shows how it all aligns with Scripture and end-time prophecy. Our goal is to help you see clearly so you are not deceived by the systems of this world.\n\nThis is more than a news outlet—it’s a watchman on the wall. Honest News Network exists to equip the body of Christ with discernment, courage, and hope as darkness grows and persecution increases. We invite you to stand with us, stay informed, and stay grounded in the only source of unshakable truth: the Word of God."
+        }
+      ]
     },
     {
       "title": "Podcast",
       "slug": "podcast",
-      "theme": "dark",
+      "theme": "light",
       "hero": {
-        "bg": "",
+        "bg": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
         "overlay": "Latest Episodes",
         "sub": "New episodes every Sunday",
         "transparentMenu": true,
-        "behavior": "parallax-slow",
-        "size": "full",
+        "behavior": "float-up",
+        "size": "medium",
         "customHeight": ""
       },
       "blocks": []
@@ -117,34 +85,50 @@
       "blocks": []
     },
     {
-      "title": "Support",
-      "slug": "support",
+      "title": "Test",
+      "slug": "test",
       "theme": "dark",
       "hero": {
-        "bg": "",
-        "overlay": "Support Honest News",
-        "sub": "Partner with the work of Biblical Truth",
+        "bg": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
+        "overlay": "Test",
+        "sub": "",
         "transparentMenu": true,
-        "behavior": "still",
-        "size": "medium",
+        "behavior": "parallax-medium",
+        "size": "large",
         "customHeight": ""
       },
-      "blocks": []
-    },
-    {
-      "title": "Contact",
-      "slug": "contact",
-      "theme": "dark",
-      "hero": {
-        "bg": "",
-        "overlay": "Contact",
-        "sub": "Reach out with questions, prayer requests, or ideas.",
-        "transparentMenu": false,
-        "behavior": "still",
-        "size": "medium",
-        "customHeight": ""
-      },
-      "blocks": []
+      "blocks": [
+        {
+          "type": "heading",
+          "motion": "fade",
+          "content": "test"
+        },
+        {
+          "type": "paragraph",
+          "motion": "fade",
+          "content": ""
+        },
+        {
+          "type": "image",
+          "motion": "fade",
+          "mode": "url",
+          "content": ""
+        },
+        {
+          "type": "image",
+          "motion": "fade",
+          "mode": "url",
+          "content": ""
+        },
+        {
+          "type": "youtube",
+          "motion": "float",
+          "title": "test",
+          "videoId": "https://www.youtube.com/watch?v=AQ-BzAWXutU&list=RDAQ-BzAWXutU&start_radio=1"
+        }
+      ]
     }
-  ]
+  ],
+  "theme": {},
+  "heroSlides": []
 }
