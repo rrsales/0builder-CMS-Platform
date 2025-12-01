@@ -587,6 +587,12 @@
       <button class="btn secondary" style="width:100%;margin-top:8px;" onclick="newPage()">
         + New Page
       </button>
+      <!-- NEW: delete current page -->
+      <button class="btn ghost"
+              style="width:100%;margin-top:6px;color:#f97373;border-color:#b91c1c;"
+              onclick="deleteCurrentPage()">
+        Delete current page
+      </button>
     </div>
 
     <div style="margin-top:16px;">
@@ -965,6 +971,47 @@ function newPage(){
   });
   markDirty();
   renderPages();
+}
+
+/* NEW: DELETE CURRENT PAGE */
+function deleteCurrentPage(){
+  if (!current) {
+    alert("No page selected.");
+    return;
+  }
+
+  // Protect Home
+  if (current.slug === "home" || current.title === "Home") {
+    alert("You cannot delete the Home page.");
+    return;
+  }
+
+  const name = current.title || current.slug || "this page";
+  const confirmed = confirm(
+    `Delete "${name}" from the CMS?\n\n` +
+    `This will remove it from Pages and the navigation menu.`
+  );
+  if (!confirmed) return;
+
+  const slug = current.slug;
+
+  // Remove from pages array
+  site.pages = (site.pages || []).filter(p => p !== current);
+
+  // Remove from menu (by id or by url)
+  if (site.menu && slug) {
+    site.menu = site.menu.filter(m =>
+      m.id !== slug && m.url !== slug + ".html"
+    );
+  }
+
+  // Clear current + refresh UI
+  current = null;
+  markDirty();
+  renderPages();
+  updatePreviewHeader();
+  renderPreview();
+  renderInspectorTab();
 }
 
 /* =======================
@@ -1660,3 +1707,4 @@ renderInspectorTab();
 </script>
 </body>
 </html>
+
