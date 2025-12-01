@@ -59,7 +59,20 @@ document.getElementById("pass").addEventListener("keypress", e=>{
   if(e.key==="Enter") document.getElementById("login").click();
 });
 </script>
-
+<script src="assets/js/admin/hn-admin-data.js"></script>
+<script src="assets/js/admin/hn-admin-pages.js"></script>
+<script src="assets/js/admin/hn-admin-hero.js"></script>
+<script src="assets/js/admin/hn-admin-blocks.js"></script>
+<script>
+  // Example: load data and show page list in the console
+  (async function () {
+    const data = await HNAdmin.loadSiteData();
+    console.log("Pages:", Object.keys(data.pages));
+    // When you make changes:
+    // HNAdmin.saveLocalSnapshot(data);
+    // HNAdmin.exportSiteData(data);
+  })();
+</script>
 </body>
 </html>
 
