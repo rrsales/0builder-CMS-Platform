@@ -110,8 +110,17 @@
   .btn.secondary:hover{background:#020617;}
   .btn.ghost{background:transparent;color:#9ca3af;border:1px solid rgba(148,163,184,.25);}
   .btn.ghost:hover{color:#e5e7eb;border-color:#e5e7eb;}
-  .btn.primary{background:#22c55e;color:#022c22;border:1px solid #16a34a;}
-  .btn.primary:hover{background:#16a34a;}
+
+  /* PRIMARY = BLUE (same as pull handle / inspector accent) */
+  .btn.primary{
+    background:var(--accent);
+    color:#0b1120;
+    border:1px solid var(--accent-soft);
+  }
+  .btn.primary:hover{
+    background:var(--accent-soft);
+    color:#e5e7eb;
+  }
 
   .logout-btn{
     border:none;
@@ -148,103 +157,88 @@
     box-shadow:0 18px 40px rgba(0,0,0,0.85);
     display:flex;
     flex-direction:column;
-    gap:14px;
+    gap:12px;
     overflow:hidden;
   }
 
-  .sidebar-section{
-    border-radius:12px;
-    background:transparent;
+  /* Accordion groups in sidebar */
+  .sidebar-group{
+    border-radius:var(--radius-lg);
+    border:1px solid rgba(31,41,55,.9);
+    background:#020617;
+    margin:0;
+    overflow:hidden;
   }
-
-  .sidebar-toggle{
-    width:100%;
-    border:none;
-    background:transparent;
-    color:var(--text-soft);
-    padding:4px 4px 4px 0;
-    margin:0 0 4px;
+  .sidebar-group + .sidebar-group{
+    margin-top:8px;
+  }
+  .sidebar-summary{
+    list-style:none;
     display:flex;
     align-items:center;
     justify-content:space-between;
+    padding:8px 10px;
     cursor:pointer;
     font-size:.78rem;
     text-transform:uppercase;
     letter-spacing:.12em;
+    color:var(--text-soft);
   }
-
-  .sidebar-toggle-left{
-    display:flex;
-    align-items:center;
-    gap:6px;
-  }
-
-  .sidebar-toggle-icon{
-    width:18px;
-    height:18px;
-    border-radius:999px;
-    border:1px solid rgba(148,163,184,.55);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:.6rem;
-    transition:transform .2s ease;
-  }
-  .sidebar-toggle-icon.collapsed{
-    transform:rotate(-90deg);
-  }
-
-  .sidebar-toggle-count{
-    font-size:.65rem;
-    color:#6b7280;
+  .sidebar-summary::-webkit-details-marker{display:none;}
+  .sidebar-group[open] .sidebar-summary{
+    background:rgba(15,23,42,.9);
   }
 
   .sidebar-inner{
-    flex:1;
+    padding:6px 8px 10px 8px;
+    max-height:260px;
     overflow-y:auto;
-    padding-right:4px;
+  }
+
+  .sidebar-add-btn{
+    border:none;
+    border-radius:999px;
+    background:rgba(15,23,42,.9);
+    color:#e5e7eb;
+    padding:3px 7px;
+    font-size:.72rem;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .sidebar-add-btn i{
+    font-size:.65rem;
+  }
+  .sidebar-add-btn:hover{
+    background:var(--accent);
+    color:#0b1120;
+  }
+
+  .field-hint{
+    font-size:.72rem;
+    color:#9ca3af;
   }
 
   .page{
-    padding:6px 8px;
+    padding:9px 10px;
     margin-top:6px;
     border-radius:12px;
     background:#020617;
     border:1px solid transparent;
+    cursor:pointer;
     display:flex;
     align-items:center;
     justify-content:space-between;
-    gap:6px;
     font-size:.84rem;
     color:var(--text-main);
   }
-  .page-main{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    cursor:pointer;
-  }
   .page span.title{font-weight:600;}
   .page span.slug{font-size:.7rem;color:#6b7280;}
-
   .page.active{
     background:var(--accent-soft-bg);
     border-color:var(--accent);
     box-shadow:0 0 0 1px rgba(56,189,248,.4);
-  }
-
-  .page-delete{
-    border:none;
-    background:#0b1120;
-    color:#f97373;
-    border-radius:999px;
-    padding:4px 7px;
-    font-size:.7rem;
-    cursor:pointer;
-  }
-  .page-delete:hover{
-    background:#111827;
-    color:#fecaca;
   }
 
   .textarea-small{
@@ -514,10 +508,6 @@
     color:#e5e7eb;
     margin-bottom:2px;
   }
-  .field-hint{
-    font-size:.72rem;
-    color:#9ca3af;
-  }
   input,select,textarea{
     font-family:inherit;
   }
@@ -644,36 +634,33 @@
 <div class="main">
   <!-- SIDEBAR -->
   <aside class="sidebar">
+
     <!-- PAGES ACCORDION -->
-    <div class="sidebar-section">
-      <button class="sidebar-toggle" type="button" onclick="togglePagesAccordion()">
-        <span class="sidebar-toggle-left">
-          <span id="pagesChevron" class="sidebar-toggle-icon">
-            <i class="fa-solid fa-chevron-down" style="font-size:.55rem;"></i>
-          </span>
-          <span>PAGES</span>
-        </span>
-        <span id="pagesCount" class="sidebar-toggle-count"></span>
-      </button>
-
-      <div class="sidebar-inner" id="pagesAccordion">
-        <div id="pages"></div>
-        <button class="btn secondary" style="width:100%;margin-top:8px;" onclick="newPage()">
-          + New Page
+    <details class="sidebar-group" open>
+      <summary class="sidebar-summary">
+        <span>Pages</span>
+        <button class="sidebar-add-btn" type="button" onclick="newPage(event)">
+          <i class="fa-solid fa-plus"></i>
         </button>
+      </summary>
+      <div class="sidebar-inner">
+        <div id="pages"></div>
       </div>
-    </div>
+    </details>
 
-    <!-- NAVIGATION EDITOR -->
-    <div class="sidebar-section" style="margin-top:10px;">
-      <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-soft);margin-bottom:4px;">
-        Navigation
+    <!-- NAVIGATION ACCORDION -->
+    <details class="sidebar-group" open>
+      <summary class="sidebar-summary">
+        <span>Navigation</span>
+      </summary>
+      <div class="sidebar-inner">
+        <p class="field-hint" style="margin-top:0;margin-bottom:6px;">
+          One per line: <code>Title | URL</code>
+        </p>
+        <textarea id="menuRaw" class="textarea-small" oninput="menuFromRaw(this.value)"></textarea>
       </div>
-      <p class="field-hint" style="margin-top:0;margin-bottom:4px;">
-        One per line: <code>Title | URL</code>
-      </p>
-      <textarea id="menuRaw" class="textarea-small" oninput="menuFromRaw(this.value)"></textarea>
-    </div>
+    </details>
+
   </aside>
 
   <!-- PREVIEW ONLY -->
@@ -754,159 +741,152 @@
 
 <script>
 /* =======================
-   DEFAULT DATA
-======================= */
-const defaultMenu = [
-  {
-    id: "home",
-    label: "Home",
-    url: "index.html",
-    type: "link",
-    showOn: "both",
-    subItems: []
-  },
-  {
-    id: "podcast",
-    label: "Podcast",
-    url: "podcast.html",
-    type: "link",
-    showOn: "both",
-    subItems: []
-  },
-  {
-    id: "shop",
-    label: "Shop",
-    url: "shop.html",
-    type: "link",
-    showOn: "both",
-    subItems: []
-  },
-  {
-    id: "resources",
-    label: "Resources",
-    url: "#",
-    type: "mega",
-    showOn: "desktop",
-    subItems: [
-      {
-        label: "Getting started",
-        url: "getting-started.html",
-        description: "How Honest News + podcast + YouTube fit together."
-      },
-      {
-        label: "For Pastors",
-        url: "pastors.html",
-        description: "Tools and workflows to preach, record, and publish."
-      },
-      {
-        label: "For Listeners",
-        url: "listeners.html",
-        description: "Where to listen, how to subscribe, how to support."
-      }
-    ]
-  },
-  {
-    id: "support",
-    label: "Support",
-    url: "support.html",
-    type: "link",
-    showOn: "both",
-    subItems: []
-  },
-  {
-    id: "contact",
-    label: "Contact",
-    url: "contact.html",
-    type: "link",
-    showOn: "both",
-    subItems: []
-  }
-];
-
-const defaultPages = [
-  {
-    title:"Home",
-    slug:"home",
-    theme:"dark",
-    hero:{
-      bg:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
-      overlay:"Honest News Network",
-      sub:"Everything You Need for Biblical Truth",
-      transparentMenu:false,
-      behavior:"parallax-medium",
-      size:"full",
-      customHeight:""
-    },
-    blocks:[]
-  },
-  {
-    title:"Podcast",
-    slug:"podcast",
-    theme:"dark",
-    hero:{
-      bg:"",
-      overlay:"Latest Episodes",
-      sub:"New episodes every Sunday",
-      transparentMenu:true,
-      behavior:"parallax-slow",
-      size:"full",
-      customHeight:""
-    },
-    blocks:[]
-  },
-  {
-    title:"Shop",
-    slug:"shop",
-    theme:"dark",
-    hero:{
-      bg:"",
-      overlay:"Recommended Resources",
-      sub:"Support your walk and support the ministry",
-      transparentMenu:true,
-      behavior:"still",
-      size:"medium",
-      customHeight:""
-    },
-    blocks:[]
-  },
-  {
-    title:"Support",
-    slug:"support",
-    theme:"dark",
-    hero:{
-      bg:"",
-      overlay:"Support Honest News",
-      sub:"Partner with the work of Biblical Truth",
-      transparentMenu:true,
-      behavior:"still",
-      size:"medium",
-      customHeight:""
-    },
-    blocks:[]
-  },
-  {
-    title:"Contact",
-    slug:"contact",
-    theme:"dark",
-    hero:{
-      bg:"",
-      overlay:"Contact",
-      sub:"Reach out with questions, prayer requests, or ideas.",
-      transparentMenu:false,
-      behavior:"still",
-      size:"medium",
-      customHeight:""
-    },
-    blocks:[]
-  }
-];
-
-/* =======================
    STATE
 ======================= */
 let site = {
-  menu: defaultMenu.slice(),
-  pages: defaultPages.slice(),
+  menu: [
+    {
+      id: "home",
+      label: "Home",
+      url: "index.html",
+      type: "link",
+      showOn: "both",
+      subItems: []
+    },
+    {
+      id: "podcast",
+      label: "Podcast",
+      url: "podcast.html",
+      type: "link",
+      showOn: "both",
+      subItems: []
+    },
+    {
+      id: "shop",
+      label: "Shop",
+      url: "shop.html",
+      type: "link",
+      showOn: "both",
+      subItems: []
+    },
+    {
+      id: "resources",
+      label: "Resources",
+      url: "#",
+      type: "mega",
+      showOn: "desktop",
+      subItems: [
+        {
+          label: "Getting started",
+          url: "getting-started.html",
+          description: "How Honest News + podcast + YouTube fit together."
+        },
+        {
+          label: "For Pastors",
+          url: "pastors.html",
+          description: "Tools and workflows to preach, record, and publish."
+        },
+        {
+          label: "For Listeners",
+          url: "listeners.html",
+          description: "Where to listen, how to subscribe, how to support."
+        }
+      ]
+    },
+    {
+      id: "support",
+      label: "Support",
+      url: "support.html",
+      type: "link",
+      showOn: "both",
+      subItems: []
+    },
+    {
+      id: "contact",
+      label: "Contact",
+      url: "contact.html",
+      type: "link",
+      showOn: "both",
+      subItems: []
+    }
+  ],
+  pages: [
+    {
+      title:"Home",
+      slug:"home",
+      theme:"dark",
+      hero:{
+        bg:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
+        overlay:"Honest News Network",
+        sub:"Everything You Need for Biblical Truth",
+        transparentMenu:false,
+        behavior:"parallax-medium",
+        size:"full",
+        customHeight:""
+      },
+      blocks:[]
+    },
+    {
+      title:"Podcast",
+      slug:"podcast",
+      theme:"dark",
+      hero:{
+        bg:"",
+        overlay:"Latest Episodes",
+        sub:"New episodes every Sunday",
+        transparentMenu:true,
+        behavior:"parallax-slow",
+        size:"full",
+        customHeight:""
+      },
+      blocks:[]
+    },
+    {
+      title:"Shop",
+      slug:"shop",
+      theme:"dark",
+      hero:{
+        bg:"",
+        overlay:"Recommended Resources",
+        sub:"Support your walk and support the ministry",
+        transparentMenu:true,
+        behavior:"still",
+        size:"medium",
+        customHeight:""
+      },
+      blocks:[]
+    },
+    {
+      title:"Support",
+      slug:"support",
+      theme:"dark",
+      hero:{
+        bg:"",
+        overlay:"Support Honest News",
+        sub:"Partner with the work of Biblical Truth",
+        transparentMenu:true,
+        behavior:"still",
+        size:"medium",
+        customHeight:""
+      },
+      blocks:[]
+    },
+    {
+      title:"Contact",
+      slug:"contact",
+      theme:"dark",
+      hero:{
+        bg:"",
+        overlay:"Contact",
+        sub:"Reach out with questions, prayer requests, or ideas.",
+        transparentMenu:false,
+        behavior:"still",
+        size:"medium",
+        customHeight:""
+      },
+      blocks:[]
+    }
+  ],
   theme: {},
   heroSlides: []
 };
@@ -916,17 +896,8 @@ let isDirty = false;
 let activeInspectorTab = "page";
 const DRAFT_KEY = "hn_cms_draft_v1";
 
-// track if we actually loaded from site-data.json on the server
-let loadedFromServer = false;
-
-// whether to show confirm() popup before cloud save
-let confirmCloudSave = (localStorage.getItem("hn_confirm_cloud") !== "no");
-
 /* panel behavior: auto | manual | pinned | smart */
 let panelBehavior = localStorage.getItem("hn_panel_behavior") || "auto";
-
-// accordion state for Pages
-let pagesAccordionOpen = (localStorage.getItem("hn_pages_open") !== "0");
 
 const panel    = document.getElementById("inspectorPanel");
 const handle   = document.getElementById("panelHandle");
@@ -940,40 +911,23 @@ const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
    LOAD site-data.json
 ======================= */
 (async function loadSiteData() {
-  loadedFromServer = false;
-
   try {
     const res = await fetch("site-data.json?cache-bust=" + Date.now());
     if (res.ok) {
       const data = await res.json();
       if (data && typeof data === "object") {
-        loadedFromServer = true;
-        site = {
-          menu: Array.isArray(data.menu) ? data.menu : defaultMenu.slice(),
-          pages: Array.isArray(data.pages) ? data.pages : defaultPages.slice(),
-          theme: data.theme || {},
-          heroSlides: Array.isArray(data.heroSlides) ? data.heroSlides : []
-        };
+        // merge so defaults stay if missing
+        site = Object.assign({}, site, data);
       }
     }
   } catch (e) {
-    console.warn("Could not load site-data.json, will use defaults if no draft", e);
+    console.warn("Could not load site-data.json, using defaults", e);
   }
-
-  if (!loadedFromServer && !site.pages.length) {
-    site.pages = defaultPages.slice();
-  }
-
   restoreDraftIfAny();
-
-  current = site.pages[0] || null;
-
   renderPages();
   updatePreviewHeader();
   renderPreview();
   applyPanelBehavior();
-  applyPagesAccordionState();
-  renderInspectorTab();
 })();
 
 /* =======================
@@ -1041,57 +995,23 @@ document.addEventListener("keydown", (e)=>{
 });
 
 /* =======================
-   PAGES ACCORDION
-======================= */
-function togglePagesAccordion(){
-  pagesAccordionOpen = !pagesAccordionOpen;
-  localStorage.setItem("hn_pages_open", pagesAccordionOpen ? "1" : "0");
-  applyPagesAccordionState();
-}
-
-function applyPagesAccordionState(){
-  const acc = document.getElementById("pagesAccordion");
-  const chevWrap = document.getElementById("pagesChevron");
-  if (!acc || !chevWrap) return;
-
-  acc.style.display = pagesAccordionOpen ? "block" : "none";
-  if (pagesAccordionOpen){
-    chevWrap.classList.remove("collapsed");
-  } else {
-    chevWrap.classList.add("collapsed");
-  }
-}
-
-/* =======================
    SIDEBAR / PAGES
 ======================= */
 function renderPages(){
   const container = document.getElementById("pages");
-  const countEl   = document.getElementById("pagesCount");
-
   container.innerHTML = (site.pages || []).map((p,i)=>`
-    <div class="page ${p===current?'active':''}">
-      <div class="page-main" onclick="selectPage(${i})">
-        <span class="title">${p.title || 'Untitled'}</span>
-        <span class="slug">${p.slug || ''}</span>
-      </div>
-      <button class="page-delete" title="Delete page"
-        onclick="event.stopPropagation(); deletePage(${i});">
-        <i class="fa-solid fa-trash"></i>
-      </button>
+    <div class="page ${p===current?'active':''}" onclick="selectPage(${i})">
+      <span class="title">${p.title || 'Untitled'}</span>
+      <span class="slug">${p.slug || ''}</span>
     </div>
   `).join("");
-
-  if (countEl){
-    const n = (site.pages || []).length;
-    countEl.textContent = n ? (n + (n === 1 ? " page" : " pages")) : "No pages";
-  }
-
   rawFromMenu();
-  applyPagesAccordionState();
 }
 
-function newPage(){
+/* newPage gets event so it doesn't close the accordion when clicking + */
+function newPage(evt){
+  if (evt && evt.stopPropagation) evt.stopPropagation();
+
   const t = prompt("Page title?");
   if (!t) return;
   const slug = t.toLowerCase().replace(/\s+/g,"-");
@@ -1113,35 +1033,6 @@ function newPage(){
   });
   markDirty();
   renderPages();
-}
-
-/* DELETE PAGE */
-function deletePage(index){
-  const page = site.pages[index];
-  if (!page) return;
-
-  const label = page.title || page.slug || "this page";
-  const important = (page.slug === "home" || page.slug === "index");
-
-  const msg = important
-    ? `Delete "${label}"? This looks like your Home page.`
-    : `Delete the page "${label}"?`;
-
-  if (!confirm(msg)) return;
-
-  site.pages.splice(index,1);
-
-  if (!site.pages.length) {
-    current = null;
-  } else if (current === page) {
-    current = site.pages[Math.max(0, index-1)];
-  }
-
-  markDirty();
-  renderPages();
-  updatePreviewHeader();
-  renderPreview();
-  renderInspectorTab();
 }
 
 /* =======================
@@ -1320,7 +1211,6 @@ function renderInspectorTab(){
   const body = document.getElementById("inspectorBody");
   if (!current && activeInspectorTab!=="site"){
     body.innerHTML = `<p style="color:#9ca3af;">Select a page on the left to edit.</p>`;
-    body.scrollTop = 0;
     return;
   }
   if (activeInspectorTab === "page"){
@@ -1333,7 +1223,6 @@ function renderInspectorTab(){
     body.innerHTML = renderSiteTabHtml();
     wirePanelBehaviorRadios();
   }
-  body.scrollTop = 0;
 }
 
 /* PAGE TAB */
@@ -1370,8 +1259,47 @@ function renderPageTabHtml(c){
           Dark
         </label>
       </div>
+
+      <div class="field-group">
+        <button type="button"
+          class="btn ghost"
+          style="width:100%;margin-top:8px;background:#111827;color:#fca5a5;border-color:#b91c1c;"
+          onclick="deleteCurrentPage()">
+          <i class="fa-solid fa-trash-can"></i> Delete this page
+        </button>
+      </div>
     </div>
   `;
+}
+
+/* Delete current page + clean menu links */
+function deleteCurrentPage(){
+  if (!current) return;
+  const idx = site.pages.indexOf(current);
+  if (idx === -1) return;
+
+  const label = current.title || current.slug || "this page";
+  const msg = `Delete the page "${label}" from CMS? (HTML files must still be removed in GitHub if you don't want them live.)`;
+  if (!confirm(msg)) return;
+
+  const slug = current.slug || "";
+  const possibleUrls = [];
+  if (slug) possibleUrls.push(`${slug}.html`);
+  if (slug === "home") possibleUrls.push("index.html");
+
+  site.menu = (site.menu || []).filter(item => {
+    if (!item || !item.url) return true;
+    return !possibleUrls.includes(item.url);
+  });
+
+  site.pages.splice(idx,1);
+  current = site.pages.length ? site.pages[Math.max(0, idx-1)] : null;
+
+  markDirty();
+  renderPages();
+  updatePreviewHeader();
+  renderPreview();
+  renderInspectorTab();
 }
 
 /* HERO TAB */
@@ -1697,15 +1625,9 @@ function restoreDraftIfAny(){
     const raw = localStorage.getItem(DRAFT_KEY);
     if(!raw) return;
     const parsed = JSON.parse(raw);
-    if(!parsed || typeof parsed !== "object") return;
-
-    // if we DID load from server, keep server pages/menu so deleted pages don't “come back”
-    if (loadedFromServer) {
-      console.log("Draft found but server data present; keeping server pages/menu");
-      return;
+    if(parsed && typeof parsed === "object") {
+      site = Object.assign({}, site, parsed);
     }
-
-    site = Object.assign({}, site, parsed);
   } catch(e){
     console.warn("No valid draft to restore");
   }
@@ -1762,10 +1684,7 @@ async function backupAll(){
 document.getElementById("saveLocalBtn").addEventListener("click", saveToCloud);
 
 async function saveToCloud(){
-  if (confirmCloudSave) {
-    const ok = confirm("Save your changes to GitHub via Honest News Cloud CMS (Render)?");
-    if (!ok) return;
-  }
+  if(!confirm("Save your changes to GitHub via Honest News Cloud CMS (Render)?")) return;
 
   try{
     const res = await fetch(SAVE_ENDPOINT,{
@@ -1781,7 +1700,7 @@ async function saveToCloud(){
     }
 
     markSavedLocal();
-    alert("✔ Saved to cloud.\nRender → GitHub site-data.json updated.\n\nYour page deletions and edits are now persisted.");
+    alert("✔ Saved to cloud.\nRender → GitHub site-data.json updated.");
 
   }catch(e){
     console.error(e);
@@ -1829,13 +1748,6 @@ function renderSiteTabHtml(){
         • Drafts stay only in this browser’s local storage.<br>
         • Use GitHub Desktop to Commit & Push when you’re ready to publish.
       </p>
-      <label class="inline" style="margin-top:6px;display:flex;">
-        <input type="checkbox" id="confirmCloudSaveToggle" ${confirmCloudSave ? "checked" : ""}>
-        <span>Ask before saving to cloud</span>
-      </label>
-      <p class="field-hint" style="margin-top:4px;">
-        Uncheck this to save instantly without the popup.
-      </p>
     </div>
   `;
 }
@@ -1848,14 +1760,6 @@ function wirePanelBehaviorRadios(){
       applyPanelBehavior();
     });
   });
-
-  const confirmToggle = document.getElementById("confirmCloudSaveToggle");
-  if (confirmToggle){
-    confirmToggle.addEventListener("change", ()=>{
-      confirmCloudSave = confirmToggle.checked;
-      localStorage.setItem("hn_confirm_cloud", confirmCloudSave ? "yes" : "no");
-    });
-  }
 }
 
 /* initial inspector content */
@@ -1863,6 +1767,7 @@ renderInspectorTab();
 </script>
 </body>
 </html>
+
 
 
 
