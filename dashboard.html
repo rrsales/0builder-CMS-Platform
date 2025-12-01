@@ -151,13 +151,54 @@
     gap:14px;
     overflow:hidden;
   }
-  .sidebar h3{
-    margin:0;
+
+  .sidebar-section{
+    border-radius:12px;
+    background:transparent;
+  }
+
+  .sidebar-toggle{
+    width:100%;
+    border:none;
+    background:transparent;
+    color:var(--text-soft);
+    padding:4px 4px 4px 0;
+    margin:0 0 4px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    cursor:pointer;
     font-size:.78rem;
     text-transform:uppercase;
     letter-spacing:.12em;
-    color:var(--text-soft);
   }
+
+  .sidebar-toggle-left{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  .sidebar-toggle-icon{
+    width:18px;
+    height:18px;
+    border-radius:999px;
+    border:1px solid rgba(148,163,184,.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.6rem;
+    transition:transform .2s ease;
+  }
+  .sidebar-toggle-icon.collapsed{
+    transform:rotate(-90deg);
+  }
+
+  .sidebar-toggle-count{
+    font-size:.65rem;
+    color:#6b7280;
+  }
+
   .sidebar-inner{
     flex:1;
     overflow-y:auto;
@@ -603,17 +644,32 @@
 <div class="main">
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div>
-      <h3>Pages</h3>
-      <div class="sidebar-inner" id="pages"></div>
-      <button class="btn secondary" style="width:100%;margin-top:8px;" onclick="newPage()">
-        + New Page
+    <!-- PAGES ACCORDION -->
+    <div class="sidebar-section">
+      <button class="sidebar-toggle" type="button" onclick="togglePagesAccordion()">
+        <span class="sidebar-toggle-left">
+          <span id="pagesChevron" class="sidebar-toggle-icon">
+            <i class="fa-solid fa-chevron-down" style="font-size:.55rem;"></i>
+          </span>
+          <span>PAGES</span>
+        </span>
+        <span id="pagesCount" class="sidebar-toggle-count"></span>
       </button>
+
+      <div class="sidebar-inner" id="pagesAccordion">
+        <div id="pages"></div>
+        <button class="btn secondary" style="width:100%;margin-top:8px;" onclick="newPage()">
+          + New Page
+        </button>
+      </div>
     </div>
 
-    <div style="margin-top:16px;">
-      <h3>Navigation</h3>
-      <p class="field-hint" style="margin-top:4px;">
+    <!-- NAVIGATION EDITOR -->
+    <div class="sidebar-section" style="margin-top:10px;">
+      <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-soft);margin-bottom:4px;">
+        Navigation
+      </div>
+      <p class="field-hint" style="margin-top:0;margin-bottom:4px;">
         One per line: <code>Title | URL</code>
       </p>
       <textarea id="menuRaw" class="textarea-small" oninput="menuFromRaw(this.value)"></textarea>
@@ -869,6 +925,9 @@ let confirmCloudSave = (localStorage.getItem("hn_confirm_cloud") !== "no");
 /* panel behavior: auto | manual | pinned | smart */
 let panelBehavior = localStorage.getItem("hn_panel_behavior") || "auto";
 
+// accordion state for Pages
+let pagesAccordionOpen = (localStorage.getItem("hn_pages_open") !== "0");
+
 const panel    = document.getElementById("inspectorPanel");
 const handle   = document.getElementById("panelHandle");
 const closeBtn = document.getElementById("closePanelBtn");
@@ -913,6 +972,7 @@ const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
   updatePreviewHeader();
   renderPreview();
   applyPanelBehavior();
+  applyPagesAccordionState();
   renderInspectorTab();
 })();
 
@@ -981,10 +1041,34 @@ document.addEventListener("keydown", (e)=>{
 });
 
 /* =======================
+   PAGES ACCORDION
+======================= */
+function togglePagesAccordion(){
+  pagesAccordionOpen = !pagesAccordionOpen;
+  localStorage.setItem("hn_pages_open", pagesAccordionOpen ? "1" : "0");
+  applyPagesAccordionState();
+}
+
+function applyPagesAccordionState(){
+  const acc = document.getElementById("pagesAccordion");
+  const chevWrap = document.getElementById("pagesChevron");
+  if (!acc || !chevWrap) return;
+
+  acc.style.display = pagesAccordionOpen ? "block" : "none";
+  if (pagesAccordionOpen){
+    chevWrap.classList.remove("collapsed");
+  } else {
+    chevWrap.classList.add("collapsed");
+  }
+}
+
+/* =======================
    SIDEBAR / PAGES
 ======================= */
 function renderPages(){
   const container = document.getElementById("pages");
+  const countEl   = document.getElementById("pagesCount");
+
   container.innerHTML = (site.pages || []).map((p,i)=>`
     <div class="page ${p===current?'active':''}">
       <div class="page-main" onclick="selectPage(${i})">
@@ -997,7 +1081,14 @@ function renderPages(){
       </button>
     </div>
   `).join("");
+
+  if (countEl){
+    const n = (site.pages || []).length;
+    countEl.textContent = n ? (n + (n === 1 ? " page" : " pages")) : "No pages";
+  }
+
   rawFromMenu();
+  applyPagesAccordionState();
 }
 
 function newPage(){
@@ -1029,7 +1120,6 @@ function deletePage(index){
   const page = site.pages[index];
   if (!page) return;
 
-  // basic protection for Home if you want it
   const label = page.title || page.slug || "this page";
   const important = (page.slug === "home" || page.slug === "index");
 
@@ -1243,7 +1333,6 @@ function renderInspectorTab(){
     body.innerHTML = renderSiteTabHtml();
     wirePanelBehaviorRadios();
   }
-  // always reset scroll to the top when swapping views
   body.scrollTop = 0;
 }
 
@@ -1610,9 +1699,7 @@ function restoreDraftIfAny(){
     const parsed = JSON.parse(raw);
     if(!parsed || typeof parsed !== "object") return;
 
-    // If we successfully loaded from site-data.json on the server,
-    // DO NOT override pages/menu with an old draft (this was causing
-    // deleted pages to “come back”).
+    // if we DID load from server, keep server pages/menu so deleted pages don't “come back”
     if (loadedFromServer) {
       console.log("Draft found but server data present; keeping server pages/menu");
       return;
@@ -1776,6 +1863,7 @@ renderInspectorTab();
 </script>
 </body>
 </html>
+
 
 
 
