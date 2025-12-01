@@ -3,7 +3,7 @@
 // =======================================================
 
 const express = require("express");
-const fetch = require("node-fetch");  // Render supports this
+const fetch = require("node-fetch");
 const cors = require("cors");
 
 const app = express();
@@ -19,22 +19,29 @@ const DATA_FILE_PATH = process.env.DATA_FILE_PATH || "site-data.json";
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN  = process.env.GITHUB_TOKEN;
 
-if (!GITHUB_TOKEN) {
-  console.error("🚨 ERROR: GITHUB_TOKEN missing");
-}
+if (!GITHUB_TOKEN) console.error("🚨 ERROR: GITHUB_TOKEN MISSING");
 
 // -----------------------------------------------
-// CORS — allow GitHub Pages + local preview
+// 100% FIXED CORS + PREFLIGHT
 // -----------------------------------------------
 app.use(cors({
   origin: [
     "https://rrsales.github.io",
+    "https://honest-news.onrender.com",
     "http://localhost:5500",
     "http://localhost:3000",
   ],
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type"]
 }));
+
+// REQUIRED: custom preflight handler
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.sendStatus(200);
+});
 
 app.use(express.json({ limit: "5mb" }));
 
@@ -51,8 +58,8 @@ async function saveToGitHub(jsonString) {
     "Accept": "application/vnd.github+json"
   };
 
-  // STEP 1: Get SHA if file exists
-  let sha;
+  // STEP 1 — get SHA if file exists
+  let sha = null;
   const getRes = await fetch(fileUrl, { headers });
 
   if (getRes.status === 200) {
@@ -62,11 +69,11 @@ async function saveToGitHub(jsonString) {
     throw new Error(`GitHub GET failed: ${await getRes.text()}`);
   }
 
-  // STEP 2: Prepare PUT request
+  // STEP 2 — PUT new file contents
   const body = {
     message: "HN Cloud CMS Update",
     content: Buffer.from(jsonString).toString("base64"),
-    branch: GITHUB_BRANCH
+    branch: GITHUB_BRANCH,
   };
 
   if (sha) body.sha = sha;
@@ -88,25 +95,21 @@ async function saveToGitHub(jsonString) {
 // ROUTES
 // -----------------------------------------------
 
-// Health test
 app.get("/health", (req, res) => {
   res.json({ ok: true, status: "healthy" });
 });
 
-// Keepalive ping
-app.get("/ping", (req, res) => {
-  res.json({ ok: true, time: Date.now() });
-});
-
 // SAVE endpoint
 app.post("/save", async (req, res) => {
+  console.log("Incoming save request...");
   try {
     const pretty = JSON.stringify(req.body, null, 2);
     const result = await saveToGitHub(pretty);
 
     res.json({
       ok: true,
-      file: result.content?.path || DATA_FILE_PATH
+      saved: DATA_FILE_PATH,
+      sha: result.commit?.sha || null
     });
 
   } catch (err) {
@@ -128,4 +131,5 @@ app.listen(PORT, () => {
   console.log("File:", DATA_FILE_PATH);
   console.log("=======================================");
 });
+
 
