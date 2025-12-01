@@ -1,55 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Honest News – Biblical Truth</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Base Styles -->
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <!-- Main Site Styles -->
+  <link rel="stylesheet" href="assets/css/styles.css" />
 
-  <!-- Mobile Styles -->
-  <link rel="stylesheet" href="assets/css/mobile/mobile.css">
+  <!-- Mobile Framework Styles (correct folder) -->
+  <link rel="stylesheet" href="assets/css/mobile/mobile.css" />
+  <link rel="stylesheet" href="assets/css/mobile/mobile.header.css" />
+  <link rel="stylesheet" href="assets/css/mobile/mobile.hero.css" />
+  <link rel="stylesheet" href="assets/css/mobile/mobile.cards.css" />
 
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 
 <body data-page="home" class="theme-dark">
 
-  <!-- ============================
-       HEADER (Apple / Podbean Style)
-  ============================= -->
+  <!-- HEADER -->
   <header class="hn-header hn-header--apple">
     <div class="hn-header-inner">
       <a href="index.html" class="hn-logo">Honest News</a>
 
-      <!-- Desktop Menu -->
       <nav class="hn-nav desktop-only">
         <ul id="nav-menu"></ul>
       </nav>
 
-      <!-- Mobile Menu Toggle -->
       <button class="hn-mobile-toggle" id="mobileMenuToggle" aria-label="Open menu">
         <span></span>
       </button>
     </div>
   </header>
 
-  <!-- ============================
-        MOBILE SLIDE-IN MENU
-  ============================= -->
+  <!-- MOBILE MENU -->
   <nav class="hn-mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
     <div class="hn-mobile-menu-header">
       <span class="hn-mobile-menu-title">Menu</span>
-      <button id="mobileMenuClose" aria-label="Close menu">×</button>
+      <button id="mobileMenuClose">×</button>
     </div>
     <ul id="mobileNavMenu"></ul>
   </nav>
 
-  <!-- ============================
-        HERO AREA (Dynamic: live.js)
-  ============================= -->
+  <!-- HERO (live.js will overwrite this with CMS data) -->
   <section class="hero" data-hero>
     <div class="hero-overlay-soft"></div>
     <div class="hero-inner">
@@ -58,39 +52,31 @@
     </div>
   </section>
 
-  <!-- ============================
-        MAIN CONTENT
-  ============================= -->
+  <!-- MAIN CONTENT -->
   <main>
     <div class="page-content">
       <div data-blocks-target></div>
     </div>
   </main>
 
-  <!-- ============================
-        FOOTER
-  ============================= -->
   <footer class="site-footer">
     <p>&copy; <span id="year"></span> Honest News. All rights reserved.</p>
   </footer>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
       const y = document.getElementById("year");
       if (y) y.textContent = new Date().getFullYear();
     });
   </script>
 
-  <!-- ============================
-        JAVASCRIPT (Correct Order)
-        1) live.js (loads site-data.json)
-        2) mobile.js (menu)
-        3) mobile.hero.js (mobile hero effects)
-  ============================= -->
+  <!-- LIVE ENGINE -->
+  <script src="assets/js/live.js?cb=1"></script>
 
-  <script src="assets/js/live.js"></script>
-  <script src="assets/js/mobile/mobile.js"></script>
-  <script src="assets/js/mobile/mobile.hero.js"></script>
+  <!-- Mobile Framework JS (correct folder) -->
+  <script src="assets/js/mobile/mobile.js?cb=1"></script>
+  <script src="assets/js/mobile/mobile.hero.js?cb=1"></script>
 
 </body>
 </html>
+
