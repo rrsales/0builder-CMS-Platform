@@ -376,7 +376,26 @@
     });
   })();
 </script>
-
+<!-- Shared mobile overlay for dropdown menu and drawer -->
+<div class="hn-mobile-menu-overlay" data-mobile-menu-overlay>
+  <div class="hn-mobile-menu-panel">
+    <div class="hn-mobile-menu-header">
+      <span class="label">Navigate</span>
+      <span class="meta">Tap to visit</span>
+    </div>
+    <ul class="hn-mobile-menu-list">
+      <!-- live.js will still build the main menu into #menuList / #nav-menu.
+           For now you can duplicate those items, or later we can hook this
+           to site.menu and auto-generate. -->
+      <!-- Example static version (replace with real links): -->
+      <li><a href="index.html"><span class="label">Home</span></a></li>
+      <li><a href="podcast.html"><span class="label">Podcast</span></a></li>
+      <li><a href="shop.html"><span class="label">Shop</span></a></li>
+      <li><a href="support.html"><span class="label">Support</span></a></li>
+      <li><a href="contact.html"><span class="label">Contact</span></a></li>
+    </ul>
+  </div>
+</div>
 </body>
 </html>
 
