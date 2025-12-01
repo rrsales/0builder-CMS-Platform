@@ -5,10 +5,11 @@
   <title>Honest News – Biblical Truth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Use the SAME CSS as support.html for the test -->
-  <link rel="stylesheet" href="assets/css/main.css" />
+  <!-- 2.0: single main stylesheet -->
+  <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+  <!-- TEMP: legacy layout styles (can be moved into styles.css later) -->
   <style>
     body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;background:#020617;color:#e5e7eb;}
     body.theme-light{background:#f9fafb;color:#111827;}
@@ -45,68 +46,80 @@
 
     footer.site-footer{border-top:1px solid rgba(31,41,55,0.9);padding:1.6rem 7vw 2.2rem;font-size:.8rem;color:#9ca3af;background:radial-gradient(circle at bottom,#020617,#000);}
   </style>
-
-  <script src="assets/js/live.js" defer></script>
 </head>
 
+<!-- 2.0: data-page used by JSON engine -->
 <body data-page="home" class="theme-dark">
 
-<header class="site-header">
-  <div class="brand">
-    <span class="brand-title">HONEST NEWS</span>
-    <span class="brand-sub">Biblical Truth · Podcast · Resources</span>
-  </div>
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-title">HONEST NEWS</span>
+      <span class="brand-sub">Biblical Truth · Podcast · Resources</span>
+    </div>
 
-  <nav aria-label="Main">
-    <!-- IMPORTANT: same ID as support.html -->
-    <ul id="menuList"></ul>
+    <nav aria-label="Main">
+      <!-- Filled by HN.renderMenu from site-data.json -->
+      <ul id="menuList"></ul>
+    </nav>
+
+    <div class="header-cta">
+      <i class="fa-solid fa-podcast"></i>
+      Listen
+    </div>
+
+    <!-- 2.0: mobile menu toggle -->
+    <button class="hn-mobile-toggle" id="mobileMenuToggle" aria-label="Open menu">
+      <span></span>
+    </button>
+  </header>
+
+  <!-- 2.0: mobile menu drawer -->
+  <nav class="hn-mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+    <div class="hn-mobile-menu-header">
+      <span class="hn-mobile-menu-title">Menu</span>
+      <button id="mobileMenuClose" aria-label="Close menu">×</button>
+    </div>
+    <ul id="mobileNavMenu"></ul>
   </nav>
 
-  <div class="header-cta">
-    <i class="fa-solid fa-podcast"></i>
-    Listen
-  </div>
-</header>
+  <main>
+    <!-- HERO: 2.0 engine will override content based on JSON -->
+    <section class="hero" data-hero>
+      <div class="hero-overlay-soft"></div>
+      <div class="hero-inner">
+        <div class="hero-eyebrow">Honest News</div>
+        <h1>Honest News. Biblical Truth.</h1>
+        <p>
+          This hero is controlled by the “Home” page in your Dashboard.
+          Use Blocks for featured episodes, articles, and key resources.
+        </p>
+      </div>
+    </section>
 
-<main>
-  <section class="hero" data-hero>
-    <div class="hero-overlay-soft"></div>
-    <div class="hero-inner">
-      <div class="hero-eyebrow">Honest News</div>
-      <h1>Honest News. Biblical Truth.</h1>
-      <p>
-        This hero is controlled by the “Home” page in your Dashboard.
-        Use Blocks for featured episodes, articles, and key resources.
-      </p>
+    <!-- BLOCKS: 2.0 engine injects blocks here -->
+    <div class="blocks-shell" data-blocks-target>
+      <!-- Home page blocks from Dashboard -->
     </div>
-  </section>
+  </main>
 
-  <div class="blocks-shell" data-blocks-target>
-    <!-- Home page blocks from Dashboard -->
-  </div>
-</main>
+  <footer class="site-footer">
+    &copy; <span id="year"></span> Honest News. All rights reserved.
+  </footer>
 
-<footer class="site-footer">
-  &copy; <span id="year"></span> Honest News. All rights reserved.
-</footer>
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const y = document.getElementById("year");
-    if (y) y.textContent = new Date().getFullYear();
-  });
-</script>
-
-<script>
-  (function(){
-    const header = document.querySelector("header.site-header");
-    if (!header) return;
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 40) header.classList.add("scrolled");
-      else header.classList.remove("scrolled");
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const y = document.getElementById("year");
+      if (y) y.textContent = new Date().getFullYear();
     });
-  })();
-</script>
+  </script>
 
+  <!-- 2.0 CORE RUNTIME -->
+  <script src="assets/js/core/hn-data.js"></script>
+  <script src="assets/js/core/hn-menu.js"></script>
+  <script src="assets/js/core/hn-page.js"></script>
+  <script src="assets/js/core/hn-mobile.js"></script>
+  <script src="assets/js/core/live.js"></script>
 </body>
 </html>
+
