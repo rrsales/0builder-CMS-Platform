@@ -1,35 +1,14 @@
-<!-- DASHBOARD APP SCRIPT (replace your old big script with this) -->
-<script>
-/* =========================================
-   SECTION 1: GLOBAL STATE & CONSTANTS
-   ========================================= */
+// ==============================
+// Honest News – Admin Core
+// Global state + init + load
+// ==============================
 
+// Global state
 let site = {
   menu: [
-    {
-      id: "home",
-      label: "Home",
-      url: "index.html",
-      type: "link",
-      showOn: "both",
-      subItems: []
-    },
-    {
-      id: "podcast",
-      label: "Podcast",
-      url: "podcast.html",
-      type: "link",
-      showOn: "both",
-      subItems: []
-    },
-    {
-      id: "shop",
-      label: "Shop",
-      url: "shop.html",
-      type: "link",
-      showOn: "both",
-      subItems: []
-    },
+    { id: "home",     label: "Home",     url: "index.html",   type: "link", showOn: "both", subItems: [] },
+    { id: "podcast",  label: "Podcast",  url: "podcast.html", type: "link", showOn: "both", subItems: [] },
+    { id: "shop",     label: "Shop",     url: "shop.html",    type: "link", showOn: "both", subItems: [] },
     {
       id: "resources",
       label: "Resources",
@@ -54,22 +33,8 @@ let site = {
         }
       ]
     },
-    {
-      id: "support",
-      label: "Support",
-      url: "support.html",
-      type: "link",
-      showOn: "both",
-      subItems: []
-    },
-    {
-      id: "contact",
-      label: "Contact",
-      url: "contact.html",
-      type: "link",
-      showOn: "both",
-      subItems: []
-    }
+    { id: "support",  label: "Support",  url: "support.html", type: "link", showOn: "both", subItems: [] },
+    { id: "contact",  label: "Contact",  url: "contact.html", type: "link", showOn: "both", subItems: [] }
   ],
   pages: [
     {
@@ -155,33 +120,45 @@ let site = {
 let current = null;
 let isDirty = false;
 let activeInspectorTab = "page";
+
 const DRAFT_KEY = "hn_cms_draft_v1";
-
-/* panel behavior: auto | manual | pinned | smart */
-let panelBehavior = localStorage.getItem("hn_panel_behavior") || "auto";
-
-const panel    = document.getElementById("inspectorPanel");
-const handle   = document.getElementById("panelHandle");
-const closeBtn = document.getElementById("closePanelBtn");
-const saveStatusRight = document.getElementById("saveStatusRight");
-
-/* Render Cloud endpoint */
 const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
 
-/* =========================================
-   SECTION 2: LOAD site-data.json + DRAFT
-   ========================================= */
+// panel behavior: auto | manual | pinned | smart
+let panelBehavior = localStorage.getItem("hn_panel_behavior") || "auto";
 
-(async function loadSiteData() {
+// Shared DOM refs
+let panel, handle, closeBtn, saveStatusRight, previewFrame;
+
+// Init when DOM is ready
+document.addEventListener("DOMContentLoaded", initDashboard);
+
+function initDashboard() {
+  panel          = document.getElementById("inspectorPanel");
+  handle         = document.getElementById("panelHandle");
+  closeBtn       = document.getElementById("closePanelBtn");
+  saveStatusRight= document.getElementById("saveStatusRight");
+  previewFrame   = document.getElementById("previewFrame");
+
+  // functions come from other files
+  wirePanelChrome();
+  wireDeviceButtons();
+  wireInspectorTabs();
+  wireFooterButtons();
+
+  loadSiteData();
+}
+
+// Load site-data.json then draft, then render UI
+async function loadSiteData() {
   try {
     const res = await fetch("site-data.json?cache-bust=" + Date.now());
     if (res.ok) {
       const data = await res.json();
       if (data && typeof data === "object") {
-        // Merge, but let incoming site-data override defaults
         site = Object.assign({}, site, data);
 
-        // Normalize pages: allow object or array in site-data.json
+        // normalize pages
         if (data.pages) {
           if (Array.isArray(data.pages)) {
             site.pages = data.pages;
@@ -189,54 +166,78 @@ const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
             site.pages = Object.keys(data.pages).map(key => {
               const p = data.pages[key] || {};
               return Object.assign(
-                {
-                  title: p.title || key,
-                  slug: p.slug || key
-                },
+                { title: p.title || key, slug: p.slug || key },
                 p
               );
             });
           }
         }
 
-        // Normalize menu to array
-        if (data.menu && Array.isArray(data.menu)) {
+        // normalize menu
+        if (Array.isArray(data.menu)) {
           site.menu = data.menu;
         }
       }
     }
-  } catch (e) {
-    console.warn("Could not load site-data.json, using defaults", e);
+  } catch (err) {
+    console.warn("Could not load site-data.json, using defaults", err);
   }
 
-  // Restore local draft from this browser if any
   restoreDraftIfAny();
 
-  // Initial render
   renderPages();
+  const pages = getPagesArray();
+  if (pages.length) current = pages[0];
+
   updatePreviewHeader();
   renderPreview();
   applyPanelBehavior();
-})();
-
-/* DRAFT SAVE / RESTORE */
-function saveDraft(){
-  try{
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(site));
-    markSavedLocal(); // reuse pill style
-  } catch(e){
-    alert("Could not save draft locally.");
-  }
+  renderInspectorTab();
 }
-function restoreDraftIfAny(){
-  try{
+
+// restore local draft if present
+function restoreDraftIfAny() {
+  try {
     const raw = localStorage.getItem(DRAFT_KEY);
-    if(!raw) return;
+    if (!raw) return;
     const parsed = JSON.parse(raw);
-    if(parsed && typeof parsed === "object") {
+    if (parsed && typeof parsed === "object") {
       site = Object.assign({}, site, parsed);
     }
-  } catch(e){
-    console.warn("No valid draft to restore");
+  } catch (e) {
+    console.warn("No valid draft to restore", e);
   }
 }
+
+// save-state helpers
+function markDirty() {
+  isDirty = true;
+  if (!saveStatusRight) return;
+  saveStatusRight.textContent = "Unsaved changes";
+  saveStatusRight.classList.add("dirty");
+  saveStatusRight.classList.remove("saved");
+}
+
+function markSavedLocal() {
+  isDirty = false;
+  if (!saveStatusRight) return;
+  saveStatusRight.textContent = "Saved to cloud";
+  saveStatusRight.classList.remove("dirty");
+  saveStatusRight.classList.add("saved");
+}
+
+// utility used everywhere
+function escapeHtml(str) {
+  return String(str || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+}
+
+// expose some core bits if needed later
+window.hnAdminCore = {
+  markDirty,
+  markSavedLocal,
+  escapeHtml
+};
+
