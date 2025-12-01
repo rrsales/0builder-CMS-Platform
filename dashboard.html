@@ -164,79 +164,46 @@
     padding-right:4px;
   }
 
-  /* Accordion-style pages list */
-  .page-acc{
+  .page{
+    padding:6px 8px;
     margin-top:6px;
     border-radius:12px;
     background:#020617;
     border:1px solid transparent;
-    box-shadow:none;
-    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:6px;
+    font-size:.84rem;
+    color:var(--text-main);
   }
-  .page-acc[open]{
-    border-color:rgba(148,163,184,.5);
+  .page-main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    cursor:pointer;
   }
-  .page-acc.active{
+  .page span.title{font-weight:600;}
+  .page span.slug{font-size:.7rem;color:#6b7280;}
+
+  .page.active{
+    background:var(--accent-soft-bg);
     border-color:var(--accent);
     box-shadow:0 0 0 1px rgba(56,189,248,.4);
   }
 
-  .page-acc summary{
-    list-style:none;
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    padding:8px 9px;
-    cursor:pointer;
-  }
-  .page-acc summary::-webkit-details-marker{display:none;}
-
-  .page-header-main{
-    display:flex;
-    flex-direction:column;
-  }
-  .page-title{
-    font-weight:600;
-    font-size:.84rem;
-  }
-  .page-slug{
-    font-size:.7rem;
-    color:#6b7280;
-  }
-  .page-acc-right{
-    display:flex;
-    align-items:center;
-    gap:4px;
-    margin-left:6px;
-  }
-
-  .page-chevron{
-    font-size:.75rem;
-    color:#6b7280;
-  }
-
-  .page-delete-btn{
+  .page-delete{
     border:none;
-    background:transparent;
-    color:#6b7280;
+    background:#0b1120;
+    color:#f97373;
+    border-radius:999px;
+    padding:4px 7px;
+    font-size:.7rem;
     cursor:pointer;
-    padding:2px 6px;
-    border-radius:8px;
-    flex-shrink:0;
   }
-  .page-delete-btn:hover{
+  .page-delete:hover{
+    background:#111827;
     color:#fecaca;
-    background:rgba(127,29,29,0.35);
-  }
-
-  .page-acc-body{
-    padding:6px 9px 9px;
-    border-top:1px solid rgba(31,41,55,.9);
-  }
-  .page-acc-body-row{
-    font-size:.72rem;
-    color:#9ca3af;
-    margin-bottom:3px;
   }
 
   .textarea-small{
@@ -608,7 +575,6 @@
   }
 
   @media (max-width:900px){
-    body{overflow:auto;}          /* allow scrolling on mobile */
     .main{flex-direction:column;}
     .sidebar{width:100%;}
     #panelHandle{top:auto;bottom:90px;}
@@ -732,15 +698,33 @@
 
 <script>
 /* =======================
-   STATE
+   DEFAULT DATA
 ======================= */
-const DRAFT_KEY = "hn_cms_draft_v1";
-
-/* default menu always safe */
 const defaultMenu = [
-  { id: "home",     label: "Home",     url: "index.html",   type: "link", showOn: "both", subItems: [] },
-  { id: "podcast",  label: "Podcast",  url: "podcast.html", type: "link", showOn: "both", subItems: [] },
-  { id: "shop",     label: "Shop",     url: "shop.html",    type: "link", showOn: "both", subItems: [] },
+  {
+    id: "home",
+    label: "Home",
+    url: "index.html",
+    type: "link",
+    showOn: "both",
+    subItems: []
+  },
+  {
+    id: "podcast",
+    label: "Podcast",
+    url: "podcast.html",
+    type: "link",
+    showOn: "both",
+    subItems: []
+  },
+  {
+    id: "shop",
+    label: "Shop",
+    url: "shop.html",
+    type: "link",
+    showOn: "both",
+    subItems: []
+  },
   {
     id: "resources",
     label: "Resources",
@@ -748,16 +732,41 @@ const defaultMenu = [
     type: "mega",
     showOn: "desktop",
     subItems: [
-      { label: "Getting started", url: "getting-started.html", description: "How Honest News + podcast + YouTube fit together." },
-      { label: "For Pastors",     url: "pastors.html",         description: "Tools and workflows to preach, record, and publish." },
-      { label: "For Listeners",   url: "listeners.html",       description: "Where to listen, how to subscribe, how to support." }
+      {
+        label: "Getting started",
+        url: "getting-started.html",
+        description: "How Honest News + podcast + YouTube fit together."
+      },
+      {
+        label: "For Pastors",
+        url: "pastors.html",
+        description: "Tools and workflows to preach, record, and publish."
+      },
+      {
+        label: "For Listeners",
+        url: "listeners.html",
+        description: "Where to listen, how to subscribe, how to support."
+      }
     ]
   },
-  { id: "support", label: "Support", url: "support.html", type: "link", showOn: "both", subItems: [] },
-  { id: "contact", label: "Contact", url: "contact.html", type: "link", showOn: "both", subItems: [] }
+  {
+    id: "support",
+    label: "Support",
+    url: "support.html",
+    type: "link",
+    showOn: "both",
+    subItems: []
+  },
+  {
+    id: "contact",
+    label: "Contact",
+    url: "contact.html",
+    type: "link",
+    showOn: "both",
+    subItems: []
+  }
 ];
 
-/* default pages used ONLY if site-data.json not found at all */
 const defaultPages = [
   {
     title:"Home",
@@ -836,9 +845,12 @@ const defaultPages = [
   }
 ];
 
+/* =======================
+   STATE
+======================= */
 let site = {
   menu: defaultMenu.slice(),
-  pages: [],
+  pages: defaultPages.slice(),
   theme: {},
   heroSlides: []
 };
@@ -846,6 +858,13 @@ let site = {
 let current = null;
 let isDirty = false;
 let activeInspectorTab = "page";
+const DRAFT_KEY = "hn_cms_draft_v1";
+
+// track if we actually loaded from site-data.json on the server
+let loadedFromServer = false;
+
+// whether to show confirm() popup before cloud save
+let confirmCloudSave = (localStorage.getItem("hn_confirm_cloud") !== "no");
 
 /* panel behavior: auto | manual | pinned | smart */
 let panelBehavior = localStorage.getItem("hn_panel_behavior") || "auto";
@@ -862,7 +881,7 @@ const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
    LOAD site-data.json
 ======================= */
 (async function loadSiteData() {
-  let loadedFromServer = false;
+  loadedFromServer = false;
 
   try {
     const res = await fetch("site-data.json?cache-bust=" + Date.now());
@@ -882,14 +901,12 @@ const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
     console.warn("Could not load site-data.json, will use defaults if no draft", e);
   }
 
-  /* If no site-data.json yet, seed with defaults ONLY once */
   if (!loadedFromServer && !site.pages.length) {
     site.pages = defaultPages.slice();
   }
 
   restoreDraftIfAny();
 
-  /* auto-select first page */
   current = site.pages[0] || null;
 
   renderPages();
@@ -964,57 +981,31 @@ document.addEventListener("keydown", (e)=>{
 });
 
 /* =======================
-   SIDEBAR / PAGES (ACCORDION)
+   SIDEBAR / PAGES
 ======================= */
 function renderPages(){
   const container = document.getElementById("pages");
-  const pagesArr = site.pages || [];
-  container.innerHTML = pagesArr.map((p,i)=>{
-    const isActive = (p === current);
-    const hero = p.hero || {};
-    const heroSize = hero.size || "full";
-    const blockCount = (p.blocks || []).length;
-
-    return `
-      <details class="page-acc ${isActive ? "active" : ""}" ${isActive ? "open" : ""} data-index="${i}">
-        <summary onclick="selectPage(${i})">
-          <div class="page-header-main">
-            <span class="page-title">${p.title || 'Untitled'}</span>
-            <span class="page-slug">${p.slug || ''}</span>
-          </div>
-          <div class="page-acc-right">
-            <span class="page-chevron">
-              <i class="fa-solid fa-chevron-down"></i>
-            </span>
-            <button class="page-delete-btn"
-                    title="Delete page"
-                    onclick="deletePage(${i}, event)">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        </summary>
-        <div class="page-acc-body">
-          <div class="page-acc-body-row">
-            Hero: ${hero.overlay || "—"} (${heroSize})
-          </div>
-          <div class="page-acc-body-row">
-            Blocks: ${blockCount}
-          </div>
-        </div>
-      </details>
-    `;
-  }).join("");
-
+  container.innerHTML = (site.pages || []).map((p,i)=>`
+    <div class="page ${p===current?'active':''}">
+      <div class="page-main" onclick="selectPage(${i})">
+        <span class="title">${p.title || 'Untitled'}</span>
+        <span class="slug">${p.slug || ''}</span>
+      </div>
+      <button class="page-delete" title="Delete page"
+        onclick="event.stopPropagation(); deletePage(${i});">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+  `).join("");
   rawFromMenu();
 }
 
-/* Create a new page */
 function newPage(){
   const t = prompt("Page title?");
   if (!t) return;
   const slug = t.toLowerCase().replace(/\s+/g,"-");
   if (!site.pages) site.pages = [];
-  const newPage = {
+  site.pages.push({
     title:t,
     slug,
     theme:"dark",
@@ -1028,38 +1019,32 @@ function newPage(){
       customHeight:""
     },
     blocks:[]
-  };
-  site.pages.push(newPage);
-  current = newPage;
+  });
   markDirty();
   renderPages();
-  updatePreviewHeader();
-  renderPreview();
-  renderInspectorTab();
 }
 
-/* Delete page (from CMS data) */
-function deletePage(index, evt){
-  if (evt) evt.stopPropagation();
-  if (!site.pages || !site.pages[index]) return;
+/* DELETE PAGE */
+function deletePage(index){
+  const page = site.pages[index];
+  if (!page) return;
 
-  const p = site.pages[index];
+  // basic protection for Home if you want it
+  const label = page.title || page.slug || "this page";
+  const important = (page.slug === "home" || page.slug === "index");
 
-  if (site.pages.length === 1) {
-    alert("You must keep at least one page in the site.");
-    return;
-  }
+  const msg = important
+    ? `Delete "${label}"? This looks like your Home page.`
+    : `Delete the page "${label}"?`;
 
-  const label = p.title || p.slug || "Untitled";
+  if (!confirm(msg)) return;
 
-  if (!confirm(`Delete page "${label}" from CMS?\n\nThis does NOT delete the .html file, only the CMS entry.\n\nRemember to click "Save to Cloud" afterwards so it stays deleted.`)) {
-    return;
-  }
+  site.pages.splice(index,1);
 
-  site.pages.splice(index, 1);
-
-  if (current === p) {
-    current = site.pages[0] || null;
+  if (!site.pages.length) {
+    current = null;
+  } else if (current === page) {
+    current = site.pages[Math.max(0, index-1)];
   }
 
   markDirty();
@@ -1103,7 +1088,7 @@ function selectPage(i){
   renderPages();
   updatePreviewHeader();
   renderPreview();
-  renderInspectorTab();
+  renderInspectorTab(); // refresh panel content
   if (panelBehavior === "auto" || panelBehavior === "pinned" || panelBehavior === "smart"){
     openPanel("auto");
   }
@@ -1245,6 +1230,7 @@ function renderInspectorTab(){
   const body = document.getElementById("inspectorBody");
   if (!current && activeInspectorTab!=="site"){
     body.innerHTML = `<p style="color:#9ca3af;">Select a page on the left to edit.</p>`;
+    body.scrollTop = 0;
     return;
   }
   if (activeInspectorTab === "page"){
@@ -1257,6 +1243,8 @@ function renderInspectorTab(){
     body.innerHTML = renderSiteTabHtml();
     wirePanelBehaviorRadios();
   }
+  // always reset scroll to the top when swapping views
+  body.scrollTop = 0;
 }
 
 /* PAGE TAB */
@@ -1620,9 +1608,17 @@ function restoreDraftIfAny(){
     const raw = localStorage.getItem(DRAFT_KEY);
     if(!raw) return;
     const parsed = JSON.parse(raw);
-    if(parsed && typeof parsed === "object") {
-      site = Object.assign({}, site, parsed);
+    if(!parsed || typeof parsed !== "object") return;
+
+    // If we successfully loaded from site-data.json on the server,
+    // DO NOT override pages/menu with an old draft (this was causing
+    // deleted pages to “come back”).
+    if (loadedFromServer) {
+      console.log("Draft found but server data present; keeping server pages/menu");
+      return;
     }
+
+    site = Object.assign({}, site, parsed);
   } catch(e){
     console.warn("No valid draft to restore");
   }
@@ -1679,7 +1675,10 @@ async function backupAll(){
 document.getElementById("saveLocalBtn").addEventListener("click", saveToCloud);
 
 async function saveToCloud(){
-  if(!confirm("Save your changes to GitHub via Honest News Cloud CMS (Render)?")) return;
+  if (confirmCloudSave) {
+    const ok = confirm("Save your changes to GitHub via Honest News Cloud CMS (Render)?");
+    if (!ok) return;
+  }
 
   try{
     const res = await fetch(SAVE_ENDPOINT,{
@@ -1743,6 +1742,13 @@ function renderSiteTabHtml(){
         • Drafts stay only in this browser’s local storage.<br>
         • Use GitHub Desktop to Commit & Push when you’re ready to publish.
       </p>
+      <label class="inline" style="margin-top:6px;display:flex;">
+        <input type="checkbox" id="confirmCloudSaveToggle" ${confirmCloudSave ? "checked" : ""}>
+        <span>Ask before saving to cloud</span>
+      </label>
+      <p class="field-hint" style="margin-top:4px;">
+        Uncheck this to save instantly without the popup.
+      </p>
     </div>
   `;
 }
@@ -1755,6 +1761,14 @@ function wirePanelBehaviorRadios(){
       applyPanelBehavior();
     });
   });
+
+  const confirmToggle = document.getElementById("confirmCloudSaveToggle");
+  if (confirmToggle){
+    confirmToggle.addEventListener("change", ()=>{
+      confirmCloudSave = confirmToggle.checked;
+      localStorage.setItem("hn_confirm_cloud", confirmCloudSave ? "yes" : "no");
+    });
+  }
 }
 
 /* initial inspector content */
@@ -1762,6 +1776,7 @@ renderInspectorTab();
 </script>
 </body>
 </html>
+
 
 
 
