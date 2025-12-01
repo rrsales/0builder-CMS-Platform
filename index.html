@@ -353,3 +353,29 @@
 </html>
 
 
+  <!-- BLOCKS: dashboard Blocks tab will render here via live.js -->
+  <div class="blocks-shell" data-blocks-target>
+    <!-- Dynamic blocks from site.pages[home].blocks -->
+  </div>
+</main>
+
+<footer class="site-footer">
+  Honest News Network · Biblical Truth in an upside-down world.
+</footer>
+
+<script>
+  // Optional: add "scrolled" class when user scrolls, for nicer transparent header behavior
+  (function() {
+    const header = document.querySelector("header.site-header");
+    if (!header) return;
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 40) header.classList.add("scrolled");
+      else header.classList.remove("scrolled");
+    });
+  })();
+</script>
+
+</body>
+</html>
+
+
