@@ -5,41 +5,41 @@
   <title>Honest News – Biblical Truth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- BASE + PAGE STYLES (point to the real CSS file) -->
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <!-- Use the same CSS as your old pages -->
+  <link rel="stylesheet" href="assets/css/main.css">
 
-  <!-- MOBILE SUITE -->
-  <link rel="stylesheet" href="assets/css/mobile/mobile.css">
+  <!-- If you really have this file, keep it; otherwise remove this line -->
+  <!-- <link rel="stylesheet" href="assets/css/mobile/mobile.css"> -->
 
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
+<!-- IMPORTANT: data-page="home" so live.js knows this is "home" -->
 <body data-page="home" class="theme-dark">
 
-  <!-- ============================
-       APPLE / WEBFLOW HEADER
-  ============================= -->
-  <header class="hn-header hn-header--apple">
-    <div class="hn-header-inner">
+  <!-- =========================
+       HEADER (old structure)
+       Matches what main.css expects
+  ========================== -->
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="index.html" class="logo">Honest News</a>
 
-      <!-- Logo -->
-      <a href="index.html" class="hn-logo">Honest News</a>
-
-      <!-- Desktop Menu -->
-      <nav class="hn-nav desktop-only">
-        <ul id="nav-menu"></ul>
+      <!-- Desktop menu: live.js fills #menuList -->
+      <nav class="desktop-nav">
+        <ul id="menuList"></ul>
       </nav>
 
-      <!-- Mobile Menu Toggle -->
+      <!-- Mobile hamburger (optional, if mobile.js uses this) -->
       <button class="hn-mobile-toggle" id="mobileMenuToggle" aria-label="Open menu">
         <span></span>
       </button>
     </div>
   </header>
 
-  <!-- Mobile Menu Drawer -->
-  <nav class="hn-mobile-menu" id="mobileMenu" aria-label="Mobile Navigation">
+  <!-- MOBILE MENU (if your old pages use it) -->
+  <nav class="hn-mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
     <div class="hn-mobile-menu-header">
       <span class="hn-mobile-menu-title">Menu</span>
       <button id="mobileMenuClose" aria-label="Close menu">×</button>
@@ -47,28 +47,29 @@
     <ul id="mobileNavMenu"></ul>
   </nav>
 
-  <!-- ============================
-       HERO (Live.js will replace text/background)
-  ============================= -->
+  <!-- =========================
+       HERO (same hook as live.js expects)
+  ========================== -->
   <section class="hero" data-hero>
-    <div class="hero-overlay-soft"></div>
-
     <div class="hero-inner">
       <h1>Honest News Network</h1>
       <p>Everything you need for Biblical truth.</p>
     </div>
   </section>
 
-  <!-- ============================
-       MAIN PAGE CONTENT
-  ============================= -->
+  <!-- =========================
+       MAIN CONTENT
+       live.js injects blocks here
+  ========================== -->
   <main>
     <div class="page-content">
       <div data-blocks-target></div>
     </div>
   </main>
 
-  <!-- FOOTER -->
+  <!-- =========================
+       FOOTER
+  ========================== -->
   <footer class="site-footer">
     <p>&copy; <span id="year"></span> Honest News. All rights reserved.</p>
   </footer>
@@ -80,14 +81,27 @@
     });
   </script>
 
-  <!-- ============================
-       LIVE ENGINE + MOBILE SUITE
-  ============================= -->
+  <!-- LIVE ENGINE -->
   <script src="assets/js/live.js?cb=2"></script>
-  <script src="assets/js/mobile/mobile.js?cb=2"></script>
-  <script src="assets/js/mobile/mobile.hero.js?cb=2"></script>
+
+  <!-- If these actually exist and are used on old pages, include them: -->
+  <!-- <script src="assets/js/mobile/mobile.js?cb=2"></script>
+  <script src="assets/js/mobile/mobile.hero.js?cb=2"></script> -->
+
+  <!-- SCROLL SCRIPT (uses .site-header) -->
+  <script>
+    (function(){
+      const header = document.querySelector("header.site-header");
+      if (!header) return;
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 40) header.classList.add("scrolled");
+        else header.classList.remove("scrolled");
+      });
+    })();
+  </script>
 
 </body>
 </html>
+
 
 
