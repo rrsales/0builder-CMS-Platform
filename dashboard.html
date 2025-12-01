@@ -158,7 +158,7 @@
     padding-right:4px;
   }
 
-  /* NEW: Accordion-style sections on left */
+  /* Accordion-style sections on left */
   .sidebar-section{
     margin-bottom:10px;
   }
@@ -194,7 +194,10 @@
   }
   .sidebar-section-body.closed{
     display:none;
-   .page{
+  }
+
+  /* Page list items (fixed CSS, not nested) */
+  .page{
     padding:9px 10px;
     margin-top:6px;
     border-radius:12px;
@@ -230,7 +233,7 @@
   }
   .page-delete-btn:hover{
     background:rgba(15,23,42,.9);
-    color:#f97316;
+    color:#f97316; /* small CSS tweak for delete icon */
   }
 
   .textarea-small{
@@ -960,7 +963,7 @@ function toggleSidebarSection(which){
 
   const willBeClosed = !body.classList.contains("closed");
 
-  // close all sections (accordion behavior)
+  // close all sections
   document.querySelectorAll(".sidebar-section-body").forEach(el=>{
     el.classList.add("closed");
   });
@@ -1033,9 +1036,14 @@ document.addEventListener("keydown", (e)=>{
 function renderPages(){
   const container = document.getElementById("pages");
   container.innerHTML = (site.pages || []).map((p,i)=>`
-    <div class="page ${p===current?'active':''}" onclick="selectPage(${i})">
-      <span class="title">${p.title || 'Untitled'}</span>
-      <span class="slug">${p.slug || ''}</span>
+    <div class="page ${p===current?'active':''}">
+      <div class="page-main" onclick="selectPage(${i})">
+        <span class="title">${p.title || 'Untitled'}</span>
+        <span class="slug">${p.slug || ''}</span>
+      </div>
+      <button class="page-delete-btn" type="button" onclick="deletePage(event, ${i})" title="Delete page">
+        <i class="fa-solid fa-trash"></i>
+      </button>
     </div>
   `).join("");
   rawFromMenu();
@@ -1064,6 +1072,24 @@ function newPage(){
   markDirty();
   renderPages();
   openSidebarSection("pages");
+}
+
+function deletePage(ev, idx){
+  ev.stopPropagation(); // don't trigger selectPage
+  const page = site.pages[idx];
+  if (!page) return;
+  const name = page.title || page.slug || "Untitled";
+  if (!confirm(`Delete page "${name}"?\nThis cannot be undone.`)) return;
+
+  // if current is this page, clear it first
+  const wasCurrent = (current === page);
+  site.pages.splice(idx, 1);
+  if (wasCurrent) current = null;
+
+  markDirty();
+  renderPages();
+  updatePreviewHeader();
+  renderPreview();
 }
 
 /* =======================
@@ -1755,15 +1781,13 @@ function wirePanelBehaviorRadios(){
   });
 }
 
-<!-- ADMIN JS (split into sections) -->
-<script src="assets/js/admin/hn-admin-core.js"></script>
-<script src="assets/js/admin/hn-admin-panel.js"></script>
-<script src="assets/js/admin/hn-admin-pages.js"></script>
-<script src="assets/js/admin/hn-admin-inspector.js"></script>
-<script src="assets/js/admin/hn-admin-storage.js"></script>
+/* initial inspector content */
+renderInspectorTab();
+</script>
 
 </body>
 </html>
+
 
 
 
