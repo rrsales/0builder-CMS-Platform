@@ -32,7 +32,7 @@
         "sub": "Everything You Need for Biblical Truth",
         "transparentMenu": true,
         "behavior": "parallax-medium",
-        "size": "small",
+        "size": "full",
         "customHeight": ""
       },
       "blocks": [
@@ -97,36 +97,7 @@
         "size": "full",
         "customHeight": ""
       },
-      "blocks": [
-        {
-          "type": "heading",
-          "motion": "fade",
-          "content": "test"
-        },
-        {
-          "type": "paragraph",
-          "motion": "fade",
-          "content": ""
-        },
-        {
-          "type": "image",
-          "motion": "fade",
-          "mode": "url",
-          "content": ""
-        },
-        {
-          "type": "image",
-          "motion": "fade",
-          "mode": "url",
-          "content": ""
-        },
-        {
-          "type": "youtube",
-          "motion": "float",
-          "title": "test",
-          "videoId": "https://www.youtube.com/watch?v=AQ-BzAWXutU&list=RDAQ-BzAWXutU&start_radio=1"
-        }
-      ]
+      "blocks": []
     }
   ],
   "theme": {},
