@@ -19,3 +19,84 @@
   }
 
 }
+/* assets/css/mobile/mobile.header.css */
+
+:root {
+  --hn-header-height: 64px;
+}
+
+/* Utility visibility helpers */
+.mobile-only {
+  display: none;
+}
+.desktop-only {
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .mobile-only {
+    display: block;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+
+  body.hn-no-scroll {
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  header,
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(3, 7, 18, 0.9);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+  }
+
+  /* Transparent mode – hero shows through */
+  header.header--transparent,
+  .site-header.header--transparent {
+    background: linear-gradient(
+      to bottom,
+      rgba(15, 23, 42, 0.75),
+      rgba(15, 23, 42, 0.1)
+    );
+    border-bottom-color: transparent;
+  }
+
+  .hn-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    height: var(--hn-header-height);
+  }
+
+  .hn-logo-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #e5e7eb;
+  }
+
+  .hn-logo-mark span.badge {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 2px 7px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    color: #9ca3af;
+  }
+
+  /* Desktop nav in header should hide on mobile if using .desktop-only */
+  .hn-nav-desktop {
+    display: none;
+  }
+}
