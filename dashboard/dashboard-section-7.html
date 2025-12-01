@@ -1,0 +1,165 @@
+/* =========================================
+   SECTION 7: INSPECTOR TABS (RIGHT PANEL)
+   ========================================= */
+
+document.querySelectorAll(".inspect-tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    activeInspectorTab = tab.dataset.inspect;
+    document.querySelectorAll(".inspect-tab").forEach(t=>{
+      t.classList.toggle("active", t===tab);
+    });
+    renderInspectorTab();
+    if (["auto","pinned","smart"].includes(panelBehavior)){
+      openPanel("auto");
+    }
+  });
+});
+
+function renderInspectorTab(){
+  const body = document.getElementById("inspectorBody");
+  if (!current && activeInspectorTab!=="site"){
+    body.innerHTML = `<p style="color:#9ca3af;">Select a page on the left to edit.</p>`;
+    return;
+  }
+  if (activeInspectorTab === "page"){
+    body.innerHTML = renderPageTabHtml(current);
+  } else if (activeInspectorTab === "hero"){
+    body.innerHTML = renderHeroTabHtml(current);
+  } else if (activeInspectorTab === "blocks"){
+    body.innerHTML = renderBlocksTabHtml(current);
+  } else {
+    body.innerHTML = renderSiteTabHtml();
+    wirePanelBehaviorRadios();
+  }
+}
+
+/* PAGE TAB */
+function renderPageTabHtml(c){
+  const themeLight = c.theme === "light";
+  return `
+    <div class="section">
+      <div class="field-group">
+        <div class="field-label">Title</div>
+        <input type="text" value="${c.title || ''}"
+          onchange="current.title=this.value;markDirty();renderPages();updatePreviewHeader();">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Slug</div>
+        <input type="text" value="${c.slug || ''}"
+          placeholder="home, podcast, shop..."
+          onchange="current.slug=this.value;markDirty();renderPages();updatePreviewHeader();">
+        <div class="field-hint">
+          Used by <code>data-page="slug"</code> in your HTML &lt;body&gt;.
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Theme</div>
+        <label class="inline">
+          <input type="radio" name="themeRadio" value="light" ${themeLight?'checked':''}
+            onchange="current.theme='light';markDirty();">
+          Light
+        </label>
+        <label class="inline">
+          <input type="radio" name="themeRadio" value="dark" ${!themeLight?'checked':''}
+            onchange="current.theme='dark';markDirty();">
+          Dark
+        </label>
+      </div>
+    </div>
+  `;
+}
+
+/* HERO TAB */
+function renderHeroTabHtml(c){
+  const h = c.hero || {};
+  const size = h.size || "full";
+  const behavior = h.behavior || "still";
+
+  return `
+    <div class="section">
+      <div class="field-group">
+        <div class="field-label">Background image URL</div>
+        <input type="url" value="${h.bg || ''}" placeholder="https://..."
+          onchange="current.hero.bg=this.value;markDirty();renderPreview();">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Main title</div>
+        <input type="text" value="${h.overlay || ''}" placeholder="Main hero title"
+          onchange="current.hero.overlay=this.value;markDirty();renderPreview();">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Subtitle</div>
+        <input type="text" value="${h.sub || ''}" placeholder="Optional subtitle"
+          onchange="current.hero.sub=this.value;markDirty();renderPreview();">
+      </div>
+
+      <div class="field-group">
+        <label class="inline">
+          <input type="checkbox" ${h.transparentMenu ? "checked" : "" }
+            onchange="current.hero.transparentMenu=this.checked;markDirty();">
+          Transparent header on this page
+        </label>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Hero behavior</div>
+        <select onchange="current.hero.behavior=this.value;markDirty();">
+          <option value="still" ${behavior==='still'?'selected':''}>Still image</option>
+          <option value="parallax-slow" ${behavior==='parallax-slow'?'selected':''}>Parallax – slow</option>
+          <option value="parallax-medium" ${behavior==='parallax-medium'?'selected':''}>Parallax – medium</option>
+          <option value="float-up" ${behavior==='float-up'?'selected':''}>Float up</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Hero height</div>
+        <label class="inline">
+          <input type="radio" name="heroSize" value="small" ${size==="small"?'checked':''}
+            onchange="setHeroSize('small')">
+          Small (≈40vh)
+        </label><br>
+        <label class="inline">
+          <input type="radio" name="heroSize" value="medium" ${size==="medium"?'checked':''}
+            onchange="setHeroSize('medium')">
+          Medium (≈60vh)
+        </label><br>
+        <label class="inline">
+          <input type="radio" name="heroSize" value="large" ${size==="large"?'checked':''}
+            onchange="setHeroSize('large')">
+          Large (≈80vh)
+        </label><br>
+        <label class="inline">
+          <input type="radio" name="heroSize" value="full" ${size==="full"?'checked':''}
+            onchange="setHeroSize('full')">
+          Fullscreen (100vh)
+        </label><br>
+        <label class="inline">
+          <input type="radio" name="heroSize" value="custom" ${size==="custom"?'checked':''}
+            onchange="setHeroSize('custom')">
+          Custom:
+        </label>
+        <input type="text" value="${h.customHeight || ''}" placeholder="e.g. 520px or 80vh"
+          onchange="setHeroCustom(this.value)">
+        <div class="field-hint">Custom height lets you match Podbean-style heroes exactly.</div>
+      </div>
+    </div>
+  `;
+}
+
+function setHeroSize(size){
+  if (!current.hero) current.hero = {};
+  current.hero.size = size;
+  markDirty();
+  renderPreview();
+}
+function setHeroCustom(val){
+  if (!current.hero) current.hero = {};
+  current.hero.size = "custom";
+  current.hero.customHeight = val.trim();
+  markDirty();
+  renderPreview();
+}
