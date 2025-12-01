@@ -5,6 +5,14 @@
       "url": "index.html"
     },
     {
+      "title": "Podcast",
+      "url": "podcast.html"
+    },
+    {
+      "title": "Shop",
+      "url": "shop.html"
+    },
+    {
       "title": "Support",
       "url": "support.html"
     },
@@ -17,7 +25,7 @@
     {
       "title": "Home",
       "slug": "home",
-      "theme": "dark",
+      "theme": "light",
       "hero": {
         "bg": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
         "overlay": "Honest News Network",
@@ -28,12 +36,6 @@
         "customHeight": ""
       },
       "blocks": [
-        {
-          "type": "youtube",
-          "motion": "fade",
-          "title": "",
-          "videoId": ""
-        },
         {
           "type": "heading",
           "motion": "float",
