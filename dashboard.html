@@ -111,15 +111,16 @@
   .btn.ghost{background:transparent;color:#9ca3af;border:1px solid rgba(148,163,184,.25);}
   .btn.ghost:hover{color:#e5e7eb;border-color:#e5e7eb;}
 
-  /* PRIMARY = BLUE (same as pull handle / inspector accent) */
+  /* PRIMARY BUTTON → BLUE (matches panel accent) */
   .btn.primary{
     background:var(--accent);
     color:#0b1120;
     border:1px solid var(--accent-soft);
   }
   .btn.primary:hover{
-    background:var(--accent-soft);
-    color:#e5e7eb;
+    background:#0284c7;
+    border-color:#0369a1;
+    color:#e5f2ff;
   }
 
   .logout-btn{
@@ -152,93 +153,25 @@
     width:260px;
     background:rgba(3,7,18,0.98);
     border-radius:var(--radius-lg);
-    padding:16px 14px;
+    padding:10px 10px 14px;
     border:1px solid rgba(148,163,184,0.35);
     box-shadow:0 18px 40px rgba(0,0,0,0.85);
     display:flex;
     flex-direction:column;
-    gap:12px;
+    gap:10px;
     overflow:hidden;
   }
-
-  /* Accordion groups in sidebar */
-  .sidebar-group{
-    border-radius:var(--radius-lg);
-    border:1px solid rgba(31,41,55,.9);
-    background:#020617;
+  .sidebar h3{
     margin:0;
-    overflow:hidden;
-  }
-  .sidebar-group + .sidebar-group{
-    margin-top:8px;
-  }
-  .sidebar-summary{
-    list-style:none;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:8px 10px;
-    cursor:pointer;
     font-size:.78rem;
     text-transform:uppercase;
     letter-spacing:.12em;
     color:var(--text-soft);
   }
-  .sidebar-summary::-webkit-details-marker{display:none;}
-  .sidebar-group[open] .sidebar-summary{
-    background:rgba(15,23,42,.9);
-  }
-
   .sidebar-inner{
-    padding:6px 8px 10px 8px;
-    max-height:260px;
+    flex:1;
     overflow-y:auto;
-  }
-
-  .sidebar-add-btn{
-    border:none;
-    border-radius:999px;
-    background:rgba(15,23,42,.9);
-    color:#e5e7eb;
-    padding:3px 7px;
-    font-size:.72rem;
-    cursor:pointer;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .sidebar-add-btn i{
-    font-size:.65rem;
-  }
-  .sidebar-add-btn:hover{
-    background:var(--accent);
-    color:#0b1120;
-  }
-
-  .field-hint{
-    font-size:.72rem;
-    color:#9ca3af;
-  }
-
-  .page{
-    padding:9px 10px;
-    margin-top:6px;
-    border-radius:12px;
-    background:#020617;
-    border:1px solid transparent;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    font-size:.84rem;
-    color:var(--text-main);
-  }
-  .page span.title{font-weight:600;}
-  .page span.slug{font-size:.7rem;color:#6b7280;}
-  .page.active{
-    background:var(--accent-soft-bg);
-    border-color:var(--accent);
-    box-shadow:0 0 0 1px rgba(56,189,248,.4);
+    padding-right:4px;
   }
 
   .textarea-small{
@@ -252,6 +185,112 @@
     font-family:inherit;
     resize:vertical;
     min-height:70px;
+  }
+
+  /* ACCORDION GROUPS IN LEFT SIDEBAR */
+  .nav-group{
+    border-radius: var(--radius-md);
+    border:1px solid rgba(31,41,55,.9);
+    background:#020617;
+    overflow:hidden;
+    box-shadow:0 14px 32px rgba(0,0,0,.75);
+    margin-bottom:8px;
+  }
+  .nav-group-toggle{
+    width:100%;
+    border:none;
+    background:linear-gradient(to right,#020617,#020617);
+    color:var(--text-soft);
+    padding:8px 10px;
+    font-size:.78rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    cursor:pointer;
+  }
+  .nav-group-toggle span.label{
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-weight:600;
+  }
+  .nav-group-chevron{
+    font-size:.7rem;
+    opacity:.8;
+    transition:transform .2s ease;
+  }
+  .nav-group-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .22s ease;
+  }
+  .nav-group.open .nav-group-body{
+    max-height:480px;
+  }
+  .nav-group.open .nav-group-chevron{
+    transform:rotate(180deg);
+  }
+  .nav-group-body .sidebar-inner{
+    max-height:260px;
+    overflow-y:auto;
+    padding-right:4px;
+  }
+
+  /* PAGE ROWS */
+  .page{
+    padding:6px 6px;
+    margin-top:6px;
+    border-radius:12px;
+    background:#020617;
+    border:1px solid transparent;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:.84rem;
+    color:var(--text-main);
+    gap:6px;
+  }
+  .page.active{
+    background:var(--accent-soft-bg);
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px rgba(56,189,248,.4);
+  }
+  .page-main{
+    border:none;
+    background:transparent;
+    color:inherit;
+    padding:0;
+    margin:0;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    flex:1;
+    min-width:0;
+    text-align:left;
+  }
+  .page-main span.title{
+    font-weight:600;
+  }
+  .page-main span.slug{
+    font-size:.7rem;
+    color:#6b7280;
+  }
+  .page-delete{
+    border:none;
+    background:#111827;
+    color:#fca5a5;
+    border-radius:999px;
+    padding:4px 7px;
+    font-size:.75rem;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .page-delete:hover{
+    background:#7f1d1d;
+    color:#fee2e2;
+    border:1px solid #f87171;
   }
 
   /* PREVIEW AREA */
@@ -508,6 +547,10 @@
     color:#e5e7eb;
     margin-bottom:2px;
   }
+  .field-hint{
+    font-size:.72rem;
+    color:#9ca3af;
+  }
   input,select,textarea{
     font-family:inherit;
   }
@@ -634,33 +677,37 @@
 <div class="main">
   <!-- SIDEBAR -->
   <aside class="sidebar">
-
-    <!-- PAGES ACCORDION -->
-    <details class="sidebar-group" open>
-      <summary class="sidebar-summary">
-        <span>Pages</span>
-        <button class="sidebar-add-btn" type="button" onclick="newPage(event)">
-          <i class="fa-solid fa-plus"></i>
+    <!-- PAGES GROUP (accordion) -->
+    <div class="nav-group open" id="pagesGroup">
+      <button class="nav-group-toggle" type="button" onclick="toggleAccordion('pagesGroup')">
+        <span class="label">Pages</span>
+        <span class="nav-group-chevron">
+          <i class="fa-solid fa-chevron-down"></i>
+        </span>
+      </button>
+      <div class="nav-group-body">
+        <div class="sidebar-inner" id="pages"></div>
+        <button class="btn secondary" style="width:100%;margin-top:8px;" onclick="newPage()">
+          + New Page
         </button>
-      </summary>
-      <div class="sidebar-inner">
-        <div id="pages"></div>
       </div>
-    </details>
+    </div>
 
-    <!-- NAVIGATION ACCORDION -->
-    <details class="sidebar-group" open>
-      <summary class="sidebar-summary">
-        <span>Navigation</span>
-      </summary>
-      <div class="sidebar-inner">
-        <p class="field-hint" style="margin-top:0;margin-bottom:6px;">
+    <!-- NAVIGATION GROUP (accordion) -->
+    <div class="nav-group open" id="navGroup">
+      <button class="nav-group-toggle" type="button" onclick="toggleAccordion('navGroup')">
+        <span class="label">Navigation</span>
+        <span class="nav-group-chevron">
+          <i class="fa-solid fa-chevron-down"></i>
+        </span>
+      </button>
+      <div class="nav-group-body">
+        <p class="field-hint" style="margin-top:4px;">
           One per line: <code>Title | URL</code>
         </p>
         <textarea id="menuRaw" class="textarea-small" oninput="menuFromRaw(this.value)"></textarea>
       </div>
-    </details>
-
+    </div>
   </aside>
 
   <!-- PREVIEW ONLY -->
@@ -908,6 +955,15 @@ const saveStatusRight = document.getElementById("saveStatusRight");
 const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
 
 /* =======================
+   SMALL ACCORDION HELPER
+======================= */
+function toggleAccordion(groupId){
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.classList.toggle("open");
+}
+
+/* =======================
    LOAD site-data.json
 ======================= */
 (async function loadSiteData() {
@@ -928,6 +984,7 @@ const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
   updatePreviewHeader();
   renderPreview();
   applyPanelBehavior();
+  renderInspectorTab();
 })();
 
 /* =======================
@@ -1000,18 +1057,24 @@ document.addEventListener("keydown", (e)=>{
 function renderPages(){
   const container = document.getElementById("pages");
   container.innerHTML = (site.pages || []).map((p,i)=>`
-    <div class="page ${p===current?'active':''}" onclick="selectPage(${i})">
-      <span class="title">${p.title || 'Untitled'}</span>
-      <span class="slug">${p.slug || ''}</span>
+    <div class="page ${p===current?'active':''}">
+      <button class="page-main" type="button" onclick="selectPage(${i})">
+        <span class="title">${p.title || 'Untitled'}</span>
+        <span class="slug">${p.slug || ''}</span>
+      </button>
+      ${p.slug === 'home' ? '' : `
+        <button class="page-delete" type="button"
+                title="Delete page"
+                onclick="deletePage(event, ${i})">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      `}
     </div>
   `).join("");
   rawFromMenu();
 }
 
-/* newPage gets event so it doesn't close the accordion when clicking + */
-function newPage(evt){
-  if (evt && evt.stopPropagation) evt.stopPropagation();
-
+function newPage(){
   const t = prompt("Page title?");
   if (!t) return;
   const slug = t.toLowerCase().replace(/\s+/g,"-");
@@ -1033,6 +1096,25 @@ function newPage(evt){
   });
   markDirty();
   renderPages();
+}
+
+/* Delete page (from CMS only until Save to Cloud) */
+function deletePage(evt, index){
+  evt.stopPropagation();
+  const p = site.pages[index];
+  if (!p) return;
+  if (!confirm(`Delete page "${p.title || p.slug || 'Untitled'}"? This removes it from site-data.json when you Save to Cloud.`)){
+    return;
+  }
+  site.pages.splice(index,1);
+  if (current === p){
+    current = site.pages[0] || null;
+  }
+  markDirty();
+  renderPages();
+  updatePreviewHeader();
+  renderPreview();
+  renderInspectorTab();
 }
 
 /* =======================
@@ -1107,6 +1189,8 @@ function renderPreview(){
 
   if (h.bg){
     heroDiv.style.backgroundImage = `url('${h.bg}')`;
+    heroDiv.style.backgroundSize = "cover";
+    heroDiv.style.backgroundPosition = "center";
   } else {
     heroDiv.style.backgroundImage = "none";
     heroDiv.style.backgroundColor = "#020617";
@@ -1259,47 +1343,8 @@ function renderPageTabHtml(c){
           Dark
         </label>
       </div>
-
-      <div class="field-group">
-        <button type="button"
-          class="btn ghost"
-          style="width:100%;margin-top:8px;background:#111827;color:#fca5a5;border-color:#b91c1c;"
-          onclick="deleteCurrentPage()">
-          <i class="fa-solid fa-trash-can"></i> Delete this page
-        </button>
-      </div>
     </div>
   `;
-}
-
-/* Delete current page + clean menu links */
-function deleteCurrentPage(){
-  if (!current) return;
-  const idx = site.pages.indexOf(current);
-  if (idx === -1) return;
-
-  const label = current.title || current.slug || "this page";
-  const msg = `Delete the page "${label}" from CMS? (HTML files must still be removed in GitHub if you don't want them live.)`;
-  if (!confirm(msg)) return;
-
-  const slug = current.slug || "";
-  const possibleUrls = [];
-  if (slug) possibleUrls.push(`${slug}.html`);
-  if (slug === "home") possibleUrls.push("index.html");
-
-  site.menu = (site.menu || []).filter(item => {
-    if (!item || !item.url) return true;
-    return !possibleUrls.includes(item.url);
-  });
-
-  site.pages.splice(idx,1);
-  current = site.pages.length ? site.pages[Math.max(0, idx-1)] : null;
-
-  markDirty();
-  renderPages();
-  updatePreviewHeader();
-  renderPreview();
-  renderInspectorTab();
 }
 
 /* HERO TAB */
@@ -1684,6 +1729,7 @@ async function backupAll(){
 document.getElementById("saveLocalBtn").addEventListener("click", saveToCloud);
 
 async function saveToCloud(){
+  // If you want to REMOVE the popup confirmation, delete this block:
   if(!confirm("Save your changes to GitHub via Honest News Cloud CMS (Render)?")) return;
 
   try{
@@ -1761,12 +1807,10 @@ function wirePanelBehaviorRadios(){
     });
   });
 }
-
-/* initial inspector content */
-renderInspectorTab();
 </script>
 </body>
 </html>
+
 
 
 
