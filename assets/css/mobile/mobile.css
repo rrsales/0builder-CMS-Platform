@@ -1,281 +1,129 @@
-/* assets/css/mobile.css */
+/* ============================================================
+   Honest News – MOBILE UI Framework
+   Standalone system for all pages
+   Includes: hamburger, drawer, overlay, animations
+============================================================ */
 
-/* Generic variables */
-:root {
-  --hn-header-height: 72px;
+/* Hide desktop nav when mobile */
+@media (max-width: 900px){
+  .desktop-only {
+    display: none !important;
+  }
 }
 
-/* ===========================================
-   BASE HEADER
-=========================================== */
-.hn-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--hn-header-height);
-  display: flex;
-  align-items: center;
-  z-index: 40;
-  transition:
-    background-color 0.25s ease,
-    box-shadow 0.25s ease,
-    backdrop-filter 0.25s ease,
-    transform 0.25s ease;
-}
-
-/* inner layout */
-.hn-header-inner {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-}
-
-/* logo */
-.hn-logo {
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #e5e7eb;
-  text-decoration: none;
-}
-
-/* nav desktop */
-.hn-nav ul {
-  display: flex;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  gap: 18px;
-}
-
-.hn-nav a {
-  color: #e5e7eb;
-  text-decoration: none;
-  font-size: 0.86rem;
-  padding-bottom: 2px;
-  border-bottom: 2px solid transparent;
-}
-
-.hn-nav a.active {
-  border-bottom-color: #38bdf8;
-}
-
-/* mobile toggle */
+/* SHOW mobile toggle */
 .hn-mobile-toggle {
-  border: none;
-  background: rgba(15, 23, 42, 0.85);
-  color: #e5e7eb;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-/* hamburger icon */
-.hn-mobile-toggle span {
-  display: block;
-  width: 18px;
-  height: 2px;
-  background: currentColor;
-  position: relative;
-}
-.hn-mobile-toggle span::before,
-.hn-mobile-toggle span::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: 18px;
-  height: 2px;
-  background: currentColor;
-}
-.hn-mobile-toggle span::before {
-  top: -5px;
-}
-.hn-mobile-toggle span::after {
-  top: 5px;
-}
-
-/* Desktop-only / mobile-only */
-.desktop-only {
-  display: flex;
-}
-.mobile-only {
   display: none;
 }
 
-/* ===========================================
-   HEADER STYLE VARIANTS
-=========================================== */
-
-/* Apple style */
-.hn-header--apple {
-  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95));
-  backdrop-filter: blur(18px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+@media (max-width: 900px){
+  .hn-mobile-toggle {
+    display: flex;
+    flex-direction: column;
+    width: 32px;
+    height: 24px;
+    justify-content: space-between;
+    cursor: pointer;
+    z-index: 999999;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+  .hn-mobile-toggle span,
+  .hn-mobile-toggle span::before,
+  .hn-mobile-toggle span::after {
+    content: "";
+    display: block;
+    height: 3px;
+    background: #fff;
+    border-radius: 3px;
+    transition: .25s ease;
+  }
 }
 
-/* Webflow style */
-.hn-header--webflow {
-  background: #020617;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
-  border-bottom: 1px solid rgba(30, 64, 175, 0.55);
-}
-
-/* Podbean style */
-.hn-header--podbean {
-  background: linear-gradient(90deg, #0f172a, #0f766e);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
-}
-
-/* Minimal style */
-.hn-header--minimal {
-  height: 56px;
-  --hn-header-height: 56px;
-  background: #020617;
-  border-bottom: 1px solid rgba(51, 65, 85, 0.9);
-}
-
-/* Floating style (sits over hero like a pill) */
-.hn-header--floating {
-  top: 18px;
-  height: 54px;
-}
-.hn-header--floating .hn-header-inner {
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.92);
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
-}
-
-/* Transparent over hero */
-.hn-header--transparent {
-  background: linear-gradient(
-    to bottom,
-    rgba(15, 23, 42, 0.65),
-    rgba(15, 23, 42, 0.15)
-  );
-  border-bottom-color: transparent;
-}
-
-/* ===========================================
-   HERO OFFSET (solid vs transparent header)
-=========================================== */
-
-body.has-solid-header .hero[data-hero],
-body.has-solid-header [data-hero] {
-  margin-top: var(--hn-header-offset, 72px);
-}
-
-body.has-transparent-header .hero[data-hero],
-body.has-transparent-header [data-hero] {
-  margin-top: 0;
-}
-
-/* Make sure hero fills width and respects header overlap */
-.hero[data-hero],
-[data-hero] {
-  position: relative;
-}
-
-/* ===========================================
-   MOBILE MENU PANEL
-=========================================== */
-
+/* Drawer menu */
 .hn-mobile-menu {
   position: fixed;
   top: 0;
-  left: 0;
-  bottom: 0;
-  width: 80%;
-  max-width: 320px;
-  background: #020617;
-  border-right: 1px solid rgba(51, 65, 85, 0.9);
-  box-shadow: 20px 0 45px rgba(0, 0, 0, 0.95);
-  transform: translateX(-100%);
-  transition: transform 0.25s ease-in-out;
-  z-index: 45;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 14px;
+  right: -100%;
+  width: 78%;
+  max-width: 340px;
+  height: 100%;
+  background: #0f172a;
+  z-index: 999998;
+  padding: 20px;
+  box-shadow: -4px 0 40px rgba(0,0,0,.75);
+  transition: right .35s cubic-bezier(.19,1,.22,1);
+  overflow-y: auto;
 }
 
-.hn-mobile-menu.is-open {
-  transform: translateX(0);
+/* When open */
+.hn-mobile-menu.open {
+  right: 0;
 }
 
-/* overlay via body state (use existing page bg) */
-body.mobile-menu-open {
-  overflow: hidden;
-}
-
-/* mobile menu header */
+/* Header inside drawer */
 .hn-mobile-menu-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  align-items: center;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,.15);
 }
+
 .hn-mobile-menu-title {
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #9ca3af;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
 }
+
 #mobileMenuClose {
+  background: transparent;
   border: none;
-  background: #0f172a;
-  color: #e5e7eb;
-  border-radius: 999px;
-  width: 30px;
-  height: 30px;
+  font-size: 2rem;
+  color: #fff;
   cursor: pointer;
 }
 
-/* mobile menu links */
+/* Mobile UL */
 #mobileNavMenu {
   list-style: none;
+  margin: 0;
   padding: 0;
-  margin: 8px 0 0;
 }
-#mobileNavMenu li {
-  margin-bottom: 4px;
-}
-#mobileNavMenu a {
+
+#mobileNavMenu li a {
   display: block;
-  padding: 10px 6px;
-  border-radius: 10px;
-  text-decoration: none;
+  padding: 14px 4px;
+  font-size: 1rem;
   color: #e5e7eb;
-  font-size: 0.9rem;
-}
-#mobileNavMenu a.active {
-  background: rgba(56, 189, 248, 0.16);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.08);
 }
 
-/* ===========================================
-   RESPONSIVE BEHAVIOR
-=========================================== */
-
-@media (max-width: 900px) {
-  .hn-nav.desktop-only {
-    display: none;
-  }
-  .hn-mobile-toggle {
-    display: inline-flex;
-  }
-  .mobile-only {
-    display: block;
-  }
+#mobileNavMenu li a.active {
+  color: #38bdf8;
 }
 
+/* Screen dim background */
+.hn-mobile-overlay {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 999997;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+
+.hn-mobile-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Lock scroll when menu open */
+body.hn-menu-open {
+  overflow: hidden;
+}
