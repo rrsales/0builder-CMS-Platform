@@ -719,10 +719,12 @@ let activeInspectorTab = "page";
 const DRAFT_KEY = "hn_cms_draft_v1";
 
 /* AUTOSAVE / CLOUD SAVE STATE */
-const SERVER = "https://honest-news.onrender.com";
-let isSaving = false;
-let saveQueued = false;
-let autosaveTimer = null;
+const res = await fetch(`${SERVER}/save`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(site)
+});
+
 
 /* panel behavior: auto | manual | pinned | smart */
 let panelBehavior = localStorage.getItem("hn_panel_behavior") || "auto";
