@@ -5,11 +5,10 @@
   <title>Honest News – Biblical Truth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- SAME BASE CSS AS support.html -->
+  <!-- Same CSS as support.html -->
   <link rel="stylesheet" href="assets/css/main.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- Fallback styles (match support.html look) -->
   <style>
     body{
       margin:0;
@@ -20,9 +19,12 @@
     body.theme-light{background:#f9fafb;color:#111827;}
     body.theme-dark{background:#020617;color:#e5e7eb;}
 
+    /* HEADER */
     header.site-header{
       position:fixed;
-      top:0;left:0;right:0;
+      top:0;
+      left:0;
+      right:0;
       z-index:1000;
       display:flex;
       align-items:center;
@@ -59,7 +61,7 @@
       color:#9ca3af;
     }
 
-    nav ul{
+    nav[aria-label="Main"] ul{
       display:flex;
       gap:18px;
       list-style:none;
@@ -67,15 +69,15 @@
       padding:0;
       font-size:.9rem;
     }
-    nav a{
+    nav[aria-label="Main"] a{
       color:#e5e7eb;
       text-decoration:none;
       padding-bottom:3px;
       border-bottom:2px solid transparent;
       opacity:.8;
     }
-    nav a:hover{opacity:1;}
-    nav a.active{
+    nav[aria-label="Main"] a:hover{opacity:1;}
+    nav[aria-label="Main"] a.active{
       border-color:#0ea5e9;
       color:#f9fafb;
       opacity:1;
@@ -95,6 +97,7 @@
 
     main{margin-top:72px;}
 
+    /* HERO */
     section.hero{
       position:relative;
       display:flex;
@@ -141,9 +144,7 @@
       margin:2.4rem auto 3.6rem;
       padding:0 1.5rem;
     }
-    .block{
-      margin-bottom:1.5rem;
-    }
+    .block{margin-bottom:1.5rem;}
     .block-heading h2{
       font-size:1.35rem;
       margin-bottom:.4rem;
@@ -161,80 +162,202 @@
       background:radial-gradient(circle at bottom,#020617,#000);
       text-align:center;
     }
-  </style>
 
-  <!-- Live engine: pulls from site-data.json (2.0) -->
-  <script src="assets/js/live.js" defer></script>
+    /* ============= MOBILE NAV & HAMBURGER ============= */
+
+    .desktop-only{display:flex;}
+
+    .hn-mobile-toggle{
+      display:none;
+      background:transparent;
+      border:none;
+      margin-left:10px;
+      width:34px;
+      height:34px;
+      border-radius:999px;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+    }
+    .hn-mobile-toggle span,
+    .hn-mobile-toggle span::before,
+    .hn-mobile-toggle span::after{
+      display:block;
+      width:18px;
+      height:2px;
+      border-radius:999px;
+      background:#e5e7eb;
+      position:relative;
+    }
+    .hn-mobile-toggle span::before,
+    .hn-mobile-toggle span::after{
+      content:"";
+      position:absolute;
+      left:0;
+    }
+    .hn-mobile-toggle span::before{top:-5px;}
+    .hn-mobile-toggle span::after{top:5px;}
+
+    .hn-mobile-menu{
+      position:fixed;
+      top:0;
+      right:-100%;
+      bottom:0;
+      width:80%;
+      max-width:320px;
+      background:#020617;
+      color:#e5e7eb;
+      z-index:9999;
+      box-shadow:-24px 0 60px rgba(0,0,0,.9);
+      transition:right .25s ease-out;
+      display:flex;
+      flex-direction:column;
+    }
+    .hn-mobile-menu.open{right:0;}
+
+    .hn-mobile-menu-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 18px;
+      border-bottom:1px solid rgba(31,41,55,.9);
+    }
+    .hn-mobile-menu-title{
+      font-size:.8rem;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:#9ca3af;
+    }
+    #mobileMenuClose{
+      background:transparent;
+      border:none;
+      color:#e5e7eb;
+      font-size:1.4rem;
+      cursor:pointer;
+    }
+    #mobileNavMenu{
+      list-style:none;
+      margin:0;
+      padding:10px 0;
+    }
+    #mobileNavMenu li a{
+      display:block;
+      padding:10px 18px;
+      text-decoration:none;
+      color:#e5e7eb;
+      font-size:.95rem;
+    }
+    #mobileNavMenu li a.active{
+      background:rgba(15,23,42,.9);
+    }
+
+    #hn-mobile-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.75);
+      z-index:9998;
+      display:none;
+    }
+
+    @media (max-width:768px){
+      header.site-header{
+        padding:10px 16px;
+      }
+      header.site-header nav{
+        display:none;            /* hide desktop nav on mobile */
+      }
+      .header-cta{
+        display:none;            /* hide Listen pill on mobile */
+      }
+      .hn-mobile-toggle{
+        display:inline-flex;     /* show hamburger */
+      }
+    }
+  </style>
 </head>
 
 <body data-page="home" class="theme-dark">
 
-  <!-- HEADER (same structure as support.html) -->
-  <header class="site-header">
-    <div class="brand">
-      <span class="brand-title">HONEST NEWS</span>
-      <span class="brand-sub">Biblical Truth · Podcast · Resources</span>
+<header class="site-header">
+  <div class="brand">
+    <span class="brand-title">HONEST NEWS</span>
+    <span class="brand-sub">Biblical Truth · Podcast · Resources</span>
+  </div>
+
+  <!-- Desktop menu (filled by live.js from site-data.json) -->
+  <nav aria-label="Main" class="desktop-only">
+    <ul id="menuList"></ul>
+  </nav>
+
+  <!-- Desktop-only Listen pill -->
+  <div class="header-cta desktop-only">
+    <i class="fa-solid fa-podcast"></i>
+    Listen
+  </div>
+
+  <!-- Hamburger (mobile only via CSS) -->
+  <button class="hn-mobile-toggle" id="mobileMenuToggle" aria-label="Open menu">
+    <span></span>
+  </button>
+</header>
+
+<!-- Mobile slide-out menu -->
+<nav class="hn-mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+  <div class="hn-mobile-menu-header">
+    <span class="hn-mobile-menu-title">Menu</span>
+    <button id="mobileMenuClose" aria-label="Close menu">×</button>
+  </div>
+  <ul id="mobileNavMenu"></ul>
+</nav>
+
+<main>
+  <section class="hero" data-hero>
+    <div class="hero-overlay-soft"></div>
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Honest News</div>
+      <h1>Honest News. Biblical Truth.</h1>
+      <p>
+        This hero is controlled by the “Home” page in your Dashboard.
+        Use Blocks for featured episodes, articles, and key resources.
+      </p>
     </div>
+  </section>
 
-    <nav aria-label="Main">
-      <!-- IMPORTANT: same ID as support.html so live.js can fill it -->
-      <ul id="menuList"></ul>
-    </nav>
+  <div class="blocks-shell" data-blocks-target>
+    <!-- Home page blocks from Dashboard -->
+  </div>
+</main>
 
-    <div class="header-cta">
-      <i class="fa-solid fa-podcast"></i>
-      Listen
-    </div>
-  </header>
+<footer class="site-footer">
+  &copy; <span id="year"></span> Honest News. All rights reserved.
+</footer>
 
-  <!-- MAIN -->
-  <main>
-    <!-- HERO: live.js will override this based on pages["home"].hero in site-data.json -->
-    <section class="hero" data-hero>
-      <div class="hero-overlay-soft"></div>
-      <div class="hero-inner">
-        <div class="hero-eyebrow">Honest News</div>
-        <h1>Honest News. Biblical Truth.</h1>
-        <p>
-          This hero is controlled by the “Home” page in your Dashboard.
-          Use Blocks for featured episodes, articles, and key resources.
-        </p>
-      </div>
-    </section>
+<script>
+  // Footer year
+  document.addEventListener("DOMContentLoaded", () => {
+    const y = document.getElementById("year");
+    if (y) y.textContent = new Date().getFullYear();
+  });
 
-    <!-- BLOCKS: live.js will inject blocks for page "home" here -->
-    <div class="blocks-shell" data-blocks-target>
-      <!-- Home page blocks from Dashboard -->
-    </div>
-  </main>
-
-  <footer class="site-footer">
-    &copy; <span id="year"></span> Honest News. All rights reserved.
-  </footer>
-
-  <script>
-    // year helper
-    document.addEventListener("DOMContentLoaded", () => {
-      const y = document.getElementById("year");
-      if (y) y.textContent = new Date().getFullYear();
+  // Scroll shadow on header
+  (function(){
+    const header = document.querySelector("header.site-header");
+    if (!header) return;
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 40) header.classList.add("scrolled");
+      else header.classList.remove("scrolled");
     });
-  </script>
+  })();
+</script>
 
-  <!-- header scroll effect (same as support.html) -->
-  <script>
-    (function(){
-      const header = document.querySelector("header.site-header");
-      if (!header) return;
-      window.addEventListener("scroll", () => {
-        if (window.scrollY > 40) header.classList.add("scrolled");
-        else header.classList.remove("scrolled");
-      });
-    })();
-  </script>
+<!-- LIVE ENGINE (menu + hero + blocks) -->
+<script src="assets/js/live.js" defer></script>
+
+<!-- MOBILE MENU LOGIC -->
+<script src="assets/js/mobile/mobile.js" defer></script>
 
 </body>
 </html>
 
-</html>
 
 
