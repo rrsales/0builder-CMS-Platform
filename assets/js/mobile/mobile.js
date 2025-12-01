@@ -1,83 +1,39 @@
 // assets/js/mobile/mobile.js
-document.addEventListener("DOMContentLoaded", function () {
-  // Try to find the desktop nav UL
-  const desktopMenu =
-    document.getElementById("menuList") ||
-    document.getElementById("nav-menu") ||
-    document.querySelector(".desktop-nav ul") ||
-    document.querySelector(".hn-nav ul");
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("mobileMenuToggle");
+  const mobileMenu = document.getElementById("mobileMenu");
+  const closeBtn = document.getElementById("mobileMenuClose");
+  const OVERLAY_ID = "hn-mobile-overlay";
 
-  // Try to find the hamburger toggle
-  const toggle =
-    document.getElementById("mobileMenuToggle") ||
-    document.querySelector(".hn-mobile-toggle");
+  if (!toggle || !mobileMenu) return;
 
-  // Try to find or create the mobile menu shell
-  let mobileMenu = document.getElementById("mobileMenu");
-  let mobileList = document.getElementById("mobileNavMenu");
-
-  if (!mobileMenu) {
-    mobileMenu = document.createElement("nav");
-    mobileMenu.id = "mobileMenu";
-    mobileMenu.className = "hn-mobile-menu";
-    mobileMenu.setAttribute("aria-label", "Mobile navigation");
-    mobileMenu.innerHTML = `
-      <div class="hn-mobile-menu-header">
-        <span class="hn-mobile-menu-title">Menu</span>
-        <button id="mobileMenuClose" aria-label="Close menu">×</button>
-      </div>
-      <ul id="mobileNavMenu"></ul>
-    `;
-    document.body.appendChild(mobileMenu);
-    mobileList = mobileMenu.querySelector("#mobileNavMenu");
-  } else if (!mobileList) {
-    mobileList = mobileMenu.querySelector("ul");
+  function ensureOverlay() {
+    let overlay = document.getElementById(OVERLAY_ID);
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = OVERLAY_ID;
+      document.body.appendChild(overlay);
+      overlay.addEventListener("click", closeMenu);
+    }
+    return overlay;
   }
-
-  // If we don't have the key pieces, bail quietly
-  if (!desktopMenu || !toggle || !mobileList) {
-    return;
-  }
-
-  // Build the mobile menu from the desktop menu
-  function syncMenus() {
-    mobileList.innerHTML = "";
-    desktopMenu.querySelectorAll("a").forEach((a) => {
-      const li = document.createElement("li");
-      const link = a.cloneNode(true);
-      link.removeAttribute("id"); // avoid duplicate IDs
-      li.appendChild(link);
-      mobileList.appendChild(li);
-    });
-  }
-
-  syncMenus();
-
-  // Overlay behind the drawer
-  let overlay = document.querySelector(".hn-mobile-overlay");
-  if (!overlay) {
-    overlay = document.createElement("div");
-    overlay.className = "hn-mobile-overlay";
-    document.body.appendChild(overlay);
-  }
-
-  const closeBtn =
-    document.getElementById("mobileMenuClose") ||
-    mobileMenu.querySelector("button[aria-label='Close menu']");
 
   function openMenu() {
-    document.body.classList.add("hn-mobile-open");
     mobileMenu.classList.add("open");
-    overlay.classList.add("open");
+    const overlay = ensureOverlay();
+    overlay.style.display = "block";
+    document.body.style.overflow = "hidden";
   }
 
   function closeMenu() {
-    document.body.classList.remove("hn-mobile-open");
     mobileMenu.classList.remove("open");
-    overlay.classList.remove("open");
+    const overlay = document.getElementById(OVERLAY_ID);
+    if (overlay) overlay.style.display = "none";
+    document.body.style.overflow = "";
   }
 
-  toggle.addEventListener("click", function () {
+  toggle.addEventListener("click", (e) => {
+    e.stopPropagation();
     if (mobileMenu.classList.contains("open")) {
       closeMenu();
     } else {
@@ -85,19 +41,26 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  if (closeBtn) closeBtn.addEventListener("click", closeMenu);
-  overlay.addEventListener("click", closeMenu);
+  if (closeBtn) {
+    closeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeMenu();
+    });
+  }
 
-  // Close when a link is tapped
-  mobileList.addEventListener("click", function (e) {
-    if (e.target.tagName.toLowerCase() === "a") {
+  // prevent clicks inside panel from bubbling up to document
+  mobileMenu.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  // ESC to close
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && mobileMenu.classList.contains("open")) {
       closeMenu();
     }
   });
-
-  // Re-sync links if layout changes
-  window.addEventListener("resize", syncMenus);
 });
+
 
 
 
