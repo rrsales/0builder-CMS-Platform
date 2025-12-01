@@ -1,0 +1,206 @@
+/* =========================================
+   SECTION 8: BLOCKS TAB (RIGHT → BLOCKS)
+   ========================================= */
+
+function renderBlocksTabHtml(c){
+  const blocks = c.blocks || [];
+  let html = `
+    <div class="panelSection">
+      <div class="panelLabel">Add blocks</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <button class="btn secondary" type="button" onclick="addBlock('heading')">+ Heading</button>
+        <button class="btn secondary" type="button" onclick="addBlock('paragraph')">+ Paragraph</button>
+        <button class="btn secondary" type="button" onclick="addBlock('image')">+ Image</button>
+        <button class="btn secondary" type="button" onclick="addBlock('button')">+ Button</button>
+        <button class="btn secondary" type="button" onclick="addBlock('product')">+ Amazon product</button>
+        <button class="btn secondary" type="button" onclick="addBlock('podcast')">+ Podcast</button>
+        <button class="btn secondary" type="button" onclick="addBlock('youtube')">+ YouTube</button>
+      </div>
+    </div>
+    <div class="panelSection">
+  `;
+  blocks.forEach((b,i)=>{
+    const motion = b.motion || "fade";
+    html += `
+      <div class="block">
+        <div class="block-header-line">
+          <span class="block-type">${b.type.toUpperCase()}</span>
+          <span>
+            Motion:
+            <select class="motion-select"
+              onchange="current.blocks[${i}].motion=this.value;markDirty();renderPreview();">
+              <option value="none"  ${motion==='none'?'selected':''}>None</option>
+              <option value="fade"  ${motion==='fade'?'selected':''}>Fade</option>
+              <option value="float" ${motion==='float'?'selected':''}>Float</option>
+              <option value="slide" ${motion==='slide'?'selected':''}>Slide</option>
+            </select>
+          </span>
+        </div>
+        ${renderBlockFields(b,i)}
+        <div class="tools">
+          <button onclick="moveBlock(${i},-1)">↑</button>
+          <button onclick="moveBlock(${i},1)">↓</button>
+          <button onclick="removeBlock(${i})">×</button>
+        </div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderBlockFields(b,i){
+  if (b.type==="heading"){
+    return `
+      <div class="field-group">
+        <div class="field-label">Text</div>
+        <input type="text" value="${b.content || ''}"
+          onchange="current.blocks[${i}].content=this.value;markDirty();renderPreview();">
+      </div>
+    `;
+  }
+  if (b.type==="paragraph"){
+    return `
+      <div class="field-group">
+        <div class="field-label">Text</div>
+        <textarea rows="4"
+          onchange="current.blocks[${i}].content=this.value;markDirty();renderPreview();">${b.content || ''}</textarea>
+      </div>
+    `;
+  }
+  if (b.type==="image"){
+    const mode = b.mode==="upload" ? "upload" : "url";
+    return `
+      <div class="field-group">
+        <div class="field-label">Image source</div>
+        <select onchange="current.blocks[${i}].mode=this.value;markDirty();renderInspectorTab();">
+          <option value="url" ${mode==='url'?'selected':''}>URL</option>
+          <option value="upload" ${mode==='upload'?'selected':''}>Upload</option>
+        </select>
+      </div>
+      ${
+        mode==="upload"
+        ? `<input type="file" accept="image/*" onchange="handleImageUpload(event,${i})">`
+        : `
+          <div class="field-group">
+            <div class="field-label">Image URL</div>
+            <input type="url" value="${b.content || ''}"
+              onchange="current.blocks[${i}].content=this.value;markDirty();renderPreview();">
+          </div>`
+      }
+    `;
+  }
+  if (b.type==="button"){
+    return `
+      <div class="field-group">
+        <div class="field-label">Button text</div>
+        <input type="text" value="${b.text || ''}"
+          onchange="current.blocks[${i}].text=this.value;markDirty();renderPreview();">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Button URL</div>
+        <input type="url" value="${b.url || ''}"
+          onchange="current.blocks[${i}].url=this.value;markDirty();renderPreview();">
+      </div>
+    `;
+  }
+  if (b.type==="product"){
+    return `
+      <div class="field-group">
+        <div class="field-label">Product title</div>
+        <input type="text" value="${b.title || ''}"
+          onchange="current.blocks[${i}].title=this.value;markDirty();renderPreview();">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Description</div>
+        <textarea rows="3"
+          onchange="current.blocks[${i}].text=this.value;markDirty();renderPreview();">${b.text || ''}</textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Image URL</div>
+        <input type="url" value="${b.image || ''}"
+          onchange="current.blocks[${i}].image=this.value;markDirty();renderPreview();">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Amazon affiliate URL</div>
+        <input type="url" value="${b.url || ''}"
+          onchange="current.blocks[${i}].url=this.value;markDirty();renderPreview();">
+      </div>
+    `;
+  }
+  if (b.type==="podcast"){
+    return `
+      <div class="field-group">
+        <div class="field-label">Episode title</div>
+        <input type="text" value="${b.title || ''}"
+          onchange="current.blocks[${i}].title=this.value;markDirty();renderPreview();">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Podbean embed URL or iframe src</div>
+        <textarea rows="3"
+          onchange="current.blocks[${i}].embed=this.value;markDirty();renderPreview();">${b.embed || ''}</textarea>
+      </div>
+    `;
+  }
+  if (b.type==="youtube"){
+    return `
+      <div class="field-group">
+        <div class="field-label">Video title</div>
+        <input type="text" value="${b.title || ''}"
+          onchange="current.blocks[${i}].title=this.value;markDirty();renderPreview();">
+      </div>
+      <div class="field-group">
+        <div class="field-label">YouTube URL or ID</div>
+        <input type="text" value="${b.videoId || ''}"
+          onchange="current.blocks[${i}].videoId=this.value;markDirty();renderPreview();">
+      </div>
+    `;
+  }
+  return "";
+}
+
+function addBlock(type){
+  if (!current.blocks) current.blocks = [];
+  const b = {type, motion:"fade"};
+  if(type==="heading")   b.content="New heading";
+  if(type==="paragraph") b.content="Your text here...";
+  if(type==="image"){    b.mode="url"; b.content=""; }
+  if(type==="button"){   b.text="Learn more"; b.url="#"; }
+  if(type==="product"){  b.title="Product title"; b.text="Short description"; b.image=""; b.url=""; }
+  if(type==="podcast"){  b.title="Episode title"; b.embed=""; }
+  if(type==="youtube"){  b.title="Video title";   b.videoId=""; }
+  current.blocks.push(b);
+  markDirty();
+  renderInspectorTab();
+  renderPreview();
+}
+
+function moveBlock(i,d){
+  const arr = current.blocks;
+  const item = arr.splice(i,1)[0];
+  let newIndex = i + d;
+  if (newIndex < 0) newIndex = 0;
+  if (newIndex > arr.length) newIndex = arr.length;
+  arr.splice(newIndex,0,item);
+  markDirty();
+  renderInspectorTab();
+  renderPreview();
+}
+function removeBlock(i){
+  current.blocks.splice(i,1);
+  markDirty();
+  renderInspectorTab();
+  renderPreview();
+}
+
+function handleImageUpload(e,index){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    current.blocks[index].content = reader.result;
+    markDirty();
+    renderPreview();
+  };
+  reader.readAsDataURL(file);
+}
