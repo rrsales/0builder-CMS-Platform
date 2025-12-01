@@ -1,254 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Honest News – Admin Login</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  body{
-    margin:0;
-    background:linear-gradient(135deg,#0066cc,#003366);
-    height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#fff;
-    font-family:system-ui,sans-serif
-    <!-- PAGE LIST CONTAINER -->
-<section id="hn-admin-pages-panel">
-  <h2>Pages</h2>
-  <button id="hn-add-page-btn">+ Add Page</button>
-  <ul id="hn-page-list"></ul>
-</section>
+  <meta charset="UTF-8">
+  <title>Honest News – Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- HERO SETTINGS CONTAINER -->
-<section id="hn-admin-hero-panel">
-  <h2>Hero Settings</h2>
-  <div>Current page: <span id="hn-current-page-label">None</span></div>
+  <script>
+    // Protect dashboard: only allow if logged in
+    if (localStorage.getItem("hn_logged") !== "yes") {
+      location.href = "admin.html";
+    }
+  </script>
 
-  <label>
-    Eyebrow
-    <input type="text" id="hn-hero-eyebrow">
-  </label>
-
-  <label>
-    Title
-    <input type="text" id="hn-hero-title">
-  </label>
-
-  <label>
-    Subtitle
-    <textarea id="hn-hero-subtitle"></textarea>
-  </label>
-
-  <label>
-    Style
-    <select id="hn-hero-style">
-      <option value="simple">Simple</option>
-      <option value="apple">Apple</option>
-    </select>
-  </label>
-
-  <label>
-    <input type="checkbox" id="hn-hero-transparent">
-    Transparent Header
-  </label>
-
-  <label>
-    Background Image URL
-    <input type="text" id="hn-hero-bg">
-  </label>
-
-  <button id="hn-hero-save-btn">Save Hero</button>
-</section>
-
-<!-- BLOCKS CONTAINER -->
-<section id="hn-admin-blocks-panel">
-  <h2>Blocks</h2>
-  <button id="hn-add-text-block-btn">+ Add Text Block</button>
-  <ul id="hn-blocks-list"></ul>
-</section>
-
-<!-- EXPORT CONTAINER -->
-<section id="hn-admin-export-panel">
-  <h2>Export Changes</h2>
-  <button id="hn-export-json-btn">Download site-data.json</button>
-  <button id="hn-clear-local-btn">Clear Local Draft</button>
-</section>
-  }
-  .login-box{
-    background:#fff;
-    color:#333;
-    padding:60px 50px;
-    border-radius:20px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.4);
-    text-align:center;
-    width:380px
-  }
-  .login-box h1{color:#0066cc;margin:0 0 30px;font-size:2rem}
-  input{width:100%;padding:16px;margin:20px 0;border:2px solid #ddd;border-radius:10px;font-size:1rem}
-  button{background:#28a745;color:#fff;border:none;padding:16px;border-radius:10px;font-size:1.1rem;cursor:pointer;width:100%;font-weight:bold}
-  button:hover{background:#218838}
-  #msg{color:#c33;margin-top:15px;font-size:.9rem}
-</style>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+      display: flex;
+      min-height: 100vh;
+    }
+    .dash-shell {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      width: 100%;
+    }
+    .dash-sidebar {
+      background: #020617;
+      border-right: 1px solid rgba(148,163,184,0.3);
+      padding: 1.5rem;
+    }
+    .dash-main {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+    h1, h2 {
+      margin-top: 0;
+    }
+    section {
+      background: rgba(15,23,42,0.9);
+      border-radius: 1rem;
+      border: 1px solid rgba(148,163,184,0.3);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    #hn-page-list,
+    #hn-blocks-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.75rem 0 0;
+    }
+    #hn-page-list li,
+    #hn-blocks-list li {
+      margin-bottom: 0.4rem;
+    }
+    #hn-page-list button {
+      width: 100%;
+      text-align: left;
+      padding: 0.4rem 0.6rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.9);
+      color: inherit;
+      cursor: pointer;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      margin-top: 0.6rem;
+    }
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.4rem 0.6rem;
+      margin-top: 0.25rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.9);
+      color: inherit;
+      font: inherit;
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    button {
+      border-radius: 999px;
+      border: 1px solid rgba(59,130,246,0.8);
+      background: rgba(37,99,235,0.9);
+      color: #e5e7eb;
+      padding: 0.45rem 0.9rem;
+      font: inherit;
+      cursor: pointer;
+      margin-top: 0.6rem;
+    }
+    button:hover {
+      background: rgba(37,99,235,1);
+    }
+    .danger {
+      border-color: rgba(248,113,113,0.9);
+      background: rgba(239,68,68,0.9);
+    }
+  </style>
 </head>
 <body>
 
-<div class="login-box">
-  <h1>Honest News Admin</h1>
-  <p>Enter your password to edit the site</p>
-  <input type="password" id="pass" autofocus>
-  <button id="login">Login</button>
-  <div id="msg"></div>
+<div class="dash-shell">
+  <aside class="dash-sidebar">
+    <h1>Honest News</h1>
+    <p style="font-size:0.85rem;opacity:0.8;">
+      CMS 2.0 – manage pages, heroes and blocks.
+    </p>
+    <button class="danger" onclick="localStorage.removeItem('hn_logged');location.href='admin.html';">
+      Log out
+    </button>
+  </aside>
+
+  <main class="dash-main">
+
+    <!-- PAGE LIST CONTAINER -->
+    <section id="hn-admin-pages-panel">
+      <h2>Pages</h2>
+      <button id="hn-add-page-btn">+ Add Page</button>
+      <ul id="hn-page-list"></ul>
+    </section>
+
+    <!-- HERO SETTINGS CONTAINER -->
+    <section id="hn-admin-hero-panel">
+      <h2>Hero Settings</h2>
+      <div>Current page: <span id="hn-current-page-label">None</span></div>
+
+      <label>
+        Eyebrow
+        <input type="text" id="hn-hero-eyebrow">
+      </label>
+
+      <label>
+        Title
+        <input type="text" id="hn-hero-title">
+      </label>
+
+      <label>
+        Subtitle
+        <textarea id="hn-hero-subtitle"></textarea>
+      </label>
+
+      <label>
+        Style
+        <select id="hn-hero-style">
+          <option value="simple">Simple</option>
+          <option value="apple">Apple</option>
+        </select>
+      </label>
+
+      <label>
+        <input type="checkbox" id="hn-hero-transparent">
+        Transparent Header
+      </label>
+
+      <label>
+        Background Image URL
+        <input type="text" id="hn-hero-bg">
+      </label>
+
+      <button id="hn-hero-save-btn">Save Hero</button>
+    </section>
+
+    <!-- BLOCKS CONTAINER -->
+    <section id="hn-admin-blocks-panel">
+      <h2>Blocks</h2>
+      <button id="hn-add-text-block-btn">+ Add Text Block</button>
+      <ul id="hn-blocks-list"></ul>
+    </section>
+
+    <!-- EXPORT CONTAINER -->
+    <section id="hn-admin-export-panel">
+      <h2>Export Changes</h2>
+      <button id="hn-export-json-btn">Download site-data.json</button>
+      <button id="hn-clear-local-btn">Clear Local Draft</button>
+    </section>
+
+  </main>
 </div>
 
-<script>
-// Always show login screen (clears any stuck flag)
-localStorage.removeItem("hn_logged");
-
-// New password = jo5765
-document.getElementById("login").onclick = function(){
-  if(document.getElementById("pass").value.trim() === "jo5765"){
-    localStorage.setItem("hn_logged","yes");
-    location.href = "dashboard.html";
-  } else {
-    document.getElementById("msg").innerText = "Wrong password";
-  }
-};
-
-document.getElementById("pass").addEventListener("keypress", e=>{
-  if(e.key==="Enter") document.getElementById("login").click();
-});
-</script>
+<!-- ADMIN LIBRARIES -->
 <script src="assets/js/admin/hn-admin-data.js"></script>
 <script src="assets/js/admin/hn-admin-pages.js"></script>
 <script src="assets/js/admin/hn-admin-hero.js"></script>
 <script src="assets/js/admin/hn-admin-blocks.js"></script>
-<script>
-  // Example: load data and show page list in the console
-  (async function () {
-    const data = await HNAdmin.loadSiteData();
-    console.log("Pages:", Object.keys(data.pages));
-    // When you make changes:
-    // HNAdmin.saveLocalSnapshot(data);
-    // HNAdmin.exportSiteData(data);
-  })();
-</script>
-  <script src="assets/js/admin/hn-admin-data.js"></script>
-<script src="assets/js/admin/hn-admin-pages.js"></script>
-<script src="assets/js/admin/hn-admin-hero.js"></script>
-<script src="assets/js/admin/hn-admin-blocks.js"></script>
 
-<script>
-  (async function () {
-    let data = await HNAdmin.loadSiteData();
-    HNAdmin.saveLocalSnapshot(data);
+<!-- CMS APP GLUE -->
+<script src="assets/js/admin/hn-admin-app.js"></script>
 
-    const pageListEl = document.getElementById("hn-page-list");
-    const currentPageLabel = document.getElementById("hn-current-page-label");
-
-    const heroEyebrow = document.getElementById("hn-hero-eyebrow");
-    const heroTitle = document.getElementById("hn-hero-title");
-    const heroSubtitle = document.getElementById("hn-hero-subtitle");
-    const heroStyle = document.getElementById("hn-hero-style");
-    const heroTransparent = document.getElementById("hn-hero-transparent");
-    const heroBg = document.getElementById("hn-hero-bg");
-
-    const blocksListEl = document.getElementById("hn-blocks-list");
-
-    let currentPageId = null;
-
-    function renderPageList() {
-      pageListEl.innerHTML = "";
-      Object.keys(data.pages).forEach(id => {
-        const li = document.createElement("li");
-        const btn = document.createElement("button");
-        btn.textContent = data.pages[id].title || id;
-        btn.addEventListener("click", () => selectPage(id));
-        li.appendChild(btn);
-        pageListEl.appendChild(li);
-      });
-    }
-
-    function selectPage(id) {
-      currentPageId = id;
-      const page = data.pages[id];
-      currentPageLabel.textContent = page.title || id;
-
-      // Fill hero form
-      const hero = page.hero || {};
-      heroEyebrow.value = hero.eyebrow || "";
-      heroTitle.value = hero.title || "";
-      heroSubtitle.value = hero.subtitle || "";
-      heroStyle.value = hero.style || "simple";
-      heroTransparent.checked = !!hero.transparentHeader;
-      heroBg.value = hero.backgroundImage || "";
-
-      // Fill blocks list (simple text-only view for now)
-      blocksListEl.innerHTML = "";
-      (page.blocks || []).forEach(block => {
-        const li = document.createElement("li");
-        li.textContent = block.id + " (" + block.type + ")";
-        blocksListEl.appendChild(li);
-      });
-    }
-
-    // Save hero button
-    document.getElementById("hn-hero-save-btn").addEventListener("click", () => {
-      if (!currentPageId) return;
-      data = HNAdmin.updateHero(data, currentPageId, {
-        eyebrow: heroEyebrow.value,
-        title: heroTitle.value,
-        subtitle: heroSubtitle.value,
-        style: heroStyle.value,
-        transparentHeader: heroTransparent.checked,
-        backgroundImage: heroBg.value
-      });
-      HNAdmin.saveLocalSnapshot(data);
-      alert("Hero updated for " + currentPageId);
-    });
-
-    // Add text block button (simple example)
-    document.getElementById("hn-add-text-block-btn").addEventListener("click", () => {
-      if (!currentPageId) return;
-      const id = prompt("Block ID (e.g. home-intro):");
-      if (!id) return;
-      const heading = prompt("Heading:");
-      const body = prompt("Body text:");
-
-      data = HNAdmin.addBlock(data, currentPageId, {
-        type: "text",
-        id,
-        heading,
-        body
-      });
-      HNAdmin.saveLocalSnapshot(data);
-      selectPage(currentPageId);
-    });
-
-    // Export + clear
-    document.getElementById("hn-export-json-btn").addEventListener("click", () => {
-      HNAdmin.exportSiteData(data);
-    });
-
-    document.getElementById("hn-clear-local-btn").addEventListener("click", () => {
-      HNAdmin.clearLocalSnapshot();
-      alert("Local draft cleared. Reload admin to re-sync from repo.");
-    });
-
-    // Initial render
-    renderPageList();
-    // Auto-select "home" if present
-    if (data.pages.home) selectPage("home");
-  })();
-</script>
-<script src="assets/js/admin/hn-admin-data.js"></script>
-<script src="assets/js/admin/hn-admin-pages.js"></script>
-<script src="assets/js/admin/hn-admin-hero.js"></script>
-<script src="assets/js/admin/hn-admin-blocks.js"></script>
-<!-- then the glue script I gave you that calls HNAdmin.* -->
 </body>
 </html>
+
+
 
 
 
