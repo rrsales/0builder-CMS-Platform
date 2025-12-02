@@ -55,15 +55,26 @@
       "slug": "about",
       "theme": "dark",
       "hero": {
-        "bg": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
-        "overlay": "About Us",
-        "sub": "This is test only test",
+        "bg": "https://plus.unsplash.com/premium_photo-1661775756810-82dbd209fc95?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aGVhZGVyfGVufDB8fDB8fHww",
+        "overlay": "About",
+        "sub": "This is a test",
         "transparentMenu": false,
         "behavior": "still",
-        "size": "full",
+        "size": "small",
         "customHeight": ""
       },
-      "blocks": []
+      "blocks": [
+        {
+          "type": "heading",
+          "motion": "fade",
+          "content": "This is a test"
+        },
+        {
+          "type": "paragraph",
+          "motion": "fade",
+          "content": "This is a test."
+        }
+      ]
     }
   ],
   "theme": {},
