@@ -1,17 +1,23 @@
 {
   "menu": [
     {
-      "id": "index",
-      "label": "Home",
+      "title": "Home",
       "url": "index.html",
-      "type": "link",
-      "showOn": "both",
-      "subItems": []
+      "id": "home",
+      "label": "Home"
     },
     {
-      "id": "test",
-      "label": "Test",
-      "url": "test.html",
+      "title": "Support",
+      "url": "support.html"
+    },
+    {
+      "title": "Contact",
+      "url": "contact.html"
+    },
+    {
+      "id": "about",
+      "label": "About",
+      "url": "about.html",
       "type": "link",
       "showOn": "both",
       "subItems": []
@@ -51,13 +57,13 @@
       ]
     },
     {
-      "title": "Test",
-      "slug": "test",
-      "theme": "dark",
+      "title": "About",
+      "slug": "about",
+      "theme": "light",
       "hero": {
-        "bg": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
-        "overlay": "Test",
-        "sub": "This is a test",
+        "bg": "",
+        "overlay": "About",
+        "sub": "",
         "transparentMenu": false,
         "behavior": "still",
         "size": "full",
