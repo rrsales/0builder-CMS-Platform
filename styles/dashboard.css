@@ -1,9 +1,12 @@
+/* styles/dashboard.css – Dashboard / CMS layout */
+
+/* THEME TOKENS */
 :root{
   --bg: #02040a;
   --card-bg: #05070c;
   --border: #1f2937;
   --shadow-soft: 0 20px 45px rgba(0,0,0,0.75);
-  --accent: #0ea5e9;
+  --accent: #0ea5e9;         /* main blue accent */
   --accent-soft: #0369a1;
   --accent-soft-bg: rgba(14,165,233,.12);
   --text-main: #e5e7eb;
@@ -74,6 +77,7 @@ body{
   gap:6px;
 }
 
+/* BUTTONS */
 .btn{
   border:none;
   border-radius:var(--radius-pill);
@@ -88,12 +92,31 @@ body{
   background:#111827;
   color:#e5e7eb;
 }
-.btn.secondary{background:#111827;color:#e5e7eb;border:1px solid #1f2937;}
-.btn.secondary:hover{background:#020617;}
-.btn.ghost{background:transparent;color:#9ca3af;border:1px solid rgba(148,163,184,.25);}
-.btn.ghost:hover{color:#e5e7eb;border-color:#e5e7eb;}
-.btn.primary{background:#22c55e;color:#022c22;border:1px solid #16a34a;}
-.btn.primary:hover{background:#16a34a;}
+.btn.secondary{
+  background:#111827;
+  color:#e5e7eb;
+  border:1px solid #1f2937;
+}
+.btn.secondary:hover{
+  background:#020617;
+}
+.btn.ghost{
+  background:transparent;
+  color:#9ca3af;
+  border:1px solid rgba(148,163,184,.25);
+}
+.btn.ghost:hover{
+  color:#e5e7eb;
+  border-color:#e5e7eb;
+}
+.btn.primary{
+  background:#22c55e;
+  color:#022c22;
+  border:1px solid #16a34a;
+}
+.btn.primary:hover{
+  background:#16a34a;
+}
 
 .logout-btn{
   border:none;
@@ -112,6 +135,7 @@ body{
   background:rgba(15,23,42,.75);
 }
 
+/* LAYOUT */
 .main{
   flex:1;
   display:flex;
@@ -140,22 +164,21 @@ body{
   padding-right:4px;
 }
 
-/* LEFT: accordion sections (Pages / Navigation) */
+/* LEFT: accordion sections (Pages + Nav) */
 .sidebar-section{
   margin-bottom:10px;
   border-radius:var(--radius-md);
-  background:radial-gradient(circle at top left, #0b1120 0, #020617 60%);
-  /* use accent blue instead of hard-coded blue */
-  border:1px solid rgba(14,165,233,0.6); /* ≈ var(--accent) */
+  background:#020617; /* solid, no radial fade */
+  border:1px solid var(--accent-soft);
   box-shadow:0 12px 32px rgba(0,0,0,0.55);
   overflow:hidden;
 }
 
-/* header bar – now uses accent variable */
+/* header bar – now solid BLUE like right-side accent */
 .sidebar-section-header{
   width:100%;
   border:none;
-  background:linear-gradient(to right, var(--accent), #0f172a);
+  background:var(--accent); /* solid blue, no gradient */
   color:#e5e7eb;
   display:flex;
   align-items:center;
@@ -165,6 +188,9 @@ body{
   font-size:.78rem;
   text-transform:uppercase;
   letter-spacing:.12em;
+}
+.sidebar-section-header:hover{
+  background:var(--accent-soft); /* slightly darker blue on hover */
 }
 .sidebar-section-header span.label{
   pointer-events:none;
@@ -210,19 +236,11 @@ body{
 }
 .page span.title{font-weight:600;}
 .page span.slug{font-size:.7rem;color:#6b7280;}
-
-/* hover + active use same blue system */
-.page:hover{
-  background:rgba(14,165,233,.06);
-  border-color:var(--accent-soft);
-}
-
 .page.active{
   background:var(--accent-soft-bg);
   border-color:var(--accent);
   box-shadow:0 0 0 1px rgba(56,189,248,.4);
 }
-
 .page-delete-btn{
   border:none;
   background:transparent;
@@ -237,6 +255,7 @@ body{
   color:#f97316;
 }
 
+/* NAV TEXTAREA */
 .textarea-small{
   width:100%;
   border-radius:12px;
@@ -255,7 +274,7 @@ body{
   color:#9ca3af;
 }
 
-/* PREVIEW AREA */
+/* PREVIEW AREA (CENTER) */
 .content{
   flex:1;
   display:flex;
@@ -297,6 +316,7 @@ body{
   font-size:.7rem;
 }
 
+/* device toggle */
 .device-toggle-group{
   display:inline-flex;
   align-items:center;
@@ -461,6 +481,7 @@ body{
   border-radius:8px;
 }
 
+/* status pill */
 .pill{
   padding:3px 10px;
   border-radius:var(--radius-pill);
@@ -558,6 +579,7 @@ label.inline{
   margin-bottom:4px;
 }
 
+/* BLOCK CARDS */
 .block{
   margin:10px 0;
   padding:10px;
@@ -607,9 +629,18 @@ label.inline{
   color:#e5e7eb;
 }
 
+/* RESPONSIVE */
 @media (max-width:900px){
-  .main{flex-direction:column;}
-  .sidebar{width:100%;}
-  #panelHandle{top:auto;bottom:90px;}
+  .main{
+    flex-direction:column;
+  }
+  .sidebar{
+    width:100%;
+  }
+  #panelHandle{
+    top:auto;
+    bottom:90px;
+  }
 }
+
 
