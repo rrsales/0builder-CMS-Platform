@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
-<!-- externalized dashboard styles (Apple-black look) -->
+<!-- externalized dashboard styles -->
 <link rel="stylesheet" href="styles/dashboard.css">
 </head>
 <body>
@@ -485,9 +485,8 @@ function selectPage(i){
   updatePreviewHeader();
   renderPreview();
   renderInspectorTab();
-  if (panelBehavior === "auto" || panelBehavior === "pinned" || panelBehavior === "smart"){
-    openPanel("auto");
-  }
+  // ALWAYS open the inspector when you click a page (like it used to)
+  openPanel("manual");
 }
 
 /* =======================
@@ -1144,19 +1143,3 @@ renderInspectorTab(); // both sidebar sections stay closed on load
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
