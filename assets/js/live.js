@@ -1,335 +1,246 @@
-// assets/js/live.js
+/* assets/js/live.js
+   Honest News – Live runtime
+   - Loads site-data.json
+   - Builds navigation from site.menu
+   - Exposes a small HN namespace so we can add hero/blocks later without trampling menu
+*/
 
-document.addEventListener("DOMContentLoaded", () => {
-  const body = document.body;
-  const slug = body.getAttribute("data-page") || "home";
+(function () {
+  "use strict";
 
-  // Flexible hero selection (works for home/support/contact, etc.)
-  const hero =
-    document.querySelector(".hero") ||
-    document.querySelector(".hero-carousel") ||
-    document.querySelector("[data-hero]");
+  const SITE_DATA_URL = "site-data.json";
+  const HN = {
+    site: null,
+    currentPage: null
+  };
+  window.HN = HN; // expose for debugging later if needed
 
-  // Your main header (support.html / index.html use .site-header)
-  const header =
-    document.querySelector("header.site-header") ||
-    document.querySelector("header");
+  document.addEventListener("DOMContentLoaded", init);
 
-  // Where dynamic blocks render on each page
-  const blocksTarget = document.querySelector("[data-blocks-target]");
-
-  /* =============================================================
-     HYBRID LOADER — ALWAYS GET MOST RECENT site-data.json
-     1) RAW GitHub (always fresh)
-     2) Fallback: Local GitHub Pages copy
-  ============================================================= */
-  async function loadSiteData() {
-    const RAW =
-      "https://raw.githubusercontent.com/rrsales/Honest-News/main/site-data.json?cb=" +
-      Date.now();
-    const LOCAL = "site-data.json?cb=" + Date.now();
-
-    // Attempt RAW GitHub (fresh)
+  async function init() {
     try {
-      const r = await fetch(RAW, { cache: "no-store" });
-      if (r.ok) {
-        console.log(
-          "%cLoaded site-data.json from RAW GitHub (fresh)",
-          "color:#22c55e"
-        );
-        return await r.json();
-      }
-    } catch (e) {
-      console.warn("RAW GitHub failed → fallback to local", e);
-    }
+      const data = await loadSiteData();
+      HN.site = data || {};
+      HN.currentPage = getCurrentPage(HN.site);
 
-    // Fallback: GitHub Pages copy
-    const r2 = await fetch(LOCAL, { cache: "no-store" });
-    console.log(
-      "%cLoaded site-data.json from GitHub Pages copy",
-      "color:#38bdf8"
-    );
-    return await r2.json();
-  }
+      // --- MENU MODULE ONLY (frozen) ---
+      buildMenu(HN.site.menu || []);
+      setupMobileToggle();
+      // ---------------------------------
 
-  /* =============================================================
-     MAIN INIT
-  ============================================================= */
-  loadSiteData()
-    .then((site) => {
-      if (!site || !Array.isArray(site.pages)) {
-        console.warn("site-data.json missing or invalid");
-        return;
-      }
-
-      // Pick current page by slug (fallback to first page)
-      let page = site.pages.find((p) => p.slug === slug);
-      if (!page) page = site.pages[0];
-
-      applyTheme(body, page);
-      buildMenu(site.menu || [], slug);
-      applyHero(hero, header, page.hero || {});
-      if (blocksTarget) renderBlocks(blocksTarget, page.blocks || []);
-
-      initHeaderScroll(header); // adds .scrolled when you scroll down
-    })
-    .catch((err) => {
-      console.error("live.js error:", err);
-    });
-
-  /* =============================================================
-     THEME
-  ============================================================= */
-  function applyTheme(bodyEl, page) {
-    bodyEl.classList.remove("theme-light", "theme-dark");
-
-    if (page.theme === "light") {
-      bodyEl.classList.add("theme-light");
-    } else {
-      bodyEl.classList.add("theme-dark");
+      // Later we can add:
+      // applyHero(HN.currentPage);
+      // renderBlocks(HN.currentPage);
+    } catch (err) {
+      console.error("HN live.js init failed:", err);
     }
   }
 
-  /* =============================================================
-     MENU BUILDER (desktop + mobile)
-     Uses site.menu from site-data.json
-  ============================================================= */
-  function buildMenu(items, currentSlug) {
-    // Desktop menu (index/support/contact use either #nav-menu or #menuList)
-    const desktopMenu =
-      document.getElementById("nav-menu") ||
-      document.getElementById("menuList");
-
-    // Mobile drawer menu
-    const mobileMenu = document.getElementById("mobileNavMenu");
-
-    if (!desktopMenu && !mobileMenu) return;
-
-    const currentFile = location.pathname.split("/").pop() || "index.html";
-
-    const html = items
-      .map((item) => {
-        const label = item.label || item.title || "Item";
-        const url = item.url || "#";
-
-        const isHomeSlug = currentSlug === "home";
-        const isHomeFile =
-          url === "index.html" &&
-          (currentFile === "" || currentFile === "index.html");
-
-        const isActive =
-          currentFile === url || (isHomeSlug && isHomeFile);
-
-        return `
-          <li>
-            <a href="${url}" class="${isActive ? "active" : ""}">
-              ${escapeHtml(label)}
-            </a>
-          </li>
-        `;
-      })
-      .join("");
-
-    if (desktopMenu) desktopMenu.innerHTML = html;
-    if (mobileMenu) mobileMenu.innerHTML = html;
+  /* ============================
+     LOAD site-data.json
+  ============================ */
+  async function loadSiteData() {
+    // cache bust to avoid stale JSON during editing
+    const url = SITE_DATA_URL + "?_=" + Date.now();
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) {
+      console.warn("Could not load site-data.json, status:", res.status);
+      return fallbackSite();
+    }
+    const json = await res.json();
+    if (!json || typeof json !== "object") {
+      console.warn("site-data.json was not an object, using fallback");
+      return fallbackSite();
+    }
+    return json;
   }
 
-  /* =============================================================
-     HERO SETUP (background, height, text, transparent header)
-     Driven by page.hero in site-data.json
-  ============================================================= */
-  function applyHero(heroEl, headerEl, h) {
-    if (!heroEl) return;
-
-    // Background image
-    if (h.bg) {
-      heroEl.style.backgroundImage =
-        `linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)), url('${h.bg}')`;
-      heroEl.style.backgroundSize = "cover";
-      heroEl.style.backgroundPosition = "center";
-      heroEl.style.backgroundAttachment = "fixed";
-    }
-
-    // Height behavior
-    let height = "100vh";
-    switch (h.size) {
-      case "small":
-        height = "40vh";
-        break;
-      case "medium":
-        height = "60vh";
-        break;
-      case "large":
-        height = "80vh";
-        break;
-      case "full":
-        height = "100vh";
-        break;
-      case "custom":
-        height = h.customHeight || "100vh";
-        break;
-      default:
-        height = "100vh";
-    }
-    heroEl.style.height = height;
-
-    // Text content (override static H1/P if hero config has values)
-    const title = heroEl.querySelector("h1");
-    const sub = heroEl.querySelector("p");
-
-    if (title && h.overlay) title.textContent = h.overlay;
-    if (sub && typeof h.sub === "string") sub.textContent = h.sub;
-
-    // Transparent header handling (support.html / index.html style)
-    if (headerEl) {
-      if (h.transparentMenu) {
-        headerEl.classList.add("header--transparent");
-        document.body.classList.add("has-transparent-header");
-        document.body.classList.remove("has-solid-header");
-      } else {
-        headerEl.classList.remove("header--transparent");
-        document.body.classList.remove("has-transparent-header");
-        document.body.classList.add("has-solid-header");
-      }
-    }
-
-    // Behavior animations
-    if (h.behavior === "parallax-medium" || h.behavior === "parallax-slow") {
-      const rate = h.behavior === "parallax-slow" ? 0.15 : 0.3;
-      window.addEventListener("scroll", () => {
-        const offset = window.scrollY * rate * -1;
-        heroEl.style.transform = `translateY(${offset}px)`;
-      });
-    } else if (h.behavior === "float-up") {
-      heroEl.style.transition =
-        "transform 1.1s ease-out, opacity 1.1s ease-out";
-      heroEl.style.transform = "translateY(40px)";
-      heroEl.style.opacity = "0";
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          heroEl.style.transform = "translateY(0)";
-          heroEl.style.opacity = "1";
-        }, 60);
-      });
-    } else {
-      heroEl.style.transform = "none";
-    }
+  function fallbackSite() {
+    // very small safe fallback so nav never completely dies
+    return {
+      menu: [
+        { id: "home", label: "Home", url: "index.html", type: "link", showOn: "both", subItems: [] }
+      ],
+      pages: [
+        { slug: "home", title: "Home", hero: {}, blocks: [] }
+      ]
+    };
   }
 
-  /* =============================================================
-     HEADER SCROLL EFFECT
-     Adds .scrolled to header.site-header like your old inline script
-  ============================================================= */
-  function initHeaderScroll(headerEl) {
-    if (!headerEl) return;
+  /* ============================
+     PAGE DETECTION
+  ============================ */
+  function getCurrentPage(site) {
+    const pages = site.pages || [];
+    if (!pages.length) return null;
 
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 40) {
-        headerEl.classList.add("scrolled");
-      } else {
-        headerEl.classList.remove("scrolled");
-      }
-    });
+    const body = document.body || document.querySelector("body");
+    const slug = (body && body.dataset && body.dataset.page) ? body.dataset.page : null;
+
+    if (!slug) return pages[0];
+
+    const found = pages.find(p => p.slug === slug);
+    return found || pages[0];
   }
 
-  /* =============================================================
-     BLOCK RENDERING (driven by page.blocks)
-  ============================================================= */
-  function renderBlocks(target, blocks) {
-    if (!blocks || !blocks.length) {
-      target.innerHTML = "";
+  /* ============================
+     MENU MODULE (FROZEN)
+     - Reads site.menu
+     - Renders into:
+       [data-hn-nav="main"]   (desktop/top)
+       [data-hn-nav="mobile"] (mobile panel – optional)
+  ============================ */
+
+  function buildMenu(menuItems) {
+    if (!Array.isArray(menuItems)) return;
+
+    const mainNav = document.querySelector('[data-hn-nav="main"]');
+    const mobileNav = document.querySelector('[data-hn-nav="mobile"]');
+
+    if (!mainNav && !mobileNav) {
+      console.warn("HN menu: no nav containers found (data-hn-nav=\"main\" / \"mobile\")");
       return;
     }
 
-    let html = "";
-    blocks.forEach((b) => {
-      if (b.type === "heading") {
-        html += `
-          <section class="block block-heading">
-            <h2>${escapeHtml(b.content || "")}</h2>
-          </section>`;
-      } else if (b.type === "paragraph") {
-        const text = (b.content || "").replace(/\n/g, "<br>");
-        html += `
-          <section class="block block-paragraph">
-            <p>${text}</p>
-          </section>`;
-      } else if (b.type === "image" && b.content) {
-        html += `
-          <section class="block block-image">
-            <img src="${escapeHtml(b.content)}" alt="" />
-          </section>`;
-      } else if (b.type === "button") {
-        html += `
-          <section class="block block-button">
-            <a href="${escapeHtml(b.url || "#")}" class="btn-block">
-              ${escapeHtml(b.text || "Learn more")}
-            </a>
-          </section>`;
-      } else if (b.type === "product") {
-        html += `
-          <section class="block block-product">
-            <div class="product-card">
-              ${
-                b.image
-                  ? `<img src="${escapeHtml(
-                      b.image
-                    )}" class="product-image" />`
-                  : ""
-              }
-              <div class="product-info">
-                <h3>${escapeHtml(b.title || "")}</h3>
-                <p>${escapeHtml(b.text || "")}</p>
-                ${
-                  b.url
-                    ? `<a href="${escapeHtml(
-                        b.url
-                      )}" target="_blank" rel="noopener noreferrer" class="product-btn">
-                         Buy on Amazon
-                       </a>`
-                    : ""
-                }
-              </div>
-            </div>
-          </section>`;
-      } else if (b.type === "podcast" && b.embed) {
-        html += `
-          <section class="block block-podcast">
-            <h3>${escapeHtml(b.title || "")}</h3>
-            <iframe src="${escapeHtml(
-              b.embed
-            )}" allow="autoplay" loading="lazy"></iframe>
-          </section>`;
-      } else if (b.type === "youtube" && b.videoId) {
-        let id = b.videoId.trim();
-        const m = id.match(/v=([^&]+)/);
-        if (m) id = m[1];
+    // Build main nav
+    if (mainNav) {
+      mainNav.innerHTML = "";
+      const ul = document.createElement("ul");
+      ul.className = "hn-nav-list hn-nav-list-main";
 
-        html += `
-          <section class="block block-youtube">
-            <h3>${escapeHtml(b.title || "")}</h3>
-            <div class="video-wrap">
-              <iframe src="https://www.youtube.com/embed/${escapeHtml(
-                id
-              )}" allowfullscreen loading="lazy"></iframe>
-            </div>
-          </section>`;
+      menuItems.forEach(item => {
+        const li = buildMenuItem(item, "desktop");
+        if (li) ul.appendChild(li);
+      });
+
+      mainNav.appendChild(ul);
+    }
+
+    // Build mobile nav (simple stacked list)
+    if (mobileNav) {
+      mobileNav.innerHTML = "";
+      const ul = document.createElement("ul");
+      ul.className = "hn-nav-list hn-nav-list-mobile";
+
+      menuItems.forEach(item => {
+        const li = buildMenuItem(item, "mobile");
+        if (li) ul.appendChild(li);
+      });
+
+      mobileNav.appendChild(ul);
+    }
+  }
+
+  function buildMenuItem(item, context) {
+    // item: { id, label, url, type, showOn, subItems[] }
+    if (!item || !item.label) return null;
+
+    const showOn = item.showOn || "both";
+    if (context === "desktop" && showOn === "mobile") return null;
+    if (context === "mobile" && showOn === "desktop") return null;
+
+    const li = document.createElement("li");
+    li.className = "hn-nav-item";
+
+    if (item.type === "mega" && Array.isArray(item.subItems) && item.subItems.length) {
+      li.classList.add("hn-nav-item-mega");
+
+      const link = document.createElement("a");
+      link.href = item.url || "#";
+      link.textContent = item.label;
+      link.className = "hn-nav-link";
+      li.appendChild(link);
+
+      if (context === "desktop") {
+        // Desktop mega dropdown
+        const panel = document.createElement("div");
+        panel.className = "hn-mega-panel";
+
+        const inner = document.createElement("div");
+        inner.className = "hn-mega-inner";
+
+        item.subItems.forEach(sub => {
+          const block = document.createElement("a");
+          block.className = "hn-mega-item";
+          block.href = sub.url || "#";
+
+          const title = document.createElement("div");
+          title.className = "hn-mega-title";
+          title.textContent = sub.label || "";
+
+          const desc = document.createElement("div");
+          desc.className = "hn-mega-desc";
+          desc.textContent = sub.description || "";
+
+          block.appendChild(title);
+          if (sub.description) block.appendChild(desc);
+
+          inner.appendChild(block);
+        });
+
+        panel.appendChild(inner);
+        li.appendChild(panel);
+      } else {
+        // Mobile: flatten into simple child list
+        const innerList = document.createElement("ul");
+        innerList.className = "hn-sub-list";
+
+        item.subItems.forEach(sub => {
+          const subLi = document.createElement("li");
+          subLi.className = "hn-sub-item";
+
+          const subLink = document.createElement("a");
+          subLink.href = sub.url || "#";
+          subLink.textContent = sub.label || "";
+          subLink.className = "hn-sub-link";
+
+          subLi.appendChild(subLink);
+          innerList.appendChild(subLi);
+        });
+
+        li.appendChild(innerList);
       }
+    } else {
+      // Simple link item
+      const link = document.createElement("a");
+      link.href = item.url || "#";
+      link.textContent = item.label;
+      link.className = "hn-nav-link";
+      li.appendChild(link);
+    }
+
+    // Mark active based on current page slug vs URL
+    try {
+      const page = HN.currentPage;
+      if (page && page.slug) {
+        const slug = page.slug.toLowerCase();
+        if (item.url && item.url.toLowerCase().indexOf(slug) !== -1) {
+          li.classList.add("is-active");
+        }
+      }
+    } catch (e) {
+      // no-op if we can't match
+    }
+
+    return li;
+  }
+
+  /* ============================
+     MOBILE TOGGLE
+     - Uses [data-hn-nav-toggle]
+     - Adds/removes .hn-nav-open on <body>
+  ============================ */
+  function setupMobileToggle() {
+    const toggle = document.querySelector("[data-hn-nav-toggle]");
+    if (!toggle) return;
+
+    toggle.addEventListener("click", () => {
+      document.body.classList.toggle("hn-nav-open");
     });
-
-    target.innerHTML = html;
   }
 
-  /* =============================================================
-     UTIL
-  ============================================================= */
-  function escapeHtml(str) {
-    return String(str || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-});
+})();
+
 
 
 
