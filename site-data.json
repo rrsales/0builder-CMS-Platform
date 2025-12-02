@@ -1,18 +1,12 @@
 {
   "menu": [
     {
-      "title": "Home",
-      "url": "index.html",
       "id": "home",
-      "label": "Home"
-    },
-    {
-      "title": "Support",
-      "url": "support.html"
-    },
-    {
-      "title": "Contact",
-      "url": "contact.html"
+      "label": "Home",
+      "url": "index.html",
+      "type": "link",
+      "showOn": "both",
+      "subItems": []
     },
     {
       "id": "about",
@@ -61,12 +55,12 @@
       "slug": "about",
       "theme": "dark",
       "hero": {
-        "bg": "https://cdn.pixabay.com/photo/2017/11/15/13/27/river-2951997_960_720.jpg",
+        "bg": "https://pixabay.com/get/g6499357e45518e4865e51bf17d0a02772fe3d6eaa38457db0ed63794250d31b9bdb827ac1924beddd8fc561a11e504c6.jpg",
         "overlay": "About",
         "sub": "",
-        "transparentMenu": false,
+        "transparentMenu": true,
         "behavior": "still",
-        "size": "small",
+        "size": "full",
         "customHeight": ""
       },
       "blocks": []
