@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
-<!-- externalized dashboard styles -->
+<!-- Dashboard (Apple-black) styles -->
 <link rel="stylesheet" href="styles/dashboard.css">
 </head>
 <body>
@@ -28,7 +28,7 @@
   <div class="top-actions">
     <span class="pill-badge">
       <i class="fa-regular fa-circle-dot"></i>
-      Cloud save: Render & GitHub
+      Cloud save: Render &amp; GitHub
     </span>
     <button class="logout-btn"
             onclick="localStorage.removeItem('hn_logged');location.href='admin.html'">
@@ -38,10 +38,10 @@
 </div>
 
 <div class="main">
-  <!-- SIDEBAR -->
+  <!-- LEFT SIDEBAR -->
   <aside class="sidebar">
 
-    <!-- PAGES SECTION (closed by default) -->
+    <!-- PAGES SECTION (accordion) -->
     <div class="sidebar-section">
       <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('pages')">
         <span class="label">Pages</span>
@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <!-- NAVIGATION SECTION (closed by default) -->
+    <!-- NAVIGATION SECTION (accordion) -->
     <div class="sidebar-section">
       <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('nav')">
         <span class="label">Navigation</span>
@@ -71,7 +71,7 @@
 
   </aside>
 
-  <!-- PREVIEW ONLY -->
+  <!-- PREVIEW COLUMN -->
   <section class="content">
     <div id="previewCard">
       <div id="previewToolbar">
@@ -288,6 +288,8 @@ const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
   updatePreviewHeader();
   renderPreview();
   applyPanelBehavior();
+  // OPEN PAGES SECTION BY DEFAULT (nested accordion behavior)
+  openSidebarSection("pages");
 })();
 
 /* =======================
@@ -311,7 +313,7 @@ function markSavedLocal(){
 }
 
 /* =======================
-   LEFT ACCORDION LOGIC
+   LEFT ACCORDION (NESTED)
 ======================= */
 function toggleSidebarSection(which){
   const body    = document.getElementById(which + "Section");
@@ -320,15 +322,15 @@ function toggleSidebarSection(which){
 
   const willClose = !body.classList.contains("closed");
 
-  // close all
-  document.querySelectorAll(".sidebar-section-body").forEach(el=>{
+  // Close ALL sections first (nested behavior: only one open)
+  document.querySelectorAll(".sidebar-section-body").forEach(el => {
     el.classList.add("closed");
   });
-  document.querySelectorAll(".sidebar-chevron").forEach(el=>{
+  document.querySelectorAll(".sidebar-chevron").forEach(el => {
     el.classList.add("rotated");
   });
 
-  // reopen this one if it was previously closed
+  // If we were trying to open this one, re-open it
   if (!willClose){
     body.classList.remove("closed");
     if (chevron) chevron.classList.remove("rotated");
@@ -339,6 +341,16 @@ function openSidebarSection(which){
   const body    = document.getElementById(which + "Section");
   const chevron = document.getElementById(which + "Chevron");
   if (!body) return;
+
+  // Close all first
+  document.querySelectorAll(".sidebar-section-body").forEach(el => {
+    el.classList.add("closed");
+  });
+  document.querySelectorAll(".sidebar-chevron").forEach(el => {
+    el.classList.add("rotated");
+  });
+
+  // Open just this one
   body.classList.remove("closed");
   if (chevron) chevron.classList.remove("rotated");
 }
@@ -372,11 +384,11 @@ function applyPanelBehavior(){
   }
 }
 
-/* click handle to open manually */
+/* handle click */
 handle.addEventListener("click", ()=>togglePanelManual());
 closeBtn.addEventListener("click", ()=>closePanel("manual"));
 
-/* keyboard shortcut: Shift+P toggles panel */
+/* Shift+P toggles panel */
 document.addEventListener("keydown", (e)=>{
   if(e.shiftKey && e.key.toLowerCase()==="p"){
     togglePanelManual();
@@ -485,8 +497,9 @@ function selectPage(i){
   updatePreviewHeader();
   renderPreview();
   renderInspectorTab();
-  // ALWAYS open the inspector when you click a page (like it used to)
-  openPanel("manual");
+  if (panelBehavior === "auto" || panelBehavior === "pinned" || panelBehavior === "smart"){
+    openPanel("auto");
+  }
 }
 
 /* =======================
@@ -1117,11 +1130,11 @@ function renderSiteTabHtml(){
       </p>
     </div>
     <div class="panelSection">
-      <div class="panelLabel">Data & safety</div>
+      <div class="panelLabel">Data &amp; safety</div>
       <p class="field-hint">
         • “Save to Cloud” sends <code>site-data.json</code> to your Honest-News repo via Render (GitHub API).<br>
         • Drafts stay only in this browser’s local storage.<br>
-        • Use GitHub Desktop to Commit & Push when you’re ready to publish.
+        • Use GitHub Desktop to Commit &amp; Push when you’re ready to publish.
       </p>
     </div>
   `;
@@ -1138,10 +1151,11 @@ function wirePanelBehaviorRadios(){
 }
 
 /* initial inspector content */
-renderInspectorTab(); // both sidebar sections stay closed on load
+renderInspectorTab();
 </script>
 
 </body>
 </html>
+
 
 
