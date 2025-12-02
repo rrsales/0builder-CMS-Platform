@@ -1,20 +1,18 @@
 {
   "menu": [
     {
-      "id": "index",
-      "label": "Home",
+      "title": "Home",
       "url": "index.html",
-      "type": "link",
-      "showOn": "both",
-      "subItems": []
+      "id": "home",
+      "label": "Home"
     },
     {
-      "id": "about",
-      "label": "About",
-      "url": "about.html",
-      "type": "link",
-      "showOn": "both",
-      "subItems": []
+      "title": "Support",
+      "url": "support.html"
+    },
+    {
+      "title": "Contact",
+      "url": "contact.html"
     }
   ],
   "pages": [
@@ -23,7 +21,7 @@
       "slug": "home",
       "theme": "light",
       "hero": {
-        "bg": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
+        "bg": "https://plus.unsplash.com/premium_photo-1661775756810-82dbd209fc95?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aGVhZGVyfGVufDB8fDB8fHww",
         "overlay": "Honest News Network",
         "sub": "Everything You Need for Biblical Truth",
         "transparentMenu": true,
@@ -47,32 +45,6 @@
           "type": "paragraph",
           "motion": "fade",
           "content": "Honest News Network exists to cut through the noise and tell the truth—plain, unapologetic, and rooted in God’s Word. In a world of spin, censorship, and confusion, we examine world events, culture, and headlines through a biblical lens so believers can understand the times and stand firm in their faith. We are not here to entertain; we are here to warn, inform, and call God’s people back to truth.\n\nWe expose the stories the mainstream ignores, the agendas they hide, and the spiritual battle behind the headlines. From politics and global crises to attacks on faith and family, Honest News Network connects the dots and shows how it all aligns with Scripture and end-time prophecy. Our goal is to help you see clearly so you are not deceived by the systems of this world.\n\nThis is more than a news outlet—it’s a watchman on the wall. Honest News Network exists to equip the body of Christ with discernment, courage, and hope as darkness grows and persecution increases. We invite you to stand with us, stay informed, and stay grounded in the only source of unshakable truth: the Word of God."
-        }
-      ]
-    },
-    {
-      "title": "About",
-      "slug": "about",
-      "theme": "dark",
-      "hero": {
-        "bg": "https://plus.unsplash.com/premium_photo-1661775756810-82dbd209fc95?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aGVhZGVyfGVufDB8fDB8fHww",
-        "overlay": "About",
-        "sub": "This is a test",
-        "transparentMenu": false,
-        "behavior": "still",
-        "size": "small",
-        "customHeight": ""
-      },
-      "blocks": [
-        {
-          "type": "heading",
-          "motion": "fade",
-          "content": "This is a test"
-        },
-        {
-          "type": "paragraph",
-          "motion": "fade",
-          "content": "This is a test."
         }
       ]
     }
