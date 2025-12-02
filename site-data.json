@@ -61,7 +61,7 @@
       "slug": "about",
       "theme": "dark",
       "hero": {
-        "bg": "https://images.pexels.com/photos/414061/pexels-photo-414061.jpeg",
+        "bg": "https://cdn.pixabay.com/photo/2017/11/15/13/27/river-2951997_960_720.jpg",
         "overlay": "About",
         "sub": "",
         "transparentMenu": false,
