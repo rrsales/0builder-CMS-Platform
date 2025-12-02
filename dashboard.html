@@ -17,81 +17,6 @@
 
 <!-- externalized dashboard styles -->
 <link rel="stylesheet" href="styles/dashboard.css">
-
-<!-- LEFT PANEL SLIDE OVERRIDES (so left behaves like sliding panel) -->
-<style>
-  /* Left sliding panel (Pages + Navigation) */
-  #leftPanel{
-    position:fixed;
-    top:54px; /* same offset as right inspector */
-    left:-280px; /* hidden by default */
-    width:260px;
-    height:calc(100vh - 54px);
-    z-index:9998;
-    transition:left .28s cubic-bezier(.19,1,.22,1);
-  }
-  #leftPanel.open{
-    left:16px; /* slides in */
-  }
-
-  /* Handle on far left edge (like the ◂ handle on the right) */
-  #leftPanelHandle{
-    position:fixed;
-    top:50%;
-    left:0;
-    width:18px;
-    height:70px;
-    background:var(--accent);
-    color:white;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:0 6px 6px 0;
-    z-index:10000;
-    font-size:.85rem;
-    font-weight:600;
-    box-shadow:4px 0 18px rgba(0,0,0,.8);
-  }
-
-  /* Little title + close button at top of left panel */
-  .left-panel-top{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    font-size:.78rem;
-    text-transform:uppercase;
-    letter-spacing:.12em;
-    color:#9ca3af;
-    margin-bottom:6px;
-    padding:2px 2px 0;
-  }
-  .left-panel-title{
-    font-weight:600;
-  }
-  .left-panel-close{
-    border:none;
-    background:#111827;
-    color:#e5e7eb;
-    border-radius:999px;
-    padding:2px 7px;
-    font-size:.8rem;
-    cursor:pointer;
-  }
-  .left-panel-close:hover{
-    background:#020617;
-  }
-
-  @media (max-width:900px){
-    #leftPanel{
-      left:-260px;
-      width:240px;
-    }
-    #leftPanel.open{
-      left:8px;
-    }
-  }
-</style>
 </head>
 <body>
 
@@ -113,15 +38,10 @@
 </div>
 
 <div class="main">
-  <!-- LEFT PANEL: now SLIDING from the left like the inspector on the right -->
-  <aside class="sidebar" id="leftPanel">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
 
-    <div class="left-panel-top">
-      <span class="left-panel-title">Pages &amp; Navigation</span>
-      <button id="closeLeftPanelBtn" class="left-panel-close">×</button>
-    </div>
-
-    <!-- PAGES SECTION (accordion) -->
+    <!-- PAGES SECTION (closed by default) -->
     <div class="sidebar-section">
       <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('pages')">
         <span class="label">Pages</span>
@@ -135,7 +55,7 @@
       </div>
     </div>
 
-    <!-- NAVIGATION SECTION (accordion) -->
+    <!-- NAVIGATION SECTION (closed by default) -->
     <div class="sidebar-section">
       <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('nav')">
         <span class="label">Navigation</span>
@@ -143,7 +63,8 @@
       </button>
       <div class="sidebar-section-body closed" id="navSection">
         <p class="field-hint" style="margin-top:4px;">
-          One per line: <code>Title | URL</code>
+          Menu now follows your Pages automatically.<br>
+          (Advanced: edit text below if you really want custom items.)
         </p>
         <textarea id="menuRaw" class="textarea-small" oninput="menuFromRaw(this.value)"></textarea>
       </div>
@@ -151,7 +72,7 @@
 
   </aside>
 
-  <!-- PREVIEW ONLY (center area) -->
+  <!-- PREVIEW ONLY -->
   <section class="content">
     <div id="previewCard">
       <div id="previewToolbar">
@@ -183,9 +104,6 @@
     </div>
   </section>
 </div>
-
-<!-- LEFT PANEL HANDLE (like the ◂ handle on the right) -->
-<div id="leftPanelHandle" title="Open pages & navigation">▸</div>
 
 <!-- RIGHT PANEL HANDLE + INSPECTOR -->
 <div id="panelHandle" title="Open inspector">◂</div>
@@ -348,13 +266,62 @@ const handle   = document.getElementById("panelHandle");
 const closeBtn = document.getElementById("closePanelBtn");
 const saveStatusRight = document.getElementById("saveStatusRight");
 
-/* LEFT panel elements (new sliding Pages + Nav) */
-const leftPanel = document.getElementById("leftPanel");
-const leftHandle = document.getElementById("leftPanelHandle");
-const closeLeftPanelBtn = document.getElementById("closeLeftPanelBtn");
-
 /* Render Cloud endpoint */
 const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
+
+/* =======================
+   MENU <-> PAGES HELPERS
+   (auto add menu links when pages are added)
+======================= */
+function pageSlug(p){
+  const rawSlug = (p.slug || "").trim();
+  if (rawSlug) return rawSlug;
+  const title = (p.title || "").toLowerCase().trim();
+  return title ? title.replace(/[^\w\s-]/g,"").replace(/\s+/g,"-") : "page";
+}
+function pageUrlFromSlug(slug){
+  return slug === "home" ? "index.html" : (slug + ".html");
+}
+function ensureMenuForExistingPages(){
+  if (!site.pages) return;
+  if (!site.menu) site.menu = [];
+  site.pages.forEach(p=>{
+    const slug = pageSlug(p);
+    const url = pageUrlFromSlug(slug);
+    const exists = site.menu.some(m => m.id === slug || m.url === url);
+    if (!exists){
+      site.menu.push({
+        id: slug,
+        label: p.title || slug,
+        url,
+        type:"link",
+        showOn:"both",
+        subItems:[]
+      });
+    }
+  });
+}
+function addMenuItemForPage(p){
+  if (!p) return;
+  if (!site.menu) site.menu = [];
+  const slug = pageSlug(p);
+  const url  = pageUrlFromSlug(slug);
+  const exists = site.menu.some(m => m.id === slug || m.url === url);
+  if (exists) return;
+  site.menu.push({
+    id: slug,
+    label: p.title || slug,
+    url,
+    type:"link",
+    showOn:"both",
+    subItems:[]
+  });
+}
+function removeMenuItemForSlug(slug){
+  if (!site.menu || !slug) return;
+  const url = pageUrlFromSlug(slug);
+  site.menu = site.menu.filter(m => m.id !== slug && m.url !== url);
+}
 
 /* =======================
    LOAD site-data.json
@@ -372,12 +339,12 @@ const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
     console.warn("Could not load site-data.json, using defaults", e);
   }
   restoreDraftIfAny();
+  // make sure every page has a menu link once
+  ensureMenuForExistingPages();
   renderPages();
   updatePreviewHeader();
   renderPreview();
   applyPanelBehavior();
-  /* Open left panel on load so it feels "ready" */
-  openLeftPanel();
 })();
 
 /* =======================
@@ -434,16 +401,13 @@ function openSidebarSection(which){
 }
 
 /* =======================
-   RIGHT PANEL (INSPECTOR) BEHAVIOR + OPEN/CLOSE
+   PANEL BEHAVIOR + OPEN/CLOSE
 ======================= */
 function isPanelOpen(){
   return panel.classList.contains("open");
 }
 function openPanel(reason){
-  if (panelBehavior === "manual" && reason !== "manual") {
-    // but we STILL want panel to open on page click; handled by passing "manual" from selectPage
-    // so we leave this guard as-is
-  }
+  if (panelBehavior === "manual" && reason !== "manual") return;
   panel.classList.add("open");
   handle.style.display = "none";
 }
@@ -477,34 +441,6 @@ document.addEventListener("keydown", (e)=>{
 });
 
 /* =======================
-   LEFT PANEL SLIDE (PAGES + NAV) - NEW
-======================= */
-function isLeftPanelOpen(){
-  return leftPanel && leftPanel.classList.contains("open");
-}
-function openLeftPanel(){
-  if (!leftPanel) return;
-  leftPanel.classList.add("open");
-  if (leftHandle) leftHandle.style.display = "none";
-}
-function closeLeftPanel(){
-  if (!leftPanel) return;
-  leftPanel.classList.remove("open");
-  if (leftHandle) leftHandle.style.display = "flex";
-}
-function toggleLeftPanel(){
-  if (isLeftPanelOpen()) closeLeftPanel();
-  else openLeftPanel();
-}
-
-if (leftHandle){
-  leftHandle.addEventListener("click", toggleLeftPanel);
-}
-if (closeLeftPanelBtn){
-  closeLeftPanelBtn.addEventListener("click", closeLeftPanel);
-}
-
-/* =======================
    SIDEBAR / PAGES
 ======================= */
 function renderPages(){
@@ -532,7 +468,7 @@ function newPage(){
   if (!t) return;
   const slug = t.toLowerCase().replace(/\s+/g,"-");
   if (!site.pages) site.pages = [];
-  site.pages.push({
+  const pageObj = {
     title:t,
     slug,
     theme:"dark",
@@ -546,10 +482,36 @@ function newPage(){
       customHeight:""
     },
     blocks:[]
-  });
+  };
+  site.pages.push(pageObj);
+  // auto add a matching menu link
+  addMenuItemForPage(pageObj);
   markDirty();
   renderPages();
   openSidebarSection("pages");
+}
+
+function deletePage(i){
+  const p = site.pages[i];
+  if (!p) return;
+  if (p.slug === "home"){
+    alert("You cannot delete the Home page.");
+    return;
+  }
+  if (!confirm(`Delete page "${p.title || p.slug}"? This cannot be undone (except via backup).`)) return;
+
+  site.pages.splice(i,1);
+  // remove its menu link too
+  if (p.slug) removeMenuItemForSlug(p.slug);
+
+  if (current === p){
+    current = site.pages[0] || null;
+  }
+  markDirty();
+  renderPages();
+  updatePreviewHeader();
+  renderPreview();
+  renderInspectorTab();
 }
 
 /* =======================
@@ -563,6 +525,7 @@ function rawFromMenu(){
 }
 
 function menuFromRaw(text){
+  // Advanced override: if you really want to hand-edit menu, this still works.
   const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
   site.menu = lines.map((l,idx)=>{
     const [title,url] = l.split("|").map(s=>(s||"").trim());
@@ -587,8 +550,9 @@ function selectPage(i){
   updatePreviewHeader();
   renderPreview();
   renderInspectorTab();
-  // ALWAYS open right inspector when you click a page, regardless of behavior setting
-  openPanel("manual");
+  if (panelBehavior === "auto" || panelBehavior === "pinned" || panelBehavior === "smart"){
+    openPanel("auto");
+  }
 }
 
 /* =======================
@@ -717,7 +681,9 @@ document.querySelectorAll(".inspect-tab").forEach(tab=>{
       t.classList.toggle("active", t===tab);
     });
     renderInspectorTab();
-    openPanel("manual"); // ensure right panel is open when you switch tabs
+    if (panelBehavior === "auto" || panelBehavior === "pinned" || panelBehavior === "smart"){
+      openPanel("auto");
+    }
   });
 });
 
@@ -1221,7 +1187,7 @@ function renderSiteTabHtml(){
       <p class="field-hint">
         • “Save to Cloud” sends <code>site-data.json</code> to your Honest-News repo via Render (GitHub API).<br>
         • Drafts stay only in this browser’s local storage.<br>
-        • Use GitHub Desktop to Commit &amp; Push when you’re ready to publish.
+        • Use GitHub Desktop to Commit & Push when you’re ready to publish.
       </p>
     </div>
   `;
@@ -1238,11 +1204,12 @@ function wirePanelBehaviorRadios(){
 }
 
 /* initial inspector content */
-renderInspectorTab();
+renderInspectorTab(); // both sidebar sections stay closed on load
 </script>
 
 </body>
 </html>
+
 
 
 
