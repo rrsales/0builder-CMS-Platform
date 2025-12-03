@@ -1,5 +1,7 @@
 // modules/inspector.js
-// Handles the right-side Inspector panel for per-page settings
+// CMS-connected Inspector Panel (hero + theme editor)
+
+import { getPages, updatePages } from "./dataService.js";
 
 const inspectorPanel = document.getElementById("inspectorPanel");
 let currentPage = null;
@@ -13,9 +15,10 @@ export function renderInspector(page = null) {
 
   currentPage = page;
   const hero = page.hero || {};
-  const transparency = hero.transparentHeader ? "checked" : "";
-  const size = hero.size || "medium";
-  const behavior = hero.behavior || "still";
+  const transparency = hero.transparentMenu ? "checked" : "";
+  const size = hero.size || "custom";
+  const behavior = hero.behavior || "parallax-medium";
+  const theme = page.theme || "light";
 
   inspectorPanel.innerHTML = `
     <div class="panelHeader">
@@ -25,12 +28,19 @@ export function renderInspector(page = null) {
       <label>Page Title</label>
       <input type="text" id="pageTitleInput" value="${page.title}">
 
+      <label>Theme</label>
+      <select id="pageTheme">
+        <option value="light" ${theme === "light" ? "selected" : ""}>Light</option>
+        <option value="dark" ${theme === "dark" ? "selected" : ""}>Dark</option>
+      </select>
+
       <label>Hero Behavior</label>
       <select id="heroBehavior">
         <option value="still" ${behavior === "still" ? "selected" : ""}>Still Image</option>
-        <option value="parallax" ${behavior === "parallax" ? "selected" : ""}>Slow Parallax Scroll</option>
+        <option value="parallax-medium" ${behavior === "parallax-medium" ? "selected" : ""}>Parallax Medium</option>
+        <option value="parallax-slow" ${behavior === "parallax-slow" ? "selected" : ""}>Parallax Slow</option>
         <option value="carousel" ${behavior === "carousel" ? "selected" : ""}>Carousel</option>
-        <option value="video" ${behavior === "video" ? "selected" : ""}>Embedded Video</option>
+        <option value="video" ${behavior === "video" ? "selected" : ""}>Video</option>
       </select>
 
       <label>Hero Size</label>
@@ -38,11 +48,14 @@ export function renderInspector(page = null) {
         <option value="small" ${size === "small" ? "selected" : ""}>Small</option>
         <option value="medium" ${size === "medium" ? "selected" : ""}>Medium</option>
         <option value="large" ${size === "large" ? "selected" : ""}>Large</option>
-        <option value="full" ${size === "full" ? "selected" : ""}>Full</option>
+        <option value="custom" ${size === "custom" ? "selected" : ""}>Custom</option>
       </select>
 
+      <label>Custom Height (optional)</label>
+      <input type="text" id="heroCustomHeight" placeholder="e.g. 480px" value="${hero.customHeight || ""}">
+
       <label class="inline">
-        <input type="checkbox" id="transparentHeader" ${transparency}> Transparent Header
+        <input type="checkbox" id="transparentMenu" ${transparency}> Transparent Menu
       </label>
 
       <button id="saveInspector" class="saveBtn">Save Changes</button>
@@ -52,52 +65,53 @@ export function renderInspector(page = null) {
   attachInspectorListeners();
 }
 
-// ---------- Event Listeners ----------
+// ---------- Listeners ----------
 function attachInspectorListeners() {
   const saveBtn = inspectorPanel.querySelector("#saveInspector");
   if (!saveBtn) return;
 
   saveBtn.onclick = () => {
-    const title = inspectorPanel.querySelector("#pageTitleInput").value.trim();
-    const behavior = inspectorPanel.querySelector("#heroBehavior").value;
-    const size = inspectorPanel.querySelector("#heroSize").value;
-    const transparent = inspectorPanel.querySelector("#transparentHeader").checked;
-
     if (!currentPage) return;
 
-    currentPage.title = title || currentPage.title;
-    currentPage.hero = { ...currentPage.hero, behavior, size, transparentHeader: transparent };
+    const title = inspectorPanel.querySelector("#pageTitleInput").value.trim();
+    const theme = inspectorPanel.querySelector("#pageTheme").value;
+    const behavior = inspectorPanel.querySelector("#heroBehavior").value;
+    const size = inspectorPanel.querySelector("#heroSize").value;
+    const transparent = inspectorPanel.querySelector("#transparentMenu").checked;
+    const customHeight = inspectorPanel.querySelector("#heroCustomHeight").value.trim();
 
-    // Dispatch update
+    currentPage.title = title || currentPage.title;
+    currentPage.theme = theme;
+    currentPage.hero = {
+      ...currentPage.hero,
+      behavior,
+      size,
+      customHeight,
+      transparentMenu: transparent
+    };
+
+    // Update data.json in-memory
+    const pages = getPages();
+    const idx = pages.findIndex(p => p.slug === currentPage.slug);
+    if (idx > -1) {
+      pages[idx] = currentPage;
+      updatePages(pages);
+    }
+
+    // Dispatch update so canvas refreshes
     const event = new CustomEvent("pageUpdated", { detail: currentPage });
     window.dispatchEvent(event);
 
-    // Persist locally
-    saveInspectorData(currentPage);
-
-    // Visual feedback
     saveBtn.textContent = "Saved!";
     setTimeout(() => (saveBtn.textContent = "Save Changes"), 1500);
   };
 }
 
-// ---------- Storage ----------
-function saveInspectorData(page) {
-  const savedPages = JSON.parse(localStorage.getItem("hn_pages") || "[]");
-  const idx = savedPages.findIndex(p => p.slug === page.slug);
-  if (idx > -1) {
-    savedPages[idx] = page;
-    localStorage.setItem("hn_pages", JSON.stringify(savedPages));
-  }
-}
-
-// ---------- Listeners for Page Selection ----------
+// ---------- Listen for page selection ----------
 window.addEventListener("pageSelected", e => renderInspector(e.detail));
 
 // ---------- Init ----------
-window.addEventListener("load", () => {
-  renderInspector(null);
-});
+window.addEventListener("load", () => renderInspector(null));
 
 // ---------- Styles ----------
 const style = document.createElement("style");
@@ -114,3 +128,4 @@ style.textContent = `
 #inspectorPanel .placeholder {padding:2rem;text-align:center;opacity:.5;font-size:.9rem;}
 `;
 document.head.appendChild(style);
+
