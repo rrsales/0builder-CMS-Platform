@@ -1,76 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Honest News – Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <!-- Auth guard -->
   <script>
     if (localStorage.getItem("hn_logged") !== "yes") {
       location.href = "admin.html";
     }
   </script>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+  <!-- Icons + basic styling -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
   <style>
-    :root{
-      --bg:#020617;
-      --panel-bg:#0f172a;
-      --accent:#0ea5e9;
-      --border:#1e293b;
-      --text:#e2e8f0;
-      --radius:1rem;
+    :root {
+      --bg: #020617;
+      --panel-bg: #0f172a;
+      --accent: #0ea5e9;
+      --border: #1e293b;
+      --text: #e2e8f0;
+      --radius: 1rem;
     }
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      display:flex;
-      height:100vh;
-      overflow:hidden;
+    * {
+      box-sizing: border-box;
     }
-    #leftPanel,#rightPanel{
-      background:var(--panel-bg);
-      border-right:1px solid var(--border);
-      width:260px;
-      display:flex;
-      flex-direction:column;
-      overflow-y:auto;
-      transition:transform .3s ease;
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        "SF Pro Text", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
     }
-    #rightPanel{border-left:1px solid var(--border);border-right:none;}
-    #canvas{
-      flex:1;
-      background:#0b1120;
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
-      position:relative;
+    #leftPanel,
+    #rightPanel {
+      background: var(--panel-bg);
+      width: 260px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
     }
-    header{
-      background:rgba(15,23,42,0.95);
-      backdrop-filter:blur(10px);
-      border-bottom:1px solid var(--border);
-      padding:.75rem 1rem;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
+    #rightPanel {
+      border-left: 1px solid var(--border);
+      border-right: none;
     }
-    header h1{font-size:1.1rem;margin:0;color:var(--accent);}
-    header button{background:none;border:none;color:var(--text);font-size:1.2rem;cursor:pointer;}
+    #canvas {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--accent);
+    }
+    header button {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    section#canvasContent {
+      flex: 1;
+      padding: 1rem;
+      overflow: auto;
+    }
   </style>
 </head>
-
 <body>
-  <!-- LEFT PANEL -->
   <aside id="leftPanel">
     <div id="pagesPanel"></div>
     <div id="menuPanel"></div>
   </aside>
 
-  <!-- CENTER CANVAS -->
   <main id="canvas">
     <header>
       <button id="toggleLeft"><i class="fa fa-bars"></i></button>
@@ -80,13 +99,11 @@
     <section id="canvasContent"></section>
   </main>
 
-  <!-- RIGHT PANEL -->
   <aside id="rightPanel">
     <div id="inspectorPanel"></div>
-    <div id="textEditorPanel"></div>
   </aside>
 
-  <!-- MODULE SCRIPTS -->
+  <!-- MODULES -->
   <script type="module" src="modules/dataService.js"></script>
   <script type="module" src="modules/pages.js"></script>
   <script type="module" src="modules/menu.js"></script>
@@ -95,6 +112,7 @@
   <script type="module" src="modules/main.js"></script>
 </body>
 </html>
+
 
 
 
