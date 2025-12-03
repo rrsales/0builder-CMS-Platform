@@ -27,8 +27,8 @@
         "overlay": "Honest News Network",
         "sub": "Everything You Need for Biblical Truth",
         "transparentMenu": true,
-        "behavior": "parallax-medium",
-        "size": "small",
+        "behavior": "parallax",
+        "size": "full",
         "customHeight": ""
       },
       "blocks": [
