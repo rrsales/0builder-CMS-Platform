@@ -3,11 +3,12 @@
     { "label": "Home", "url": "index.html", "type": "link" },
     { "label": "About", "url": "about.html", "type": "link" },
     {
-      "label": "Resources",
+      "label": "Mega Menu",
       "type": "mega",
       "subItems": [
         { "label": "Articles", "url": "articles.html" },
-        { "label": "Podcasts", "url": "podcasts.html" }
+        { "label": "Podcasts", "url": "podcasts.html" },
+        { "label": "Books", "url": "books.html" }
       ]
     }
   ],
@@ -17,7 +18,7 @@
       "slug": "home",
       "theme": "light",
       "hero": {
-        "bg": "...",
+        "bg": "",
         "overlay": "Honest News Network",
         "sub": "Everything You Need for Biblical Truth",
         "transparentMenu": true,
@@ -26,6 +27,5 @@
         "customHeight": ""
       }
     }
-    // ...other pages
   ]
 }
