@@ -1,2119 +1,1299 @@
-<!-- DASHBOARD PART 1/10 START -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Honest News – Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- PROTECT DASHBOARD: only enter if logged in -->
-  <script>
-    if (localStorage.getItem("hn_logged") !== "yes") {
-      location.href = "admin.html";
-    }
-  </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <style>
-    :root{
-      --bg: #02040a;
-      --card-bg: #05070c;
-      --border: #1f2937;
-      --shadow-soft: 0 20px 45px rgba(0,0,0,0.75);
-      --accent: #0ea5e9;
-      --accent-soft: #0369a1;
-      --accent-soft-bg: rgba(14,165,233,.12);
-      --text-main: #e5e7eb;
-      --text-soft: #9ca3af;
-      --radius-lg: 20px;
-      --radius-md: 12px;
-      --radius-pill: 999px;
-    }
-    *{box-sizing:border-box;}
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
-      background:
-        radial-gradient(circle at top, #1e293b 0, #020617 48%, #000 100%);
-      color:var(--text-main);
-      height:100vh;
-      display:flex;
-      flex-direction:column;
-      -webkit-font-smoothing: antialiased;
-      overflow:hidden;
-    }
-    /* TOP GLOSSY APPLE-STYLE BAR */
-    .top-welcome{
-      background:
-        radial-gradient(circle at 10% -40%, #4b5563 0, transparent 55%),
-        linear-gradient(to bottom, #020617, #040712);
-      color:white;
-      padding:14px 24px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      border-bottom:1px solid rgba(148,163,184,0.35);
-      box-shadow:0 18px 40px rgba(0,0,0,.8);
-    }
-    .top-left{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-    .top-welcome span.label{
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      font-size:.65rem;
-      color:rgba(148,163,184,0.9);
-    }
-    .top-welcome span.title{
-      font-size:.95rem;
-    }
-    .top-actions{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .pill-badge{
-      font-size:.7rem;
-      padding:3px 9px;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.5);
-      color:#e5e7eb;
-      background:rgba(15,23,42,.9);
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-    }
-    .btn{
-      border:none;
-      border-radius:var(--radius-pill);
-      cursor:pointer;
-      padding:7px 15px;
-      font-size:.8rem;
-      font-weight:600;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      background:#111827;
-      color:#e5e7eb;
-    }
-    .btn.secondary{background:#111827;color:#e5e7eb;border:1px solid #1f2937;}
-    .btn.secondary:hover{background:#020617;}
-    .btn.ghost{background:transparent;color:#9ca3af;border:1px solid rgba(148,163,184,.25);}
-    .btn.ghost:hover{color:#e5e7eb;border-color:#e5e7eb;}
-    .btn.primary{
-      background:var(--accent);
-      color:#0b1120;
-      border:1px solid var(--accent-soft);
-    }
-    .btn.primary:hover{
-      background:var(--accent-soft);
-    }
-    .logout-btn{
-      border:none;
-      border-radius:var(--radius-pill);
-      padding:7px 16px;
-      cursor:pointer;
-      font-weight:600;
-      background:rgba(15,23,42,.4);
-      color:#e5e7eb;
-      border:1px solid rgba(148,163,184,.4);
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-    }
-    .logout-btn:hover{
-      background:rgba(15,23,42,.75);
-    }
-    .main{
-      flex:1;
-      display:flex;
-      padding:16px;
-      gap:16px;
-      min-height:0;
-    }
-    /* LEFT SIDEBAR */
-    .sidebar{
-      width:260px;
-      background:rgba(3,7,18,0.98);
-      border-radius:var(--radius-lg);
-      padding:16px 14px;
-      border:1px solid rgba(148,163,184,0.35);
-      box-shadow:0 18px 40px rgba(0,0,0,0.85);
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      overflow:hidden;
-      transition:right .25s cubic-bezier(.19,1,.22,1);
-      position:relative;
-      z-index:1000;
-    }
-    .sidebar.hidden{
-      right:-270px;
-      opacity:0;
-      pointer-events:none;
-      transition:right .25s cubic-bezier(.19,1,.22,1), opacity .25s;
-    }
-    .sidebar-inner{
-      flex:1;
-      overflow-y:auto;
-      padding-right:4px;
-    }
-    /* Accordion-style sections on left */
-    .sidebar-section{
-      margin-bottom:10px;
-    }
-    .sidebar-section-header{
-      width:100%;
-      border:none;
-      background:var(--accent-soft-bg);
-      color:#e5e7eb;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      cursor:pointer;
-      padding:6px 8px;
-      font-size:.78rem;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      border-radius:12px;
-    }
-    .sidebar-section-header span.label{
-      pointer-events:none;
-    }
-    .sidebar-chevron{
-      font-size:.7rem;
-      opacity:0.7;
-      transition:transform .18s ease, opacity .18s ease;
-    }
-    /* rotated = OPEN (arrow up) */
-    .sidebar-chevron.rotated{
-      transform:rotate(-90deg);
-      opacity:0.8;
-    }
-    .sidebar-section-body{
-      margin-top:5px;
-    }
-    .sidebar-section-body.closed{
-      display:none;
-    }
-    .page{
-      padding:9px 10px;
-      margin-top:6px;
-      border-radius:12px;
-      background:#020617;
-      border:1px solid transparent;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      font-size:.84rem;
-      color:var(--text-main);
-    }
-    .page-main{
-      display:flex;
-      flex-direction:column;
-    }
-    .page span.title{font-weight:600;}
-    .page span.slug{font-size:.7rem;color:#6b7280;}
-    .page.active{
-      background:var(--accent-soft-bg);
-      border-color:var(--accent);
-      box-shadow:0 0 0 1px rgba(56,189,248,.4);
-    }
-    .page-delete-btn{
-      border:none;
-      background:transparent;
-      color:#6b7280;
-      cursor:pointer;
-      padding:4px;
-      border-radius:999px;
-      flex-shrink:0;
-    }
-    .page-delete-btn:hover{
-      background:rgba(15,23,42,.9);
-      color:#f97316;
-    }
-    .textarea-small{
-      width:100%;
-      border-radius:12px;
-      border:1px solid rgba(55,65,81,.9);
-      background:#020617;
-      color:#e5e7eb;
-      padding:8px;
-      font-size:.78rem;
-      font-family:inherit;
-      resize:vertical;
-      min-height:70px;
-    }
-    .field-hint{
-      font-size:.72rem;
-      color:#9ca3af;
-    }
-    /* PREVIEW AREA */
-    .content{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      min-width:0;
-    }
-    #previewCard{
-      flex:1;
-      background:rgba(3,7,18,0.98);
-      border-radius:var(--radius-lg);
-      padding:12px 14px 18px;
-      border:1px solid rgba(148,163,184,0.4);
-      box-shadow:var(--shadow-soft);
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-    }
-    #previewToolbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:10px;
-      font-size:.8rem;
-      color:var(--text-soft);
-    }
-    #previewTitle{
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    #previewTitle span.slug{
-      padding:2px 7px;
-      border-radius:var(--radius-pill);
-      border:1px solid rgba(148,163,184,.35);
-      font-size:.7rem;
-    }
-    .device-toggle-group{
-      display:inline-flex;
-      align-items:center;
-      background:#020617;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.5);
-      overflow:hidden;
-    }
-    .device-btn{
-      border:none;
-      background:transparent;
-      color:#9ca3af;
-      font-size:.78rem;
-      padding:4px 9px;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:4px;
-    }
-    .device-btn.active{
-      background:var(--accent);
-      color:#e5e7eb;
-    }
-    /* preview frame width */
-    #previewInnerWrap{
-      flex:1;
-      display:flex;
-      justify-content:center;
-      align-items:stretch;
-      min-height:0;
-    }
-    #previewFrame{
-      width:100%;
-      max-width:1200px;
-      transition:max-width .25s ease, border-radius .25s ease, box-shadow .25s ease;
-    }
-    #previewFrame.desktop{max-width:1200px;}
-    #previewFrame.tablet{max-width:900px;}
-    #previewFrame.mobile{
-      max-width:430px;
-      border-radius:28px;
-      overflow:hidden;
-      box-shadow:0 0 0 1px rgba(148,163,184,.4),0 25px 60px rgba(0,0,0,.9);
-    }
-    .preview-wrap{
-      border-radius:var(--radius-md);
-      border:1px solid rgba(31,41,55,.9);
-      overflow:hidden;
-      background:#020617;
-    }
-    #heroPreview{
-      position:relative;
-      background-size:cover;
-      background-position:center;
-    }
-    #heroPreviewOverlay{
-      position:absolute;
-      inset:0;
-      background:linear-gradient(to bottom,rgba(15,23,42,.35),rgba(15,23,42,.9));
-    }
-    #heroPreviewInner{
-      position:relative;
-      color:#fff;
-      text-align:center;
-      padding-top:110px;
-      padding-bottom:40px;
-      padding-left:18px;
-      padding-right:18px;
-    }
-    #heroPreviewInner h1{
-      margin:0;
-      font-size:2.1rem;
-    }
-    #heroPreviewInner p{
-      margin-top:.6rem;
-      font-size:.96rem;
-      opacity:.9;
-    }
-    #blockPreview{
-      padding:18px;
-      background:#020617;
-    }
-    /* RIGHT SLIDING INSPECTOR */
-    #panelHandle{
-      position:fixed;
-      top:50%;
-      right:0;
-      width:18px;
-      height:70px;
-      background:var(--accent);
-      color:white;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:6px 0 0 6px;
-      z-index:10000;
-      font-size:.85rem;
-      font-weight:600;
-      box-shadow:-4px 0 18px rgba(0,0,0,.8);
-    }
-    #inspectorPanel{
-      position:fixed;
-      top:54px;
-      right:-360px;
-      width:360px;
-      height:calc(100vh - 54px);
-      background:#020617;
-      color:#e5e7eb;
-      border-left:1px solid rgba(148,163,184,.55);
-      box-shadow:-12px 0 35px rgba(0,0,0,.9);
-      padding:12px 12px 16px;
-      z-index:9999;
-      display:flex;
-      flex-direction:column;
-      transition:right .28s cubic-bezier(.19,1,.22,1);
-    }
-    #inspectorPanel.open{
-      right:0;
-    }
-    #panelHeader{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-      margin-bottom:8px;
-    }
-    #panelHeaderLeft{
-      display:flex;
-      flex-direction:column;
-      gap:3px;
-    }
-    #panelHeaderLeft span.title{
-      font-size:.8rem;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      color:#9ca3af;
-    }
-    #panelHeaderLeft span.sub{
-      font-size:.8rem;
-      color:#e5e7eb;
-    }
-    #panelHeaderRight{
-      display:flex;
-      align-items:center;
-      gap:6px;
-    }
-    #closePanelBtn{
-      border:none;
-      background:#111827;
-      color:#e5e7eb;
-      padding:5px 8px;
-      font-size:.9rem;
-      cursor:pointer;
-      border-radius:8px;
-    }
-    .pill{
-      padding:3px 10px;
-      border-radius:var(--radius-pill);
-      background:#111827;
-      color:#e5e7eb;
-      font-size:.72rem;
-    }
-    .pill.dirty{background:#b91c1c;color:#fee2e2;}
-    .pill.saved{background:#16a34a;color:#022c22;}
-    #inspectorTabs{
-      display:flex;
-      gap:4px;
-      margin-bottom:8px;
-      border-bottom:1px solid rgba(31,41,55,.9);
-      padding-bottom:4px;
-    }
-    .inspect-tab{
-      flex:1;
-      text-align:center;
-      padding:5px 0;
-      border-radius:999px;
-      font-size:.76rem;
-      cursor:pointer;
-      color:#9ca3af;
-      background:transparent;
-      border:none;
-    }
-    .inspect-tab.active{
-      background:var(--accent-soft-bg);
-      color:#e5e7eb;
-      box-shadow:0 0 0 1px rgba(56,189,248,.55);
-    }
-    #inspectorBody{
-      flex:1;
-      overflow-y:auto;
-      padding-right:4px;
-      font-size:.8rem;
-    }
-    .field-group{margin:6px 0;}
-    .field-label{
-      font-size:.78rem;
-      font-weight:600;
-      color:#e5e7eb;
-      margin-bottom:2px;
-    }
-    input,select,textarea{
-      font-family:inherit;
-    }
-    input[type="text"],
-    input[type="url"],
-    textarea,
-    select{
-      width:100%;
-      padding:8px 9px;
-      border-radius:var(--radius-md);
-      border:1px solid rgba(55,65,81,.9);
-      background:#020617;
-      color:#e5e7eb;
-      font-size:.8rem;
-    }
-    textarea{resize:vertical;min-height:70px;}
-    label.inline{
-      display:inline-flex;
-      align-items:center;
-      gap:4px;
-      margin-right:10px;
-      font-size:.78rem;
-      color:#e5e7eb;
-    }
-    .section{
-      border-top:1px solid rgba(31,41,55,.9);
-      margin-top:10px;
-      padding-top:8px;
-    }
-    .section:first-of-type{
-      border-top:none;
-      margin-top:2px;
-    }
-    .panelSection{
-      margin:8px 0;
-    }
-    .panelLabel{
-      font-size:.75rem;
-      font-weight:600;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-      color:#9ca3af;
-      margin-bottom:4px;
-    }
-    .block{
-      margin:10px 0;
-      padding:10px;
-      background:#020617;
-      border-radius:var(--radius-md);
-      border:1px dashed rgba(75,85,99,.9);
-      position:relative;
-    }
-    .block-header-line{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:4px;
-      font-size:.75rem;
-      color:#9ca3af;
-    }
-    .block-type{
-      font-weight:600;
-      text-transform:uppercase;
-      letter-spacing:.06em;
-      font-size:.7rem;
-    }
-    .tools{
-      position:absolute;
-      right:6px;
-      top:6px;
-      display:flex;
-      gap:4px;
-    }
-    .tools button{
-      border:none;
-      background:#0f172a;
-      color:#e5e7eb;
-      border-radius:999px;
-      padding:2px 6px;
-      font-size:.7rem;
-      cursor:pointer;
-    }
-    .motion-select{
-      width:auto;
-      font-size:.72rem;
-      padding:3px 6px;
-      border-radius:999px;
-      border:1px solid rgba(55,65,81,.9);
-      background:#020617;
-      color:#e5e7eb;
-    }
-    @media (max-width:900px){
-      .main{flex-direction:column;}
-      .sidebar{width:100%;}
-      #panelHandle{top:auto;bottom:90px;}
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Honest News – Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- PROTECT DASHBOARD: only enter if logged in -->
+<script>
+  if (localStorage.getItem("hn_logged") !== "yes") {
+    location.href = "admin.html";
+  }
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+<style>
+  :root{
+    --bg: #02040a;
+    --card-bg: #05070c;
+    --border: #1f2937;
+    --shadow-soft: 0 20px 45px rgba(0,0,0,0.75);
+    --accent: #0ea5e9;      /* Apple-ish cyan/blue */
+    --accent-soft: #0369a1;
+    --accent-soft-bg: rgba(14,165,233,.12);
+    --text-main: #e5e7eb;
+    --text-soft: #9ca3af;
+    --radius-lg: 20px;
+    --radius-md: 12px;
+    --radius-pill: 999px;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+    background:
+      radial-gradient(circle at top, #1e293b 0, #020617 48%, #000 100%);
+    color:var(--text-main);
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    -webkit-font-smoothing: antialiased;
+    overflow:hidden;
+  }
+
+  /* TOP GLOSSY APPLE-STYLE BAR */
+  .top-welcome{
+    background:
+      radial-gradient(circle at 10% -40%, #4b5563 0, transparent 55%),
+      linear-gradient(to bottom, #020617, #040712);
+    color:white;
+    padding:14px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid rgba(148,163,184,0.35);
+    box-shadow:0 18px 40px rgba(0,0,0,.8);
+  }
+  .top-left{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .top-welcome span.label{
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-size:.65rem;
+    color:rgba(148,163,184,0.9);
+  }
+  .top-welcome span.title{
+    font-size:.95rem;
+  }
+
+  .top-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .pill-badge{
+    font-size:.7rem;
+    padding:3px 9px;
+    border-radius:999px;
+    border:1px solid rgba(148,163,184,.5);
+    color:#e5e7eb;
+    background:rgba(15,23,42,.9);
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  .btn{
+    border:none;
+    border-radius:var(--radius-pill);
+    cursor:pointer;
+    padding:7px 15px;
+    font-size:.8rem;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    background:#111827;
+    color:#e5e7eb;
+  }
+  .btn.secondary{background:#111827;color:#e5e7eb;border:1px solid #1f2937;}
+  .btn.secondary:hover{background:#020617;}
+  .btn.ghost{background:transparent;color:#9ca3af;border:1px solid rgba(148,163,184,.25);}
+  .btn.ghost:hover{color:#e5e7eb;border-color:#e5e7eb;}
+
+  /* PRIMARY BUTTONS: BLUE (PUBLISH / LOGIN MATCH) */
+  .btn.primary{
+    background:var(--accent);
+    color:#0b1120;
+    border:1px solid var(--accent-soft);
+  }
+  .btn.primary:hover{
+    background:var(--accent-soft);
+  }
+
+  .logout-btn{
+    border:none;
+    border-radius:var(--radius-pill);
+    padding:7px 16px;
+    cursor:pointer;
+    font-weight:600;
+    background:rgba(15,23,42,.4);
+    color:#e5e7eb;
+    border:1px solid rgba(148,163,184,.4);
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .logout-btn:hover{
+    background:rgba(15,23,42,.75);
+  }
+
+  .main{
+    flex:1;
+    display:flex;
+    padding:16px;
+    gap:16px;
+    min-height:0;
+  }
+
+  /* LEFT SIDEBAR */
+  .sidebar{
+    width:260px;
+    background:rgba(3,7,18,0.98);
+    border-radius:var(--radius-lg);
+    padding:16px 14px;
+    border:1px solid rgba(148,163,184,0.35);
+    box-shadow:0 18px 40px rgba(0,0,0,0.85);
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    overflow:hidden;
+  }
+
+  .sidebar-inner{
+    flex:1;
+    overflow-y:auto;
+    padding-right:4px;
+  }
+
+  /* Accordion-style sections on left */
+  .sidebar-section{
+    margin-bottom:10px;
+  }
+
+  .sidebar-section-header{
+    width:100%;
+    border:none;
+    background:var(--accent-soft-bg);
+    color:#e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    cursor:pointer;
+    padding:6px 8px;
+    font-size:.78rem;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    border-radius:12px;
+  }
+  .sidebar-section-header span.label{
+    pointer-events:none;
+  }
+  .sidebar-chevron{
+    font-size:.7rem;
+    opacity:0.7;
+    transition:transform .18s ease, opacity .18s ease;
+  }
+  /* rotated = OPEN (arrow up) */
+  .sidebar-chevron.rotated{
+    transform:rotate(-90deg);
+    opacity:0.8;
+  }
+
+  .sidebar-section-body{
+    margin-top:5px;
+  }
+  .sidebar-section-body.closed{
+    display:none;
+  }
+
+  .page{
+    padding:9px 10px;
+    margin-top:6px;
+    border-radius:12px;
+    background:#020617;
+    border:1px solid transparent;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:.84rem;
+    color:var(--text-main);
+  }
+  .page-main{
+    display:flex;
+    flex-direction:column;
+  }
+  .page span.title{font-weight:600;}
+  .page span.slug{font-size:.7rem;color:#6b7280;}
+  .page.active{
+    background:var(--accent-soft-bg);
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px rgba(56,189,248,.4);
+  }
+
+  .page-delete-btn{
+    border:none;
+    background:transparent;
+    color:#6b7280;
+    cursor:pointer;
+    padding:4px;
+    border-radius:999px;
+    flex-shrink:0;
+  }
+  .page-delete-btn:hover{
+    background:rgba(15,23,42,.9);
+    color:#f97316;
+  }
+
+  .textarea-small{
+    width:100%;
+    border-radius:12px;
+    border:1px solid rgba(55,65,81,.9);
+    background:#020617;
+    color:#e5e7eb;
+    padding:8px;
+    font-size:.78rem;
+    font-family:inherit;
+    resize:vertical;
+    min-height:70px;
+  }
+
+  .field-hint{
+    font-size:.72rem;
+    color:#9ca3af;
+  }
+
+  /* PREVIEW AREA */
+  .content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+  }
+
+  #previewCard{
+    flex:1;
+    background:rgba(3,7,18,0.98);
+    border-radius:var(--radius-lg);
+    padding:12px 14px 18px;
+    border:1px solid rgba(148,163,184,0.4);
+    box-shadow:var(--shadow-soft);
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+
+  #previewToolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+    font-size:.8rem;
+    color:var(--text-soft);
+  }
+
+  #previewTitle{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  #previewTitle span.slug{
+    padding:2px 7px;
+    border-radius:var(--radius-pill);
+    border:1px solid rgba(148,163,184,.35);
+    font-size:.7rem;
+  }
+
+  .device-toggle-group{
+    display:inline-flex;
+    align-items:center;
+    background:#020617;
+    border-radius:999px;
+    border:1px solid rgba(148,163,184,.5);
+    overflow:hidden;
+  }
+  .device-btn{
+    border:none;
+    background:transparent;
+    color:#9ca3af;
+    font-size:.78rem;
+    padding:4px 9px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+  }
+  .device-btn.active{
+    background:var(--accent);
+    color:#e5e7eb;
+  }
+
+  /* preview frame width */
+  #previewInnerWrap{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:stretch;
+    min-height:0;
+  }
+  #previewFrame{
+    width:100%;
+    max-width:1200px;
+    transition:max-width .25s ease, border-radius .25s ease, box-shadow .25s ease;
+  }
+  #previewFrame.desktop{max-width:1200px;}
+  #previewFrame.tablet{max-width:900px;}
+  #previewFrame.mobile{
+    max-width:430px;
+    border-radius:28px;
+    overflow:hidden;
+    box-shadow:0 0 0 1px rgba(148,163,184,.4),0 25px 60px rgba(0,0,0,.9);
+  }
+
+  .preview-wrap{
+    border-radius:var(--radius-md);
+    border:1px solid rgba(31,41,55,.9);
+    overflow:hidden;
+    background:#020617;
+  }
+  #heroPreview{
+    position:relative;
+    background-size:cover;
+    background-position:center;
+  }
+  #heroPreviewOverlay{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(to bottom,rgba(15,23,42,.35),rgba(15,23,42,.9));
+  }
+  #heroPreviewInner{
+    position:relative;
+    color:#fff;
+    text-align:center;
+    padding-top:110px;
+    padding-bottom:40px;
+    padding-left:18px;
+    padding-right:18px;
+  }
+  #heroPreviewInner h1{
+    margin:0;
+    font-size:2.1rem;
+  }
+  #heroPreviewInner p{
+    margin-top:.6rem;
+    font-size:.96rem;
+    opacity:.9;
+  }
+  #blockPreview{
+    padding:18px;
+    background:#020617;
+  }
+
+  /* RIGHT SLIDING INSPECTOR */
+  #panelHandle{
+    position:fixed;
+    top:50%;
+    right:0;
+    width:18px;
+    height:70px;
+    background:var(--accent);
+    color:white;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:6px 0 0 6px;
+    z-index:10000;
+    font-size:.85rem;
+    font-weight:600;
+    box-shadow:-4px 0 18px rgba(0,0,0,.8);
+  }
+
+  #inspectorPanel{
+    position:fixed;
+    top:54px; /* just under header */
+    right:-360px;
+    width:360px;
+    height:calc(100vh - 54px);
+    background:#020617;
+    color:#e5e7eb;
+    border-left:1px solid rgba(148,163,184,.55);
+    box-shadow:-12px 0 35px rgba(0,0,0,.9);
+    padding:12px 12px 16px;
+    z-index:9999;
+    display:flex;
+    flex-direction:column;
+    transition:right .28s cubic-bezier(.19,1,.22,1);
+  }
+  #inspectorPanel.open{
+    right:0;
+  }
+
+  #panelHeader{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  #panelHeaderLeft{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  #panelHeaderLeft span.title{
+    font-size:.8rem;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:#9ca3af;
+  }
+  #panelHeaderLeft span.sub{
+    font-size:.8rem;
+    color:#e5e7eb;
+  }
+  #panelHeaderRight{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  #closePanelBtn{
+    border:none;
+    background:#111827;
+    color:#e5e7eb;
+    padding:5px 8px;
+    font-size:.9rem;
+    cursor:pointer;
+    border-radius:8px;
+  }
+
+  .pill{
+    padding:3px 10px;
+    border-radius:var(--radius-pill);
+    background:#111827;
+    color:#e5e7eb;
+    font-size:.72rem;
+  }
+  .pill.dirty{background:#b91c1c;color:#fee2e2;}
+  .pill.saved{background:#16a34a;color:#022c22;}
+
+  #inspectorTabs{
+    display:flex;
+    gap:4px;
+    margin-bottom:8px;
+    border-bottom:1px solid rgba(31,41,55,.9);
+    padding-bottom:4px;
+  }
+  .inspect-tab{
+    flex:1;
+    text-align:center;
+    padding:5px 0;
+    border-radius:999px;
+    font-size:.76rem;
+    cursor:pointer;
+    color:#9ca3af;
+    background:transparent;
+    border:none;
+  }
+  .inspect-tab.active{
+    background:var(--accent-soft-bg);
+    color:#e5e7eb;
+    box-shadow:0 0 0 1px rgba(56,189,248,.55);
+  }
+
+  #inspectorBody{
+    flex:1;
+    overflow-y:auto;
+    padding-right:4px;
+    font-size:.8rem;
+  }
+
+  .field-group{margin:6px 0;}
+  .field-label{
+    font-size:.78rem;
+    font-weight:600;
+    color:#e5e7eb;
+    margin-bottom:2px;
+  }
+
+  input,select,textarea{
+    font-family:inherit;
+  }
+  input[type="text"],
+  input[type="url"],
+  textarea,
+  select{
+    width:100%;
+    padding:8px 9px;
+    border-radius:var(--radius-md);
+    border:1px solid rgba(55,65,81,.9);
+    background:#020617;
+    color:#e5e7eb;
+    font-size:.8rem;
+  }
+  textarea{resize:vertical;min-height:70px;}
+
+  label.inline{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    margin-right:10px;
+    font-size:.78rem;
+    color:#e5e7eb;
+  }
+
+  .section{
+    border-top:1px solid rgba(31,41,55,.9);
+    margin-top:10px;
+    padding-top:8px;
+  }
+  .section:first-of-type{
+    border-top:none;
+    margin-top:2px;
+  }
+
+  .panelSection{
+    margin:8px 0;
+  }
+  .panelLabel{
+    font-size:.75rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:#9ca3af;
+    margin-bottom:4px;
+  }
+
+  .block{
+    margin:10px 0;
+    padding:10px;
+    background:#020617;
+    border-radius:var(--radius-md);
+    border:1px dashed rgba(75,85,99,.9);
+    position:relative;
+  }
+  .block-header-line{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:4px;
+    font-size:.75rem;
+    color:#9ca3af;
+  }
+  .block-type{
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    font-size:.7rem;
+  }
+  .tools{
+    position:absolute;
+    right:6px;
+    top:6px;
+    display:flex;
+    gap:4px;
+  }
+  .tools button{
+    border:none;
+    background:#0f172a;
+    color:#e5e7eb;
+    border-radius:999px;
+    padding:2px 6px;
+    font-size:.7rem;
+    cursor:pointer;
+  }
+
+  .motion-select{
+    width:auto;
+    font-size:.72rem;
+    padding:3px 6px;
+    border-radius:999px;
+    border:1px solid rgba(55,65,81,.9);
+    background:#020617;
+    color:#e5e7eb;
+  }
+
+  @media (max-width:900px){
+    .main{flex-direction:column;}
+    .sidebar{width:100%;}
+    #panelHandle{top:auto;bottom:90px;}
+  }
+</style>
 </head>
 <body>
-  <div class="top-welcome">
-    <div class="top-left">
-      <span class="label">Honest News · Dashboard</span>
-      <span class="title">Welcome back, Joseph</span>
-    </div>
-    <div class="top-actions">
-      <span class="pill-badge">
-        <i class="fa-regular fa-circle-dot"></i>
-        Publish path: Render → GitHub
-      </span>
-      <button class="logout-btn"
-              onclick="localStorage.removeItem('hn_logged');location.href='admin.html'">
-        <i class="fa-solid fa-right-from-bracket"></i> Log Out
-      </button>
-    </div>
+
+<div class="top-welcome">
+  <div class="top-left">
+    <span class="label">Honest News · Dashboard</span>
+    <span class="title">Welcome back, Joseph</span>
   </div>
-  <div class="main">
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="leftSidebar">
-      <!-- SIDEBAR HANDLE -->
-      <div id="sidebarHandle" title="Hide sidebar">▶</div>
-      <!-- PAGES SECTION (accordion, default CLOSED) -->
-      <div class="sidebar-section">
-        <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('pages')">
-          <span class="label">Pages</span>
-          <i class="fa-solid fa-chevron-right sidebar-chevron" id="pagesChevron"></i>
+  <div class="top-actions">
+    <span class="pill-badge">
+      <i class="fa-regular fa-circle-dot"></i>
+      Publish path: Render → GitHub
+    </span>
+    <button class="logout-btn"
+            onclick="localStorage.removeItem('hn_logged');location.href='admin.html'">
+      <i class="fa-solid fa-right-from-bracket"></i> Log Out
+    </button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- PAGES SECTION (accordion, default CLOSED) -->
+    <div class="sidebar-section">
+      <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('pages')">
+        <span class="label">Pages</span>
+        <i class="fa-solid fa-chevron-right sidebar-chevron" id="pagesChevron"></i>
+      </button>
+      <div class="sidebar-section-body closed" id="pagesSection">
+        <div class="sidebar-inner" id="pages"></div>
+        <button class="btn secondary" style="width:100%;margin-top:8px;" onclick="newPage()">
+          + New Page
         </button>
-        <div class="sidebar-section-body closed" id="pagesSection">
-          <div class="sidebar-inner" id="pages"></div>
-          <button class="btn secondary" style="width:100%;margin-top:8px;" onclick="newPage()">
-            + New Page
-          </button>
-        </div>
       </div>
-      <!-- NAVIGATION SECTION (accordion, default CLOSED) -->
-      <div class="sidebar-section">
-        <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('nav')">
-          <span class="label">Navigation (raw)</span>
-          <i class="fa-solid fa-chevron-right sidebar-chevron" id="navChevron"></i>
-        </button>
-        <div class="sidebar-section-body closed" id="navSection">
-          <p class="field-hint" style="margin-top:4px;">
-            One per line: <code>Title | URL</code><br>
-            <strong>Tip:</strong> If you use the Menu tab + mega menu, avoid editing this.
-          </p>
-          <textarea id="menuRaw" class="textarea-small" oninput="menuFromRaw(this.value)"></textarea>
-        </div>
-      </div>
-    </aside>
-    <!-- PREVIEW ONLY -->
-    <section class="content">
-      <div id="previewCard">
-        <div id="previewToolbar">
-          <div id="previewTitle">
-            <span id="previewPageTitle">No page selected</span>
-            <span class="slug" id="previewPageSlug"></span>
-          </div>
-          <div class="device-toggle-group">
-            <button class="device-btn active" data-device="desktop"><i class="fa-solid fa-display"></i></button>
-            <button class="device-btn" data-device="tablet"><i class="fa-solid fa-tablet-screen-button"></i></button>
-            <button class="device-btn" data-device="mobile"><i class="fa-solid fa-mobile-screen"></i></button>
-          </div>
-        </div>
-        <div id="previewInnerWrap">
-          <div id="previewFrame" class="desktop">
-            <div class="preview-wrap">
-              <div id="heroPreview">
-                <div id="heroPreviewOverlay"></div>
-                <div id="heroPreviewInner">
-                  <h1>Pick a page on the left</h1>
-                  <p>Then use the sliding panel to edit Page, Hero, Blocks, and Menu.</p>
-                </div>
-              </div>
-              <div id="blockPreview"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    </div>
 
-  </div>
-  <!-- END .main -->
-  <!-- RIGHT PANEL HANDLE + INSPECTOR -->
-  <div id="panelHandle" title="Open inspector">◂</div>
-  <div id="inspectorPanel">
-    <div id="panelHeader">
-      <div id="panelHeaderLeft">
-        <span class="title">Inspector</span>
-        <span class="sub" id="panelPageLabel">No page selected</span>
-      </div>
-      <div id="panelHeaderRight">
-        <span id="saveStatusRight" class="pill">Clean</span>
-        <button id="closePanelBtn">×</button>
+    <!-- NAVIGATION SECTION (accordion, default CLOSED) -->
+    <div class="sidebar-section">
+      <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('nav')">
+        <span class="label">Navigation (raw)</span>
+        <i class="fa-solid fa-chevron-right sidebar-chevron" id="navChevron"></i>
+      </button>
+      <div class="sidebar-section-body closed" id="navSection">
+        <p class="field-hint" style="margin-top:4px;">
+          One per line: <code>Title | URL</code><br>
+          <strong>Tip:</strong> If you use the Menu tab + mega menu, avoid editing this.
+        </p>
+        <textarea id="menuRaw" class="textarea-small" oninput="menuFromRaw(this.value)"></textarea>
       </div>
     </div>
-    <div id="inspectorTabs">
-      <button class="inspect-tab active" data-inspect="page">Page</button>
-      <button class="inspect-tab" data-inspect="hero">Hero</button>
-      <button class="inspect-tab" data-inspect="blocks">Blocks</button>
-      <button class="inspect-tab" data-inspect="menu">Menu</button>
-      <button class="inspect-tab" data-inspect="site">Site</button>
+
+  </aside>
+
+  <!-- PREVIEW ONLY -->
+  <section class="content">
+    <div id="previewCard">
+      <div id="previewToolbar">
+        <div id="previewTitle">
+          <span id="previewPageTitle">No page selected</span>
+          <span class="slug" id="previewPageSlug"></span>
+        </div>
+        <div class="device-toggle-group">
+          <button class="device-btn active" data-device="desktop"><i class="fa-solid fa-display"></i></button>
+          <button class="device-btn" data-device="tablet"><i class="fa-solid fa-tablet-screen-button"></i></button>
+          <button class="device-btn" data-device="mobile"><i class="fa-solid fa-mobile-screen"></i></button>
+        </div>
+      </div>
+
+      <div id="previewInnerWrap">
+        <div id="previewFrame" class="desktop">
+          <div class="preview-wrap">
+            <div id="heroPreview">
+              <div id="heroPreviewOverlay"></div>
+              <div id="heroPreviewInner">
+                <h1>Pick a page on the left</h1>
+                <p>Then use the sliding panel to edit Page, Hero, Blocks, and Menu.</p>
+              </div>
+            </div>
+            <div id="blockPreview"></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="inspectorBody"></div>
-    <div style="margin-top:10px;">
-      <button id="publishBtn" class="btn primary" style="width:100%;margin-bottom:6px;">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Publish
-      </button>
-      <button id="saveDraftBtn2" class="btn secondary" style="width:100%;margin-bottom:4px;">
-        Save Draft (this browser)
-      </button>
-      <button id="downloadBtn2" class="btn ghost" style="width:100%;margin-bottom:4px;">
-        Download JSON
-      </button>
-      <button id="backupBtn2" class="btn ghost" style="width:100%;margin-bottom:4px;">
-        Full backup (.zip)
-      </button>
-      <a href="index.html" target="_blank" class="btn ghost" style="width:100%;text-decoration:none;justify-content:center;">
-        View site ↗
-      </a>
+  </section>
+</div>
+
+<!-- RIGHT PANEL HANDLE + INSPECTOR -->
+<div id="panelHandle" title="Open inspector">◂</div>
+
+<div id="inspectorPanel">
+  <div id="panelHeader">
+    <div id="panelHeaderLeft">
+      <span class="title">Inspector</span>
+      <span class="sub" id="panelPageLabel">No page selected</span>
+    </div>
+    <div id="panelHeaderRight">
+      <span id="saveStatusRight" class="pill">Clean</span>
+      <button id="closePanelBtn">×</button>
     </div>
   </div>
-  <!-- SIDEBAR HIDE/SHOW BUTTON LOGIC (LEFT) -->
-  <script>
-    // Sidebar handle to hide/show left panel
-    const leftSidebar = document.getElementById("leftSidebar");
-    const sidebarHandle = document.getElementById("sidebarHandle");
-    let sidebarHidden = false;
-    function hideSidebar() {
-      leftSidebar.style.transform = "translateX(-100%)";
-      leftSidebar.style.transition = "transform .32s cubic-bezier(.19,1,.22,1)";
-      sidebarHandle.style.left = "0";
-      sidebarHandle.innerHTML = "◀";
-      sidebarHidden = true;
-    }
-    function showSidebar() {
-      leftSidebar.style.transform = "";
-      sidebarHandle.innerHTML = "▶";
-      sidebarHidden = false;
-    }
-    sidebarHandle.addEventListener("click", () => {
-      if (!sidebarHidden) {
-        hideSidebar();
-      } else {
-        showSidebar();
+
+  <div id="inspectorTabs">
+    <button class="inspect-tab active" data-inspect="page">Page</button>
+    <button class="inspect-tab" data-inspect="hero">Hero</button>
+    <button class="inspect-tab" data-inspect="blocks">Blocks</button>
+    <button class="inspect-tab" data-inspect="menu">Menu</button>
+    <button class="inspect-tab" data-inspect="site">Site</button>
+  </div>
+
+  <div id="inspectorBody"></div>
+
+  <div style="margin-top:10px;">
+    <button id="publishBtn" class="btn primary" style="width:100%;margin-bottom:6px;">
+      <i class="fa-solid fa-cloud-arrow-up"></i> Publish
+    </button>
+    <button id="saveDraftBtn2" class="btn secondary" style="width:100%;margin-bottom:4px;">
+      Save Draft (this browser)
+    </button>
+    <button id="downloadBtn2" class="btn ghost" style="width:100%;margin-bottom:4px;">
+      Download JSON
+    </button>
+    <button id="backupBtn2" class="btn ghost" style="width:100%;margin-bottom:4px;">
+      Full backup (.zip)
+    </button>
+    <a href="index.html" target="_blank" class="btn ghost" style="width:100%;text-decoration:none;justify-content:center;">
+      View site ↗
+    </a>
+  </div>
+</div>
+
+<!-- ⬇⬇⬇ PART 2 STARTS HERE IN THE NEXT MESSAGE: BEGIN WITH <script> ⬇⬇⬇ -->
+<script>
+/* =======================
+   STATE
+======================= */
+
+/*
+  IMPORTANT:
+  site-data.json is the single source of truth.
+*/
+let site = {
+  menu: [],
+  pages: [],
+  theme: {},
+  heroSlides: []
+};
+
+let current = null;
+let isDirty = false;
+let activeInspectorTab = "page";
+const DRAFT_KEY = "hn_cms_draft_v1";
+
+/* panel behavior: auto | manual | pinned | smart */
+let panelBehavior = localStorage.getItem("hn_panel_behavior") || "auto";
+
+const panel    = document.getElementById("inspectorPanel");
+const handle   = document.getElementById("panelHandle");
+const closeBtn = document.getElementById("closePanelBtn");
+const saveStatusRight = document.getElementById("saveStatusRight");
+
+/* Render Cloud endpoint */
+const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
+
+/* =======================
+   LOAD site-data.json
+======================= */
+(async function loadSiteData() {
+  let loadedFromServer = false;
+
+  try {
+    const res = await fetch("site-data.json?cache-bust=" + Date.now());
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === "object") {
+        site = Object.assign({}, site, data);
+        loadedFromServer = true;
       }
-    });
-  </script>
-  <!-- MAIN SCRIPT CONTINUES: STATE, RENDER, ETC. -->
-  <script>
-    /* =======================
-       STATE
-    ======================= */
-    /*
-      IMPORTANT:
-      site-data.json is the single source of truth.
-    */
-    let site = {
-      menu: [],
-      pages: [],
-      theme: {},
-      heroSlides: []
+    }
+  } catch (e) {
+    console.warn("Could not load site-data.json, will try local draft instead", e);
+  }
+
+  if (!loadedFromServer) {
+    restoreDraftIfAny();
+  }
+
+  renderPages();
+  updatePreviewHeader();
+  renderPreview();
+  applyPanelBehavior();
+  renderInspectorTab();
+})();
+
+/* =======================
+   SAVE STATUS
+======================= */
+function markDirty(){
+  isDirty = true;
+  if (saveStatusRight){
+    saveStatusRight.textContent = "Unsaved changes";
+    saveStatusRight.classList.add("dirty");
+    saveStatusRight.classList.remove("saved");
+  }
+}
+function markSavedLocal(){
+  isDirty = false;
+  if (saveStatusRight){
+    saveStatusRight.textContent = "Published";
+    saveStatusRight.classList.remove("dirty");
+    saveStatusRight.classList.add("saved");
+  }
+}
+
+/* =======================
+   LEFT SIDEBAR ACCORDION
+======================= */
+function toggleSidebarSection(which){
+  const body    = document.getElementById(which + "Section");
+  const chevron = document.getElementById(which + "Chevron");
+  if (!body) return;
+
+  const wasClosed = body.classList.contains("closed");
+
+  // Close all
+  document.querySelectorAll(".sidebar-section-body").forEach(el=>{
+    el.classList.add("closed");
+  });
+  document.querySelectorAll(".sidebar-chevron").forEach(el=>{
+    el.classList.remove("rotated");
+  });
+
+  // If it was closed, open it
+  if (wasClosed){
+    body.classList.remove("closed");
+    if (chevron) chevron.classList.add("rotated");
+  }
+}
+
+function openSidebarSection(which){
+  const body    = document.getElementById(which + "Section");
+  const chevron = document.getElementById(which + "Chevron");
+  if (!body) return;
+
+  document.querySelectorAll(".sidebar-section-body").forEach(el=>{
+    el.classList.add("closed");
+  });
+  document.querySelectorAll(".sidebar-chevron").forEach(el=>{
+    el.classList.remove("rotated");
+  });
+
+  body.classList.remove("closed");
+  if (chevron) chevron.classList.add("rotated");
+}
+
+/* =======================
+   PANEL BEHAVIOR + OPEN/CLOSE
+======================= */
+function isPanelOpen(){
+  return panel.classList.contains("open");
+}
+function openPanel(reason){
+  if (panelBehavior === "manual" && reason !== "manual") {
+    return; // respect manual mode
+  }
+  panel.classList.add("open");
+  handle.style.display = "none";
+}
+function closePanel(reason){
+  if (panelBehavior === "pinned") {
+    return; // pinned cannot close
+  }
+  panel.classList.remove("open");
+  handle.style.display = "flex";
+}
+function togglePanelManual(){
+  if (isPanelOpen()) closePanel("manual");
+  else openPanel("manual");
+}
+function applyPanelBehavior(){
+  if (panelBehavior === "pinned") {
+    panel.classList.add("open");
+    handle.style.display = "none";
+  } else {
+    handle.style.display = isPanelOpen() ? "none" : "flex";
+  }
+}
+
+/* click handle to open manually */
+handle.addEventListener("click", ()=>togglePanelManual());
+closeBtn.addEventListener("click", ()=>closePanel("manual"));
+
+/* keyboard shortcut: Shift+P toggles panel */
+document.addEventListener("keydown", (e)=>{
+  if(e.shiftKey && e.key.toLowerCase()==="p"){
+    togglePanelManual();
+  }
+});
+
+/* =======================
+   SIDEBAR / PAGES
+======================= */
+function renderPages(){
+  const container = document.getElementById("pages");
+  const pagesArr = site.pages || [];
+
+  if (!container) return;
+
+  container.innerHTML = pagesArr.map((p,i)=>`
+    <div class="page ${p===current?'active':''}" onclick="selectPage(${i})">
+      <div class="page-main">
+        <span class="title">${p.title || 'Untitled'}</span>
+        <span class="slug">${p.slug || ''}</span>
+      </div>
+      <button class="page-delete-btn" title="Delete page"
+        onclick="event.stopPropagation();deletePage(${i});">
+        <i class="fa-regular fa-trash-can"></i>
+      </button>
+    </div>
+  `).join("");
+
+  rawFromMenu();
+}
+
+function newPage(){
+  const t = prompt("Page title?");
+  if (!t) return;
+  const slug = t.toLowerCase().replace(/\s+/g,"-");
+  if (!site.pages) site.pages = [];
+  site.pages.push({
+    title:t,
+    slug,
+    theme:"dark",
+    hero:{
+      bg:"",
+      overlay:t,
+      sub:"",
+      transparentMenu:false,
+      behavior:"still",
+      size:"full",
+      customHeight:""
+    },
+    blocks:[]
+  });
+  markDirty();
+  renderPages();
+  openSidebarSection("pages");
+}
+
+/* Delete page + remove from menu */
+function deletePage(index){
+  const page = (site.pages || [])[index];
+  if (!page) return;
+
+  if (!confirm(`Delete page "${page.title || page.slug || 'Untitled'}"?\nThis will also remove it from the navigation menu.`)) {
+    return;
+  }
+
+  const slug = page.slug || "";
+  const url1 = slug ? slug + ".html" : "";
+  const url2 = slug;
+
+  if (Array.isArray(site.menu)){
+    site.menu = site.menu.filter(item =>
+      item.url !== url1 && item.url !== url2
+    );
+  }
+
+  site.pages.splice(index,1);
+  if (current === page){
+    current = site.pages[0] || null;
+  }
+
+  markDirty();
+  renderPages();
+  updatePreviewHeader();
+  renderPreview();
+  rawFromMenu();
+}
+
+/* =======================
+   MENU EDITOR (RAW)
+======================= */
+function rawFromMenu(){
+  const ta = document.getElementById("menuRaw");
+  if(!ta) return;
+  const menuArr = site.menu || [];
+  ta.value = menuArr.map(m=>`${m.label || m.title || 'Item'} | ${m.url || "#"}`).join("\n");
+}
+
+function menuFromRaw(text){
+  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  site.menu = lines.map((l,idx)=>{
+    const [title,url] = l.split("|").map(s=>(s||"").trim());
+    return {
+      id: (title || "item-"+idx).toLowerCase().replace(/\s+/g,"-"),
+      label: title || "Item",
+      url: url || "#",
+      type:"link",
+      showOn:"both",
+      subItems:[]
     };
-    let current = null;
-    let isDirty = false;
-    let activeInspectorTab = "page";
-    const DRAFT_KEY = "hn_cms_draft_v1";
-    /* panel behavior: auto | manual | pinned | smart */
-    let panelBehavior = localStorage.getItem("hn_panel_behavior") || "auto";
-    const panel    = document.getElementById("inspectorPanel");
-    const handle   = document.getElementById("panelHandle");
-    const closeBtn = document.getElementById("closePanelBtn");
-    const saveStatusRight = document.getElementById("saveStatusRight");
-    /* Render Cloud endpoint */
-    const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
-    /* =======================
-       LOAD site-data.json
-    ======================= */
-    (async function loadSiteData() {
-      let loadedFromServer = false;
-      try {
-        const res = await fetch("site-data.json?cache-bust=" + Date.now());
-        if (res.ok) {
-          const data = await res.json();
-          if (data && typeof data === "object") {
-            site = Object.assign({}, site, data);
-            loadedFromServer = true;
-          }
-        }
-      } catch (e) {
-        console.warn("Could not load site-data.json, will try local draft instead", e);
-      }
-      if (!loadedFromServer) {
-        restoreDraftIfAny();
-      }
-      renderPages();
-      updatePreviewHeader();
-      renderPreview();
-      applyPanelBehavior();
-      renderInspectorTab();
-    })();
-    /* =======================
-       SAVE STATUS
-    ======================= */
-    function markDirty(){
-      isDirty = true;
-      if (saveStatusRight){
-        saveStatusRight.textContent = "Unsaved changes";
-        saveStatusRight.classList.add("dirty");
-        saveStatusRight.classList.remove("saved");
-      }
-    }
-    function markSavedLocal(){
-      isDirty = false;
-      if (saveStatusRight){
-        saveStatusRight.textContent = "Published";
-        saveStatusRight.classList.remove("dirty");
-        saveStatusRight.classList.add("saved");
-      }
-    }
-    /* =======================
-       LEFT SIDEBAR ACCORDION
-    ======================= */
-    function toggleSidebarSection(which){
-      const body    = document.getElementById(which + "Section");
-      const chevron = document.getElementById(which + "Chevron");
-      if (!body) return;
-      const wasClosed = body.classList.contains("closed");
-      // Close all
-      document.querySelectorAll(".sidebar-section-body").forEach(el=>{
-        el.classList.add("closed");
-      });
-      document.querySelectorAll(".sidebar-chevron").forEach(el=>{
-        el.classList.remove("rotated");
-      });
-      // If it was closed, open it
-      if (wasClosed){
-        body.classList.remove("closed");
-        if (chevron) chevron.classList.add("rotated");
-      }
-    }
-    function openSidebarSection(which){
-      const body    = document.getElementById(which + "Section");
-      const chevron = document.getElementById(which + "Chevron");
-      if (!body) return;
-      document.querySelectorAll(".sidebar-section-body").forEach(el=>{
-        el.classList.add("closed");
-      });
-      document.querySelectorAll(".sidebar-chevron").forEach(el=>{
-        el.classList.remove("rotated");
-      });
-      body.classList.remove("closed");
-      if (chevron) chevron.classList.add("rotated");
-    }
-    /* =======================
-       PANEL BEHAVIOR + OPEN/CLOSE
-    ======================= */
-    function isPanelOpen(){
-      return panel.classList.contains("open");
-    }
-    function openPanel(reason){
-      if (panelBehavior === "manual" && reason !== "manual") {
-        return; // respect manual mode
-      }
-      panel.classList.add("open");
-      handle.style.display = "none";
-    }
-    function closePanel(reason){
-      if (panelBehavior === "pinned") {
-        return; // pinned cannot close
-      }
-      panel.classList.remove("open");
-      handle.style.display = "flex";
-    }
-    function togglePanelManual(){
-      if (isPanelOpen()) closePanel("manual");
-      else openPanel("manual");
-    }
-    function applyPanelBehavior(){
-      if (panelBehavior === "pinned") {
-        panel.classList.add("open");
-        handle.style.display = "none";
-      } else {
-        handle.style.display = isPanelOpen() ? "none" : "flex";
-      }
-    }
-    /* click handle to open manually */
-    handle.addEventListener("click", ()=>togglePanelManual());
-    closeBtn.addEventListener("click", ()=>closePanel("manual"));
-    /* keyboard shortcut: Shift+P toggles panel */
-    document.addEventListener("keydown", (e)=>{
-      if(e.shiftKey && e.key.toLowerCase()==="p"){
-        togglePanelManual();
-      }
-    });
+  });
+  markDirty();
+}
 
-    /* =======================
-       SIDEBAR / PAGES
-    ======================= */
-    function renderPages(){
-      const container = document.getElementById("pages");
-      const pagesArr = site.pages || [];
-      if (!container) return;
-      container.innerHTML = pagesArr.map((p,i)=>`
-        <div class="page ${p===current?'active':''}" onclick="selectPage(${i})">
-          <div class="page-main">
-            <span class="title">${p.title || 'Untitled'}</span>
-            <span class="slug">${p.slug || ''}</span>
+/* =======================
+   MENU EDITOR (GRAPHIC TAB)
+======================= */
+function ensureMenuArray(){
+  if (!Array.isArray(site.menu)) {
+    site.menu = [];
+  }
+}
+
+function addMenuItem(){
+  ensureMenuArray();
+  const newItem = {
+    id: "item-" + Date.now(),
+    label: "New item",
+    url: "#",
+    type: "link",
+    showOn: "both",
+    subItems: []
+  };
+  site.menu.push(newItem);
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function removeMenuItem(index){
+  ensureMenuArray();
+  const item = site.menu[index];
+  if (!item) return;
+  if (!confirm(`Remove menu item "${item.label || item.title || 'Item'}"?`)) return;
+  site.menu.splice(index,1);
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function moveMenuItem(i,d){
+  ensureMenuArray();
+  const arr = site.menu;
+  const item = arr.splice(i,1)[0];
+  let newIndex = i + d;
+  if (newIndex < 0) newIndex = 0;
+  if (newIndex > arr.length) newIndex = arr.length;
+  arr.splice(newIndex,0,item);
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function changeMenuType(index,type){
+  ensureMenuArray();
+  const item = site.menu[index];
+  if (!item) return;
+  item.type = type;
+  if (type === "mega" && !Array.isArray(item.subItems)) {
+    item.subItems = [];
+  }
+  if (type !== "mega") {
+    item.subItems = [];
+  }
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function updateMenuField(index, field, value){
+  ensureMenuArray();
+  const item = site.menu[index];
+  if (!item) return;
+
+  if (field === "label") {
+    item.label = value;
+    // keep id loosely in sync on first edits (optional)
+    if (!item.id || item.id.startsWith("item-")) {
+      item.id = value.toLowerCase().replace(/\s+/g,"-") || ("item-"+index);
+    }
+  } else if (field === "url") {
+    item.url = value;
+  } else if (field === "showOn") {
+    item.showOn = value;
+  }
+
+  markDirty();
+  rawFromMenu();
+}
+
+function addSubItem(menuIndex){
+  ensureMenuArray();
+  const item = site.menu[menuIndex];
+  if (!item) return;
+  if (!Array.isArray(item.subItems)) item.subItems = [];
+  item.subItems.push({
+    label: "New link",
+    url: "#",
+    description: ""
+  });
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function removeSubItem(menuIndex, subIndex){
+  ensureMenuArray();
+  const item = site.menu[menuIndex];
+  if (!item || !Array.isArray(item.subItems)) return;
+  item.subItems.splice(subIndex,1);
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function updateSubItemField(menuIndex, subIndex, field, value){
+  ensureMenuArray();
+  const item = site.menu[menuIndex];
+  if (!item || !Array.isArray(item.subItems)) return;
+  const sub = item.subItems[subIndex];
+  if (!sub) return;
+
+  if (field === "label") sub.label = value;
+  else if (field === "url") sub.url = value;
+  else if (field === "description") sub.description = value;
+
+  markDirty();
+  rawFromMenu();
+}
+
+/* =======================
+   SELECT PAGE
+======================= */
+function selectPage(i){
+  current = site.pages[i];
+  renderPages();
+  updatePreviewHeader();
+  renderPreview();
+  renderInspectorTab(); // refresh panel content
+  if (panelBehavior === "auto" || panelBehavior === "pinned" || panelBehavior === "smart"){
+    openPanel("auto");
+  }
+}
+
+/* =======================
+   PREVIEW
+======================= */
+function updatePreviewHeader(){
+  const tEl = document.getElementById("previewPageTitle");
+  const sEl = document.getElementById("previewPageSlug");
+  const pl  = document.getElementById("panelPageLabel");
+  if (!current){
+    if (tEl) tEl.textContent = "No page selected";
+    if (sEl) sEl.textContent = "";
+    if (pl)  pl.textContent  = "No page selected";
+    return;
+  }
+  if (tEl) tEl.textContent = current.title || "Untitled";
+  if (sEl) sEl.textContent = current.slug || "";
+  if (pl)  pl.textContent  = current.title + (current.slug ? ` (${current.slug})` : "");
+}
+
+function renderPreview(){
+  const h = current && current.hero ? current.hero : {
+    overlay:"Pick a page",
+    sub:"Use the left bar to choose a page"
+  };
+  const heroDiv = document.getElementById("heroPreview");
+  const titleEl = document.getElementById("heroPreviewInner").querySelector("h1");
+  const subEl   = document.getElementById("heroPreviewInner").querySelector("p");
+
+  titleEl.textContent = h.overlay || "";
+  subEl.textContent   = h.sub || "";
+
+  if (h.bg){
+    heroDiv.style.backgroundImage = `url('${h.bg}')`;
+  } else {
+    heroDiv.style.backgroundImage = "none";
+    heroDiv.style.backgroundColor = "#020617";
+  }
+
+  let height = "60vh";
+  const size = h.size || "full";
+  if(size==="small")  height="40vh";
+  else if(size==="medium") height="60vh";
+  else if(size==="large")  height="80vh";
+  else if(size==="full")   height="100vh";
+  else if(size==="custom" && h.customHeight) height = h.customHeight;
+  heroDiv.style.height = height;
+
+  const blocksEl = document.getElementById("blockPreview");
+  const blocks = (current && current.blocks) ? current.blocks : [];
+  let html = "";
+  blocks.forEach(b=>{
+    if(b.type==="heading"){
+      html += `<h2 style="margin-top:1rem;color:#e5e7eb;font-size:1.1rem;">${escapeHtml(b.content || "")}</h2>`;
+    } else if(b.type==="paragraph"){
+      const text = (b.content || "").replace(/\n/g,"<br>");
+      html += `<p style="margin-top:.4rem;color:#9ca3af;font-size:.9rem;">${text}</p>`;
+    } else if(b.type==="image" && b.content){
+      html += `<img src="${escapeHtml(b.content)}" style="max-width:100%;border-radius:12px;margin:1rem 0;">`;
+    } else if(b.type==="button"){
+      html += `<a href="${escapeHtml(b.url || '#')}"
+        style="display:inline-block;margin:0.7rem 0;padding:0.6rem 1.6rem;border-radius:999px;background:var(--accent);color:#0b1120;text-decoration:none;font-weight:600;font-size:.88rem;">
+        ${escapeHtml(b.text || "Learn more")}
+      </a>`;
+    } else if(b.type==="product"){
+      html += `
+        <div style="background:#020617;border-radius:14px;margin:0.8rem 0;padding:0.9rem;display:flex;gap:0.9rem;align-items:flex-start;border:1px solid rgba(55,65,81,.8);">
+          ${b.image ? `<img src="${escapeHtml(b.image)}" style="width:110px;border-radius:10px;object-fit:cover;">` : ""}
+          <div>
+            <h3 style="margin:0 0 .3rem;font-size:.96rem;color:#e5e7eb;">${escapeHtml(b.title || "")}</h3>
+            <p style="margin:0 0 .5rem;font-size:.8rem;color:#9ca3af;">${escapeHtml(b.text || "")}</p>
+            ${b.url ? `<a href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer"
+                style="display:inline-block;margin-top:0.2rem;padding:0.45rem 1.4rem;border-radius:999px;background:var(--accent);color:#0b1120;font-size:.8rem;font-weight:600;text-decoration:none;">
+                Buy on Amazon
+              </a>` : ""}
           </div>
-          <button class="page-delete-btn" title="Delete page"
-            onclick="event.stopPropagation();deletePage(${i});">
-            <i class="fa-regular fa-trash-can"></i>
-          </button>
-        </div>
-      `).join("");
-      rawFromMenu();
-    }
-    function newPage(){
-      const t = prompt("Page title?");
-      if (!t) return;
-      const slug = t.toLowerCase().replace(/\s+/g,"-");
-      if (!site.pages) site.pages = [];
-      site.pages.push({
-        title:t,
-        slug,
-        theme:"dark",
-        hero:{
-          bg:"",
-          overlay:t,
-          sub:"",
-          transparentMenu:false,
-          behavior:"still",
-          size:"full",
-          customHeight:""
-        },
-        blocks:[]
-      });
-      markDirty();
-      renderPages();
-      openSidebarSection("pages");
-    }
-    /* Delete page + remove from menu */
-    function deletePage(index){
-      const page = (site.pages || [])[index];
-      if (!page) return;
-      if (!confirm(`Delete page "${page.title || page.slug || 'Untitled'}"?\nThis will also remove it from the navigation menu.`)) {
-        return;
-      }
-      const slug = page.slug || "";
-      const url1 = slug ? slug + ".html" : "";
-      const url2 = slug;
-      if (Array.isArray(site.menu)){
-        site.menu = site.menu.filter(item =>
-          item.url !== url1 && item.url !== url2
-        );
-      }
-      site.pages.splice(index,1);
-      if (current === page){
-        current = site.pages[0] || null;
-      }
-      markDirty();
-      renderPages();
-      updatePreviewHeader();
-      renderPreview();
-      rawFromMenu();
-    }
-    /* =======================
-       MENU EDITOR (RAW)
-    ======================= */
-    function rawFromMenu(){
-      const ta = document.getElementById("menuRaw");
-      if(!ta) return;
-      const menuArr = site.menu || [];
-      ta.value = menuArr.map(m=>`${m.label || m.title || 'Item'} | ${m.url || "#"}`).join("\n");
-    }
-    function menuFromRaw(text){
-      const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-      site.menu = lines.map((l,idx)=>{
-        const [title,url] = l.split("|").map(s=>(s||"").trim());
-        return {
-          id: (title || "item-"+idx).toLowerCase().replace(/\s+/g,"-"),
-          label: title || "Item",
-          url: url || "#",
-          type:"link",
-          showOn:"both",
-          subItems:[]
-        };
-      });
-      markDirty();
-    }
-    /* =======================
-       MENU EDITOR (GRAPHIC TAB)
-    ======================= */
-    function ensureMenuArray(){
-      if (!Array.isArray(site.menu)) {
-        site.menu = [];
-      }
-    }
-    function addMenuItem(){
-      ensureMenuArray();
-      const newItem = {
-        id: "item-" + Date.now(),
-        label: "New item",
-        url: "#",
-        type: "link",
-        showOn: "both",
-        subItems: []
-      };
-      site.menu.push(newItem);
-      markDirty();
-      rawFromMenu();
-      renderInspectorTab();
-    }
-    function removeMenuItem(index){
-      ensureMenuArray();
-      const item = site.menu[index];
-      if (!item) return;
-      if (!confirm(`Remove menu item "${item.label || item.title || 'Item'}"?`)) return;
-      site.menu.splice(index,1);
-      markDirty();
-      rawFromMenu();
-      renderInspectorTab();
-    }
-    function moveMenuItem(i,d){
-      ensureMenuArray();
-      const arr = site.menu;
-      const item = arr.splice(i,1)[0];
-      let newIndex = i + d;
-      if (newIndex < 0) newIndex = 0;
-      if (newIndex > arr.length) newIndex = arr.length;
-      arr.splice(newIndex,0,item);
-      markDirty();
-      rawFromMenu();
-      renderInspectorTab();
-    }
-    function changeMenuType(index,type){
-      ensureMenuArray();
-      const item = site.menu[index];
-      if (!item) return;
-      item.type = type;
-      if (type === "mega" && !Array.isArray(item.subItems)) {
-        item.subItems = [];
-      }
-      if (type !== "mega") {
-        item.subItems = [];
-      }
-      markDirty();
-      rawFromMenu();
-      renderInspectorTab();
-    }
-    function updateMenuField(index, field, value){
-      ensureMenuArray();
-      const item = site.menu[index];
-      if (!item) return;
-      if (field === "label") {
-        item.label = value;
-        // keep id loosely in sync on first edits (optional)
-        if (!item.id || item.id.startsWith("item-")) {
-          item.id = value.toLowerCase().replace(/\s+/g,"-") || ("item-"+index);
-        }
-      } else if (field === "url") {
-        item.url = value;
-      } else if (field === "showOn") {
-        item.showOn = value;
-      }
-      markDirty();
-      rawFromMenu();
-    }
-    function addSubItem(menuIndex){
-      ensureMenuArray();
-      const item = site.menu[menuIndex];
-      if (!item) return;
-      if (!Array.isArray(item.subItems)) item.subItems = [];
-      item.subItems.push({
-        label: "New link",
-        url: "#",
-        description: ""
-      });
-      markDirty();
-      rawFromMenu();
-      renderInspectorTab();
-    }
-    function removeSubItem(menuIndex, subIndex){
-      ensureMenuArray();
-      const item = site.menu[menuIndex];
-      if (!item || !Array.isArray(item.subItems)) return;
-      item.subItems.splice(subIndex,1);
-      markDirty();
-      rawFromMenu();
-      renderInspectorTab();
-    }
-    function updateSubItemField(menuIndex, subIndex, field, value){
-      ensureMenuArray();
-      const item = site.menu[menuIndex];
-      if (!item || !Array.isArray(item.subItems)) return;
-      const sub = item.subItems[subIndex];
-      if (!sub) return;
-      if (field === "label") sub.label = value;
-      else if (field === "url") sub.url = value;
-      else if (field === "description") sub.description = value;
-      markDirty();
-      rawFromMenu();
-    }
-    /* =======================
-       SELECT PAGE
-    ======================= */
-    function selectPage(i){
-      current = site.pages[i];
-      renderPages();
-      updatePreviewHeader();
-      renderPreview();
-      renderInspectorTab(); // refresh panel content
-      if (panelBehavior === "auto" || panelBehavior === "pinned" || panelBehavior === "smart"){
-        openPanel("auto");
-      }
-    }
-
-    /* =======================
-       PREVIEW
-    ======================= */
-    function updatePreviewHeader(){
-      const tEl = document.getElementById("previewPageTitle");
-      const sEl = document.getElementById("previewPageSlug");
-      const pl  = document.getElementById("panelPageLabel");
-      if (!current){
-        if (tEl) tEl.textContent = "No page selected";
-        if (sEl) sEl.textContent = "";
-        if (pl)  pl.textContent  = "No page selected";
-        return;
-      }
-      if (tEl) tEl.textContent = current.title || "Untitled";
-      if (sEl) sEl.textContent = current.slug || "";
-      if (pl)  pl.textContent  = current.title + (current.slug ? ` (${current.slug})` : "");
-    }
-
-    function renderPreview(){
-      const h = current && current.hero ? current.hero : {
-        overlay:"Pick a page",
-        sub:"Use the left bar to choose a page"
-      };
-      const heroDiv = document.getElementById("heroPreview");
-      const titleEl = document.getElementById("heroPreviewInner").querySelector("h1");
-      const subEl   = document.getElementById("heroPreviewInner").querySelector("p");
-
-      titleEl.textContent = h.overlay || "";
-      subEl.textContent   = h.sub || "";
-
-      if (h.bg){
-        heroDiv.style.backgroundImage = `url('${h.bg}')`;
-      } else {
-        heroDiv.style.backgroundImage = "none";
-        heroDiv.style.backgroundColor = "#020617";
-      }
-
-      let height = "60vh";
-      const size = h.size || "full";
-      if(size==="small")  height="40vh";
-      else if(size==="medium") height="60vh";
-      else if(size==="large")  height="80vh";
-      else if(size==="full")   height="100vh";
-      else if(size==="custom" && h.customHeight) height = h.customHeight;
-      heroDiv.style.height = height;
-
-      const blocksEl = document.getElementById("blockPreview");
-      const blocks = (current && current.blocks) ? current.blocks : [];
-      let html = "";
-      blocks.forEach(b=>{
-        if(b.type==="heading"){
-          html += `<h2 style="margin-top:1rem;color:#e5e7eb;font-size:1.1rem;">${escapeHtml(b.content || "")}</h2>`;
-        } else if(b.type==="paragraph"){
-          const text = (b.content || "").replace(/\n/g,"<br>");
-          html += `<p style="margin-top:.4rem;color:#9ca3af;font-size:.9rem;">${text}</p>`;
-        } else if(b.type==="image" && b.content){
-          html += `<img src="${escapeHtml(b.content)}" style="max-width:100%;border-radius:12px;margin:1rem 0;">`;
-        } else if(b.type==="button"){
-          html += `<a href="${escapeHtml(b.url || '#')}"
-            style="display:inline-block;margin:0.7rem 0;padding:0.6rem 1.6rem;border-radius:999px;background:var(--accent);color:#0b1120;text-decoration:none;font-weight:600;font-size:.88rem;">
-            ${escapeHtml(b.text || "Learn more")}
-          </a>`;
-        } else if(b.type==="product"){
-          html += `
-            <div style="background:#020617;border-radius:14px;margin:0.8rem 0;padding:0.9rem;display:flex;gap:0.9rem;align-items:flex-start;border:1px solid rgba(55,65,81,.8);">
-              ${b.image ? `<img src="${escapeHtml(b.image)}" style="width:110px;border-radius:10px;object-fit:cover;">` : ""}
-              <div>
-                <h3 style="margin:0 0 .3rem;font-size:.96rem;color:#e5e7eb;">${escapeHtml(b.title || "")}</h3>
-                <p style="margin:0 0 .5rem;font-size:.8rem;color:#9ca3af;">${escapeHtml(b.text || "")}</p>
-                ${b.url ? `<a href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer"
-                    style="display:inline-block;margin-top:0.2rem;padding:0.45rem 1.4rem;border-radius:999px;background:var(--accent);color:#0b1120;font-size:.8rem;font-weight:600;text-decoration:none;">
-                    Buy on Amazon
-                  </a>` : ""}
-              </div>
-            </div>
-          `;
-        } else if(b.type==="podcast" && b.embed){
-          html += `
-            <div style="margin:1.2rem 0;">
-              <h3 style="margin:0 0 .3rem;color:#e5e7eb;">${escapeHtml(b.title || "")}</h3>
-              <iframe src="${escapeHtml(b.embed)}"
-                style="width:100%;height:150px;border:none;border-radius:10px;background:#0f172a;" allow="autoplay"></iframe>
-            </div>
-          `;
-        } else if(b.type==="youtube" && b.videoId){
-          let id = b.videoId.trim();
-          const m = id.match(/v=([^&]+)/);
-          if(m) id = m[1];
-          html += `
-            <div style="margin:1.2rem 0;">
-              <h3 style="margin:0 0 .3rem;color:#e5e7eb;">${escapeHtml(b.title || "")}</h3>
-              <div style="position:relative;padding-bottom:56.25%;height:0;border-radius:12px;overflow:hidden;">
-                <iframe src="https://www.youtube.com/embed/${escapeHtml(id)}"
-                  style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
-                  allowfullscreen></iframe>
-              </div>
-            </div>
-          `;
-        }
-      });
-      blocksEl.innerHTML = html;
-    }
-
-    /* DEVICE PREVIEW */
-    const previewFrame = document.getElementById("previewFrame");
-    document.querySelectorAll(".device-btn").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const mode = btn.dataset.device;
-        previewFrame.classList.remove("desktop","tablet","mobile");
-        previewFrame.classList.add(mode);
-        document.querySelectorAll(".device-btn").forEach(b=>{
-          b.classList.toggle("active", b===btn);
-        });
-      });
-    });
-
-    /* =======================
-       INSPECTOR TABS
-    ======================= */
-    document.querySelectorAll(".inspect-tab").forEach(tab=>{
-      tab.addEventListener("click", ()=>{
-        activeInspectorTab = tab.dataset.inspect;
-        document.querySelectorAll(".inspect-tab").forEach(t=>{
-          t.classList.toggle("active", t===tab);
-        });
-        renderInspectorTab();
-        if (panelBehavior === "auto" || panelBehavior === "pinned" || panelBehavior === "smart"){
-          openPanel("auto");
-        }
-      });
-    });
-
-    /* Helper: Escape HTML */
-    function escapeHtml(str){
-      if (typeof str !== "string") return "";
-      return str.replace(/[&<>'"]/g, tag=>{
-        const map = {"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"};
-        return map[tag]||tag;
-      });
-    }
-
-    /* =======================
-       INSPECTOR PANEL: Tab Rendering
-    ======================= */
-    function renderInspectorTab(){
-      const body = document.getElementById("inspectorBody");
-      if(!body) return;
-      if(!current && activeInspectorTab!=="site"){
-        body.innerHTML = `<div style="color:#9ca3af;margin-top:2rem;text-align:center;">No page selected.</div>`;
-        return;
-      }
-      if(activeInspectorTab==="page") renderInspectorPageTab(body);
-      else if(activeInspectorTab==="hero") renderInspectorHeroTab(body);
-      else if(activeInspectorTab==="blocks") renderInspectorBlocksTab(body);
-      else if(activeInspectorTab==="menu") renderInspectorMenuTab(body);
-      else if(activeInspectorTab==="site") renderInspectorSiteTab(body);
-    }
-
-    /* --- Page tab --- */
-    function renderInspectorPageTab(body){
-      body.innerHTML = `
-        <div class="panelSection">
-          <div class="panelLabel">Page Title</div>
-          <input type="text" value="${escapeHtml(current.title||"")}" 
-            oninput="updatePageField('title',this.value)">
-        </div>
-        <div class="panelSection">
-          <div class="panelLabel">Slug</div>
-          <input type="text" value="${escapeHtml(current.slug||"")}" 
-            oninput="updatePageField('slug',this.value)">
-        </div>
-        <div class="panelSection">
-          <div class="panelLabel">Theme</div>
-          <select onchange="updatePageField('theme',this.value)">
-            <option value="dark"${current.theme==="dark"?" selected":""}>Dark</option>
-            <option value="light"${current.theme==="light"?" selected":""}>Light</option>
-          </select>
         </div>
       `;
-    }
-    function updatePageField(field, value){
-      if(!current) return;
-      if(field==="title") current.title = value;
-      else if(field==="slug") current.slug = value;
-      else if(field==="theme") current.theme = value;
-      markDirty();
-      renderPages();
-      updatePreviewHeader();
-      renderPreview();
-    }
-
-    /* --- Hero tab --- */
-    function renderInspectorHeroTab(body){
-      let h = current.hero || {};
-      body.innerHTML = `
-        <div class="panelSection">
-          <div class="panelLabel">Hero Title</div>
-          <input type="text" value="${escapeHtml(h.overlay||"")}" 
-            oninput="updateHeroField('overlay',this.value)">
-        </div>
-        <div class="panelSection">
-          <div class="panelLabel">Subtitle</div>
-          <input type="text" value="${escapeHtml(h.sub||"")}" 
-            oninput="updateHeroField('sub',this.value)">
-        </div>
-        <div class="panelSection">
-          <div class="panelLabel">Background Image URL</div>
-          <input type="text" value="${escapeHtml(h.bg||"")}" 
-            oninput="updateHeroField('bg',this.value)">
-        </div>
-        <div class="panelSection">
-          <div class="panelLabel">Menu Transparency</div>
-          <label class="inline">
-            <input type="checkbox" ${h.transparentMenu?"checked":""}
-              onchange="updateHeroField('transparentMenu',this.checked)"> Transparent Menu
-          </label>
-        </div>
-        <div class="panelSection">
-          <div class="panelLabel">Hero Behavior</div>
-          <select onchange="updateHeroField('behavior',this.value)">
-            <option value="still"${h.behavior==="still"?" selected":""}>Still Image</option>
-            <option value="parallax"${h.behavior==="parallax"?" selected":""}>Slow Parallax Scroll</option>
-            <option value="carousel"${h.behavior==="carousel"?" selected":""}>Carousel</option>
-            <option value="video"${h.behavior==="video"?" selected":""}>Embedded Video</option>
-          </select>
-        </div>
-        <div class="panelSection">
-          <div class="panelLabel">Hero Size</div>
-          <select onchange="updateHeroField('size',this.value)">
-            <option value="small"${h.size==="small"?" selected":""}>Small</option>
-            <option value="medium"${h.size==="medium"?" selected":""}>Medium</option>
-            <option value="large"${h.size==="large"?" selected":""}>Large</option>
-            <option value="full"${h.size==="full"?" selected":""}>Full</option>
-            <option value="custom"${h.size==="custom"?" selected":""}>Custom Height</option>
-          </select>
-        </div>
-        ${h.size==="custom"?`
-          <div class="panelSection">
-            <div class="panelLabel">Custom Height (e.g. 450px or 60vh)</div>
-            <input type="text" value="${escapeHtml(h.customHeight||"")}"
-              oninput="updateHeroField('customHeight',this.value)">
-          </div>
-        `:""}
-      `;
-    }
-    function updateHeroField(field, value){
-      if(!current || !current.hero) current.hero = {};
-      if(field==="overlay") current.hero.overlay = value;
-      else if(field==="sub") current.hero.sub = value;
-      else if(field==="bg") current.hero.bg = value;
-      else if(field==="transparentMenu") current.hero.transparentMenu = value;
-      else if(field==="behavior") current.hero.behavior = value;
-      else if(field==="size") current.hero.size = value;
-      else if(field==="customHeight") current.hero.customHeight = value;
-      markDirty();
-      renderPreview();
-      renderInspectorTab(); // re-render tab for "custom height"
-    }
-
-    /* --- Blocks tab --- */
-    function renderInspectorBlocksTab(body){
-      let html = `
-        <div class="panelSection">
-          <div class="panelLabel">Page Blocks</div>
-          <button class="btn secondary" style="margin-bottom:7px;" onclick="addBlock()">+ Add Block</button>
-          <div id="blocksList">
-      `;
-      (current.blocks||[]).forEach((b,i)=>{
-        html += `
-          <div class="block">
-            <div class="block-header-line">
-              <span class="block-type">${escapeHtml(b.type||"Block")}</span>
-              <div class="tools">
-                <button title="Move up" onclick="moveBlock(${i},-1)"><i class="fa-solid fa-arrow-up"></i></button>
-                <button title="Move down" onclick="moveBlock(${i},1)"><i class="fa-solid fa-arrow-down"></i></button>
-                <button title="Delete" onclick="deleteBlock(${i})"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </div>
-            <div>${renderBlockEditor(i,b)}</div>
-          </div>
-        `;
-      });
-      html += `</div></div>`;
-      body.innerHTML = html;
-    }
-
-    function addBlock(){
-      if(!current) return;
-      const type = prompt("Block type (heading, paragraph, image, button, product, podcast, youtube)?","paragraph");
-      if(!type) return;
-      let block = {type};
-      if(type==="heading") block.content = "Heading text";
-      else if(type==="paragraph") block.content = "Paragraph text";
-      else if(type==="image") block.content = "";
-      else if(type==="button") { block.text = "Learn more"; block.url="#"; }
-      else if(type==="product") { block.title = ""; block.text=""; block.image=""; block.url=""; }
-      else if(type==="podcast") { block.title="Podcast title"; block.embed=""; }
-      else if(type==="youtube") { block.title=""; block.videoId=""; }
-      else block.content = "";
-      current.blocks.push(block);
-      markDirty();
-      renderInspectorTab();
-      renderPreview();
-    }
-
-    function moveBlock(i,dir){
-      if(!current || !current.blocks) return;
-      const arr = current.blocks;
-      const block = arr.splice(i,1)[0];
-      let newIndex = i+dir;
-      if(newIndex<0) newIndex=0;
-      if(newIndex>arr.length) newIndex=arr.length;
-      arr.splice(newIndex,0,block);
-      markDirty();
-      renderInspectorTab();
-      renderPreview();
-    }
-
-    function deleteBlock(i){
-      if(!current || !current.blocks) return;
-      if(!confirm("Delete this block?")) return;
-      current.blocks.splice(i,1);
-      markDirty();
-      renderInspectorTab();
-      renderPreview();
-    }
-
-    function renderBlockEditor(i, b){
-      // produces HTML for editing a block, used in inspector
-      let html = "";
-      if(b.type==="heading"){
-        html = `<input type="text" value="${escapeHtml(b.content||"")}" oninput="updateBlockField(${i},'content',this.value)">`;
-      } else if(b.type==="paragraph"){
-        html = `<textarea oninput="updateBlockField(${i},'content',this.value)">${escapeHtml(b.content||"")}</textarea>`;
-      } else if(b.type==="image"){
-        html = `<input type="text" value="${escapeHtml(b.content||"")}" placeholder="Image URL" oninput="updateBlockField(${i},'content',this.value)">`;
-      } else if(b.type==="button"){
-        html = `
-          <input type="text" value="${escapeHtml(b.text||"")}" placeholder="Button text" oninput="updateBlockField(${i},'text',this.value)">
-          <input type="text" value="${escapeHtml(b.url||"")}" placeholder="Button link" oninput="updateBlockField(${i},'url',this.value)">
-        `;
-      } else if(b.type==="product"){
-        html = `
-          <input type="text" value="${escapeHtml(b.title||"")}" placeholder="Title" oninput="updateBlockField(${i},'title',this.value)">
-          <input type="text" value="${escapeHtml(b.text||"")}" placeholder="Description" oninput="updateBlockField(${i},'text',this.value)">
-          <input type="text" value="${escapeHtml(b.image||"")}" placeholder="Image URL" oninput="updateBlockField(${i},'image',this.value)">
-          <input type="text" value="${escapeHtml(b.url||"")}" placeholder="Product link" oninput="updateBlockField(${i},'url',this.value)">
-        `;
-      } else if(b.type==="podcast"){
-        html = `
-          <input type="text" value="${escapeHtml(b.title||"")}" placeholder="Title" oninput="updateBlockField(${i},'title',this.value)">
-          <input type="text" value="${escapeHtml(b.embed||"")}" placeholder="Embed URL" oninput="updateBlockField(${i},'embed',this.value)">
-        `;
-      } else if(b.type==="youtube"){
-        html = `
-          <input type="text" value="${escapeHtml(b.title||"")}" placeholder="Title" oninput="updateBlockField(${i},'title',this.value)">
-          <input type="text" value="${escapeHtml(b.videoId||"")}" placeholder="YouTube Video ID or URL" oninput="updateBlockField(${i},'videoId',this.value)">
-        `;
-      } else {
-        html = `<textarea oninput="updateBlockField(${i},'content',this.value)">${escapeHtml(b.content||"")}</textarea>`;
-      }
-      return html;
-    }
-
-    function updateBlockField(i, field, value){
-      if(!current || !current.blocks) return;
-      const block = current.blocks[i];
-      if(!block) return;
-      block[field] = value;
-      markDirty();
-      renderPreview();
-    }
-
-    /* --- Menu tab --- */
-    function renderInspectorMenuTab(body){
-      ensureMenuArray();
-      let html = `
-        <div class="panelSection">
-          <div class="panelLabel">Navigation Menu</div>
-          <button class="btn secondary" style="margin-bottom:7px;" onclick="addMenuItem()">+ Add Menu Item</button>
-          <div id="menuList">
-      `;
-      (site.menu||[]).forEach((m,i)=>{
-        html += `
-          <div class="block">
-            <div class="block-header-line">
-              <span class="block-type">${escapeHtml(m.type||"Link")}</span>
-              <div class="tools">
-                <button title="Move up" onclick="moveMenuItem(${i},-1)"><i class="fa-solid fa-arrow-up"></i></button>
-                <button title="Move down" onclick="moveMenuItem(${i},1)"><i class="fa-solid fa-arrow-down"></i></button>
-                <button title="Delete" onclick="removeMenuItem(${i})"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </div>
-            <div>
-              <input type="text" value="${escapeHtml(m.label||"")}" placeholder="Label" oninput="updateMenuField(${i},'label',this.value)">
-              <input type="text" value="${escapeHtml(m.url||"")}" placeholder="URL" oninput="updateMenuField(${i},'url',this.value)">
-              <select onchange="changeMenuType(${i},this.value)">
-                <option value="link"${m.type==="link"?" selected":""}>Link</option>
-                <option value="mega"${m.type==="mega"?" selected":""}>Mega Menu</option>
-              </select>
-              <select onchange="updateMenuField(${i},'showOn',this.value)">
-                <option value="both"${(!m.showOn||m.showOn==="both")?" selected":""}>Show on both</option>
-                <option value="desktop"${m.showOn==="desktop"?" selected":""}>Desktop only</option>
-                <option value="mobile"${m.showOn==="mobile"?" selected":""}>Mobile only</option>
-              </select>
-              ${m.type==="mega"?`
-                <div style="margin:8px 0 0 0;">
-                  <strong>Subitems:</strong>
-                  <button class="btn ghost" onclick="addSubItem(${i})" style="margin-left:8px;">+ Add Subitem</button>
-                  <div>
-                  ${(m.subItems||[]).map((s,j)=>`
-                    <div style="display:flex;gap:6px;margin:4px 0;align-items:center;">
-                      <input type="text" value="${escapeHtml(s.label||"")}" placeholder="Label" style="flex:1;" oninput="updateSubItemField(${i},${j},'label',this.value)">
-                      <input type="text" value="${escapeHtml(s.url||"")}" placeholder="URL" style="flex:2;" oninput="updateSubItemField(${i},${j},'url',this.value)">
-                      <input type="text" value="${escapeHtml(s.description||"")}" placeholder="Description" style="flex:2;" oninput="updateSubItemField(${i},${j},'description',this.value)">
-                      <button onclick="removeSubItem(${i},${j})" class="btn ghost" title="Remove subitem"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                  `).join("")}
-                  </div>
-                </div>
-              `:""}
-            </div>
-          </div>
-        `;
-      });
-      html += `</div></div>`;
-      body.innerHTML = html;
-    }
-
-    /* --- Site tab --- */
-    function renderInspectorSiteTab(body){
-      body.innerHTML = `
-        <div class="panelSection">
-          <div class="panelLabel">Site Settings</div>
-          <div style="color:#9ca3af;">(Add more settings here as needed.)</div>
-        </div>
-        <div class="panelSection">
-          <div class="panelLabel">Export / Backup</div>
-          <button class="btn ghost" style="width:100%;margin-bottom:6px;" onclick="downloadJSON()">Download JSON</button>
-          <button class="btn ghost" style="width:100%;" onclick="fullBackup()">Full backup (.zip)</button>
+    } else if(b.type==="podcast" && b.embed){
+      html += `
+        <div style="margin:1.2rem 0;">
+          <h3 style="margin:0 0 .3rem;color:#e5e7eb;">${escapeHtml(b.title || "")}</h3>
+          <iframe src="${escapeHtml(b.embed)}"
+            style="width:100%;height:150px;border:none;border-radius:10px;background:#0f172a;" allow="autoplay"></iframe>
         </div>
       `;
-    }
-
-    /* =======================
-       DRAFT SAVE & RESTORE
-    ======================= */
-    function saveDraftToLocal(){
-      try {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify(site));
-        markSavedLocal();
-        alert("Draft saved in browser!");
-      } catch(e){
-        alert("Failed to save draft: "+e);
-      }
-    }
-    function restoreDraftIfAny(){
-      try {
-        const d = localStorage.getItem(DRAFT_KEY);
-        if(d){
-          const parsed = JSON.parse(d);
-          if(parsed && typeof parsed==="object"){
-            site = Object.assign({}, site, parsed);
-            markSavedLocal();
-          }
-        }
-      } catch(e){
-        console.warn("Could not restore draft", e);
-      }
-    }
-
-    document.getElementById("saveDraftBtn2").onclick = saveDraftToLocal;
-
-    /* =======================
-       DOWNLOAD JSON
-    ======================= */
-    function downloadJSON(){
-      const data = JSON.stringify(site, null, 2);
-      const blob = new Blob([data], {type:"application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "site-data.json";
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},300);
-    }
-    document.getElementById("downloadBtn2").onclick = downloadJSON;
-
-    /* =======================
-       FULL BACKUP (.ZIP)
-    ======================= */
-    async function fullBackup(){
-      if(typeof JSZip==="undefined"){
-        alert("JSZip not loaded");
-        return;
-      }
-      const zip = new JSZip();
-      zip.file("site-data.json", JSON.stringify(site, null, 2));
-      // (You can add more files to the zip if you like)
-      const blob = await zip.generateAsync({type:"blob"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "honest-news-backup.zip";
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},300);
-    }
-    document.getElementById("backupBtn2").onclick = fullBackup;
-
-    /* =======================
-       PUBLISH TO SERVER
-    ======================= */
-    document.getElementById("publishBtn").onclick = async function(){
-      if(!confirm("Are you sure you want to publish your changes?")) return;
-      try {
-        const res = await fetch(SAVE_ENDPOINT, {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify(site)
-        });
-        if(res.ok){
-          markSavedLocal();
-          alert("Published successfully!");
-        } else {
-          throw new Error(await res.text());
-        }
-      } catch(e){
-        alert("Publish failed: "+e);
-      }
-    };
-
-    /* =======================
-       INSPECTOR TAB MAIN RENDER
-    ======================= */
-    function renderInspectorTab(){
-      const body = document.getElementById("inspectorBody");
-      if(!body) return;
-      body.innerHTML = "";
-      if(activeInspectorTab==="page")      renderInspectorPageTab(body);
-      else if(activeInspectorTab==="hero") renderInspectorHeroTab(body);
-      else if(activeInspectorTab==="blocks") renderInspectorBlocksTab(body);
-      else if(activeInspectorTab==="menu") renderInspectorMenuTab(body);
-      else if(activeInspectorTab==="site") renderInspectorSiteTab(body);
-    }
-
-    // After certain actions, we refresh inspector content:
-    window.renderInspectorTab = renderInspectorTab;
-
-    /* =======================
-       ESCAPE HTML
-    ======================= */
-    function escapeHtml(str){
-      return (""+str).replace(/[&<>"']/g, function(m){
-        return ({
-          "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
-        })[m];
-      });
-    }
-
-    /* =======================
-       SET DIRTY ON FIELD EDIT
-    ======================= */
-    document.addEventListener("input", function(e){
-      if(
-        e.target.matches("input,textarea,select") &&
-        !e.target.closest("#inspectorPanel .btn")
-      ){
-        markDirty();
-      }
-    });
-
-    /* =======================
-       WINDOW RESIZE: ADAPT PANELS
-    ======================= */
-    window.addEventListener("resize", ()=>{
-      // You can add more responsive logic here if needed
-      applyPanelBehavior();
-    });
-
-    /* =======================
-       INIT OPEN PAGES SECTION
-    ======================= */
-    window.onload = function(){
-      openSidebarSection('pages');
-    };
-
-    /* =======================
-       UTILITY: THROTTLE
-    ======================= */
-    function throttle(fn, wait){
-      let last = 0, timer;
-      return function(...args){
-        const now = Date.now();
-        if(now - last >= wait){
-          last = now;
-          fn.apply(this, args);
-        } else {
-          clearTimeout(timer);
-          timer = setTimeout(()=>{fn.apply(this, args);last=Date.now();}, wait-(now-last));
-        }
-      };
-    }
-
-    // Save draft every 30 seconds (optional)
-    setInterval(()=>{saveDraftToLocal();}, 30000);
-
-    // Warn if unsaved changes before leaving
-    window.addEventListener("beforeunload", function (e) {
-      if (isDirty) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    });
-
-    // For mobile: tap anywhere outside inspector to close
-    document.addEventListener("click", function(e){
-      if(
-        window.innerWidth < 900 &&
-        isPanelOpen() &&
-        !e.target.closest("#inspectorPanel") &&
-        !e.target.closest("#panelHandle")
-      ){
-        closePanel();
-      }
-    });
-
-    // Autofocus logic for inspector fields (optional)
-    function focusInspectorField(selector){
-      setTimeout(()=> {
-        const el = document.querySelector(selector);
-        if(el) el.focus();
-      }, 150);
-    }
-
-    // For accessibility, tab key trap in panel (optional)
-    document.getElementById("inspectorPanel").addEventListener("keydown", function(e){
-      if(e.key==="Tab"){
-        const focusables = this.querySelectorAll("input,button,select,textarea,a");
-        if(focusables.length){
-          let idx = Array.from(focusables).indexOf(document.activeElement);
-          if(e.shiftKey){
-            if(idx <= 0){
-              focusables[focusables.length-1].focus();
-              e.preventDefault();
-            }
-          }else{
-            if(idx === focusables.length-1){
-              focusables[0].focus();
-              e.preventDefault();
-            }
-          }
-        }
-      }
-    });
-
-    /* =======================
-       INSPECTOR TAB: PAGE
-    ======================= */
-    function renderInspectorPageTab(body){
-      if(!current){
-        body.innerHTML = "<div class='field-hint'>No page selected.</div>";
-        return;
-      }
-      body.innerHTML = `
-        <div class="field-group">
-          <div class="field-label">Page Title</div>
-          <input type="text" value="${escapeHtml(current.title||'')}" oninput="current.title=this.value;updatePreviewHeader();markDirty();">
-        </div>
-        <div class="field-group">
-          <div class="field-label">Page Slug (URL)</div>
-          <input type="text" value="${escapeHtml(current.slug||'')}" oninput="current.slug=this.value;updatePreviewHeader();markDirty();">
-        </div>
-        <div class="field-group">
-          <div class="field-label">Theme</div>
-          <select onchange="current.theme=this.value;markDirty();">
-            <option value="dark"${current.theme==="dark"?' selected':''}>Dark</option>
-            <option value="light"${current.theme==="light"?' selected':''}>Light</option>
-          </select>
-        </div>
-      `;
-    }
-
-    /* =======================
-       INSPECTOR TAB: HERO
-    ======================= */
-    function renderInspectorHeroTab(body){
-      if(!current){
-        body.innerHTML = "<div class='field-hint'>No page selected.</div>";
-        return;
-      }
-      const h = current.hero || {};
-      body.innerHTML = `
-        <div class="field-group">
-          <div class="field-label">Hero Background Image URL</div>
-          <input type="text" value="${escapeHtml(h.bg||'')}" oninput="current.hero.bg=this.value;renderPreview();markDirty();">
-        </div>
-        <div class="field-group">
-          <div class="field-label">Overlay Title</div>
-          <input type="text" value="${escapeHtml(h.overlay||'')}" oninput="current.hero.overlay=this.value;renderPreview();markDirty();">
-        </div>
-        <div class="field-group">
-          <div class="field-label">Subtitle</div>
-          <input type="text" value="${escapeHtml(h.sub||'')}" oninput="current.hero.sub=this.value;renderPreview();markDirty();">
-        </div>
-        <div class="field-group">
-          <label class="inline"><input type="checkbox" ${h.transparentMenu?"checked":""} onchange="current.hero.transparentMenu=this.checked;markDirty();"> Transparent Header/Menu</label>
-        </div>
-        <div class="field-group">
-          <div class="field-label">Hero Behavior</div>
-          <select onchange="current.hero.behavior=this.value;markDirty();">
-            <option value="still"${h.behavior==="still"?' selected':''}>Still Image</option>
-            <option value="parallax"${h.behavior==="parallax"?' selected':''}>Slow Parallax Scroll</option>
-            <option value="carousel"${h.behavior==="carousel"?' selected':''}>Carousel/Slides</option>
-            <option value="video"${h.behavior==="video"?' selected':''}>Embedded Video</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <div class="field-label">Hero Size</div>
-          <select onchange="current.hero.size=this.value;renderPreview();markDirty();">
-            <option value="small"${h.size==="small"?' selected':''}>Small</option>
-            <option value="medium"${h.size==="medium"?' selected':''}>Medium</option>
-            <option value="large"${h.size==="large"?' selected':''}>Large</option>
-            <option value="full"${!h.size||h.size==="full"?' selected':''}>Full Height</option>
-            <option value="custom"${h.size==="custom"?' selected':''}>Custom Height</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <div class="field-label">Custom Height (e.g. 600px or 80vh)</div>
-          <input type="text" value="${escapeHtml(h.customHeight||'')}" oninput="current.hero.customHeight=this.value;renderPreview();markDirty();" placeholder="e.g. 600px, 80vh">
-        </div>
-      `;
-    }
-
-    /* =======================
-       INSPECTOR TAB: BLOCKS
-    ======================= */
-    function renderInspectorBlocksTab(body){
-      if(!current){
-        body.innerHTML = "<div class='field-hint'>No page selected.</div>";
-        return;
-      }
-      let html = "";
-      const blocks = current.blocks || [];
-      html += `<div class="panelSection"><div class="panelLabel">Page Blocks</div>`;
-      if(blocks.length===0){
-        html += "<div class='field-hint'>No blocks yet. Add one below.</div>";
-      }
-      blocks.forEach((b, idx)=>{
-        html += `
-        <div class="block">
-          <div class="block-header-line">
-            <span class="block-type">${escapeHtml(b.type||"Block")}</span>
-            <div class="tools">
-              <button title="Delete" onclick="removeBlock(${idx});renderInspectorTab();renderPreview();"><i class="fa-regular fa-trash-can"></i></button>
-              <button title="Move Up" onclick="moveBlock(${idx},-1);renderInspectorTab();renderPreview();"><i class="fa-solid fa-arrow-up"></i></button>
-              <button title="Move Down" onclick="moveBlock(${idx},1);renderInspectorTab();renderPreview();"><i class="fa-solid fa-arrow-down"></i></button>
-            </div>
-          </div>
-        `;
-        if(b.type==="heading"){
-          html += `<input type="text" value="${escapeHtml(b.content||"")}" oninput="current.blocks[${idx}].content=this.value;renderPreview();markDirty();">`;
-        } else if(b.type==="paragraph"){
-          html += `<textarea oninput="current.blocks[${idx}].content=this.value;renderPreview();markDirty();">${escapeHtml(b.content||"")}</textarea>`;
-        } else if(b.type==="image"){
-          html += `<input type="text" value="${escapeHtml(b.content||"")}" oninput="current.blocks[${idx}].content=this.value;renderPreview();markDirty();" placeholder="Image URL">`;
-        } else if(b.type==="button"){
-          html += `<div class="field-group"><div class="field-label">Button Text</div><input type="text" value="${escapeHtml(b.text||"")}" oninput="current.blocks[${idx}].text=this.value;renderPreview();markDirty();"></div>
-            <div class="field-group"><div class="field-label">Button URL</div><input type="text" value="${escapeHtml(b.url||"")}" oninput="current.blocks[${idx}].url=this.value;renderPreview();markDirty();"></div>`;
-        } else if(b.type==="product"){
-          html += `<div class="field-group"><div class="field-label">Title</div><input type="text" value="${escapeHtml(b.title||"")}" oninput="current.blocks[${idx}].title=this.value;renderPreview();markDirty();"></div>
-            <div class="field-group"><div class="field-label">Text</div><textarea oninput="current.blocks[${idx}].text=this.value;renderPreview();markDirty();">${escapeHtml(b.text||"")}</textarea></div>
-            <div class="field-group"><div class="field-label">Image URL</div><input type="text" value="${escapeHtml(b.image||"")}" oninput="current.blocks[${idx}].image=this.value;renderPreview();markDirty();"></div>
-            <div class="field-group"><div class="field-label">Amazon URL</div><input type="text" value="${escapeHtml(b.url||"")}" oninput="current.blocks[${idx}].url=this.value;renderPreview();markDirty();"></div>`;
-        } else if(b.type==="podcast"){
-          html += `<div class="field-group"><div class="field-label">Title</div><input type="text" value="${escapeHtml(b.title||"")}" oninput="current.blocks[${idx}].title=this.value;renderPreview();markDirty();"></div>
-            <div class="field-group"><div class="field-label">Embed URL</div><input type="text" value="${escapeHtml(b.embed||"")}" oninput="current.blocks[${idx}].embed=this.value;renderPreview();markDirty();"></div>`;
-        } else if(b.type==="youtube"){
-          html += `<div class="field-group"><div class="field-label">Title</div><input type="text" value="${escapeHtml(b.title||"")}" oninput="current.blocks[${idx}].title=this.value;renderPreview();markDirty();"></div>
-            <div class="field-group"><div class="field-label">YouTube Video ID or URL</div><input type="text" value="${escapeHtml(b.videoId||"")}" oninput="current.blocks[${idx}].videoId=this.value;renderPreview();markDirty();"></div>`;
-        }
-        html += `</div>`;
-      });
-      html += `</div><button class="btn secondary" onclick="addBlock();renderInspectorTab();">+ Add Block</button>`;
-      body.innerHTML = html;
-    }
-
-    function addBlock(){
-      if(!current.blocks) current.blocks = [];
-      const type = prompt("Block type (heading, paragraph, image, button, product, podcast, youtube)?", "heading");
-      if(!type) return;
-      let b = {};
-      if(type==="heading") b = {type:"heading", content:"Heading"};
-      else if(type==="paragraph") b = {type:"paragraph", content:"Paragraph text"};
-      else if(type==="image") b = {type:"image", content:""};
-      else if(type==="button") b = {type:"button", text:"Click me", url:"#"};
-      else if(type==="product") b = {type:"product", title:"", text:"", image:"", url:""};
-      else if(type==="podcast") b = {type:"podcast", title:"Podcast", embed:""};
-      else if(type==="youtube") b = {type:"youtube", title:"YouTube Video", videoId:""};
-      else return;
-      current.blocks.push(b);
-      markDirty();
-      renderPreview();
-    }
-
-    function removeBlock(idx){
-      if(!current.blocks) return;
-      current.blocks.splice(idx,1);
-      markDirty();
-      renderPreview();
-    }
-    function moveBlock(idx, dir){
-      if(!current.blocks) return;
-      const arr = current.blocks;
-      const item = arr.splice(idx,1)[0];
-      let newIndex = idx + dir;
-      if(newIndex < 0) newIndex = 0;
-      if(newIndex > arr.length) newIndex = arr.length;
-      arr.splice(newIndex,0,item);
-      markDirty();
-      renderPreview();
-    }
-    /* =======================
-       INSPECTOR TAB: MENU
-    ======================= */
-    function renderInspectorMenuTab(body){
-      ensureMenuArray();
-      let html = `<div class="panelSection"><div class="panelLabel">Navigation Menu</div>`;
-      if(site.menu.length === 0){
-        html += "<div class='field-hint'>No menu items yet. Add one below.</div>";
-      }
-      site.menu.forEach((item, idx)=>{
-        html += `
-        <div class="block">
-          <div class="block-header-line">
-            <span class="block-type">${escapeHtml(item.label||"Item")}</span>
-            <div class="tools">
-              <button title="Delete" onclick="removeMenuItem(${idx});renderInspectorTab();"><i class="fa-regular fa-trash-can"></i></button>
-              <button title="Move Up" onclick="moveMenuItem(${idx},-1);renderInspectorTab();"><i class="fa-solid fa-arrow-up"></i></button>
-              <button title="Move Down" onclick="moveMenuItem(${idx},1);renderInspectorTab();"><i class="fa-solid fa-arrow-down"></i></button>
-            </div>
-          </div>
-          <div class="field-group"><div class="field-label">Label</div>
-            <input type="text" value="${escapeHtml(item.label||"")}" oninput="updateMenuField(${idx},'label',this.value);renderPreview();">
-          </div>
-          <div class="field-group"><div class="field-label">URL</div>
-            <input type="text" value="${escapeHtml(item.url||"")}" oninput="updateMenuField(${idx},'url',this.value);">
-          </div>
-          <div class="field-group"><div class="field-label">Type</div>
-            <select onchange="changeMenuType(${idx},this.value);renderInspectorTab();">
-              <option value="link"${item.type==="link"?" selected":""}>Link</option>
-              <option value="mega"${item.type==="mega"?" selected":""}>Mega Menu</option>
-            </select>
-          </div>
-          <div class="field-group"><div class="field-label">Show On</div>
-            <select onchange="updateMenuField(${idx},'showOn',this.value);">
-              <option value="both"${item.showOn==="both"?" selected":""}>Both</option>
-              <option value="desktop"${item.showOn==="desktop"?" selected":""}>Desktop</option>
-              <option value="mobile"${item.showOn==="mobile"?" selected":""}>Mobile</option>
-            </select>
-          </div>
-        `;
-        // Mega menu subitems
-        if(item.type==="mega"){
-          html += `<div class="panelSection"><div class="panelLabel">Mega Menu Links</div>`;
-          if(Array.isArray(item.subItems) && item.subItems.length>0){
-            item.subItems.forEach((sub, subIdx)=>{
-              html += `
-              <div class="block" style="background:#111827;">
-                <div class="block-header-line">
-                  <span class="block-type">${escapeHtml(sub.label||"Link")}</span>
-                  <div class="tools">
-                    <button title="Delete" onclick="removeSubItem(${idx},${subIdx});renderInspectorTab();"><i class="fa-regular fa-trash-can"></i></button>
-                  </div>
-                </div>
-                <div class="field-group"><div class="field-label">Label</div>
-                  <input type="text" value="${escapeHtml(sub.label||"")}" oninput="updateSubItemField(${idx},${subIdx},'label',this.value);">
-                </div>
-                <div class="field-group"><div class="field-label">URL</div>
-                  <input type="text" value="${escapeHtml(sub.url||"")}" oninput="updateSubItemField(${idx},${subIdx},'url',this.value);">
-                </div>
-                <div class="field-group"><div class="field-label">Description</div>
-                  <input type="text" value="${escapeHtml(sub.description||"")}" oninput="updateSubItemField(${idx},${subIdx},'description',this.value);">
-                </div>
-              </div>
-              `;
-            });
-          } else {
-            html += "<div class='field-hint'>No sub-links. Add one below.</div>";
-          }
-          html += `<button class="btn ghost" onclick="addSubItem(${idx});renderInspectorTab();">+ Add Mega Menu Link</button></div>`;
-        }
-        html += `</div>`;
-      });
-      html += `</div><button class="btn secondary" onclick="addMenuItem();renderInspectorTab();">+ Add Menu Item</button>`;
-      body.innerHTML = html;
-    }
-
-    /* =======================
-       INSPECTOR TAB: SITE
-    ======================= */
-    function renderInspectorSiteTab(body){
-      body.innerHTML = `
-        <div class="panelSection">
-          <div class="panelLabel">Site Settings (Global)</div>
-          <div class="field-group">
-            <div class="field-label">Theme Color (Primary Accent)</div>
-            <input type="text" value="${escapeHtml(site.theme && site.theme.accent || '')}" oninput="site.theme.accent=this.value;markDirty();">
-          </div>
-          <div class="field-group">
-            <div class="field-label">Site Title</div>
-            <input type="text" value="${escapeHtml(site.theme && site.theme.siteTitle || '')}" oninput="site.theme.siteTitle=this.value;markDirty();">
+    } else if(b.type==="youtube" && b.videoId){
+      let id = b.videoId.trim();
+      const m = id.match(/v=([^&]+)/);
+      if(m) id = m[1];
+      html += `
+        <div style="margin:1.2rem 0;">
+          <h3 style="margin:0 0 .3rem;color:#e5e7eb;">${escapeHtml(b.title || "")}</h3>
+          <div style="position:relative;padding-bottom:56.25%;height:0;border-radius:12px;overflow:hidden;">
+            <iframe src="https://www.youtube.com/embed/${escapeHtml(id)}"
+              style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+              allowfullscreen></iframe>
           </div>
         </div>
       `;
     }
+  });
+  blocksEl.innerHTML = html;
+}
 
-    /* =======================
-       INSPECTOR TAB ROUTER
-    ======================= */
-    function renderInspectorTab(){
-      const body = document.getElementById("inspectorBody");
-      if(!body) return;
-      if(activeInspectorTab==="page")  renderInspectorPageTab(body);
-      else if(activeInspectorTab==="hero") renderInspectorHeroTab(body);
-      else if(activeInspectorTab==="blocks") renderInspectorBlocksTab(body);
-      else if(activeInspectorTab==="menu") renderInspectorMenuTab(body);
-      else if(activeInspectorTab==="site") renderInspectorSiteTab(body);
-    }
+/* DEVICE PREVIEW */
+const previewFrame = document.getElementById("previewFrame");
+document.querySelectorAll(".device-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const mode = btn.dataset.device;
+    previewFrame.classList.remove("desktop","tablet","mobile");
+    previewFrame.classList.add(mode);
+    document.querySelectorAll(".device-btn").forEach(b=>{
+      b.classList.toggle("active", b===btn);
+    });
+  });
+});
 
-    // ========== SAVE, DRAFT, BACKUP, DOWNLOAD ==========
+/* =======================
+   INSPECTOR TABS
+======================= */
+document.querySelectorAll(".inspect-tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    activeInspectorTab = tab.dataset.inspect;
+    document.querySelectorAll(".inspect-tab").forEach(t=>{
+      t.classList.toggle("active", t===tab);
+    });
+    renderInspectorTab();
+    if (panelBehavior === "auto" || panelBehavior === "pinned" || panelBehavior === "smart"){
 
-    // Save Draft (localStorage)
-    document.getElementById("saveDraftBtn2").onclick = ()=>{
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(site));
-      markSavedLocal();
-      alert("Draft saved locally.");
-    };
-
-    // Download JSON
-    document.getElementById("downloadBtn2").onclick = ()=>{
-      const data = JSON.stringify(site, null, 2);
-      const blob = new Blob([data], {type:"application/json"});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "site-data.json";
-      a.click();
-    };
-
-    // Backup as ZIP
-    document.getElementById("backupBtn2").onclick = ()=>{
-      const zip = new JSZip();
-      zip.file("site-data.json", JSON.stringify(site, null, 2));
-      zip.generateAsync({type:"blob"}).then(content=>{
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(content);
-        a.download = "site-backup.zip";
-        a.click();
-      });
-    };
-
-    // Publish (to Render endpoint)
-    document.getElementById("publishBtn").onclick = async ()=>{
-      try {
-        const res = await fetch(SAVE_ENDPOINT, {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify(site)
-        });
-        if(res.ok){
-          markSavedLocal();
-          alert("Site published!");
-        } else {
-          alert("Publish failed.");
-        }
-      } catch(e){
-        alert("Publish error: "+e);
-      }
-    };
-
-    // Restore draft on load if needed
-    function restoreDraftIfAny(){
-      try {
-        const data = localStorage.getItem(DRAFT_KEY);
-        if(data){
-          site = Object.assign({}, site, JSON.parse(data));
-          markSavedLocal();
-        }
-      } catch(e){
-        // ignore
-      }
-    }
-
-    // Escape HTML for display
-    function escapeHtml(text){
-      return (""+text)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#39;");
-    }
-
-    // Initialize sidebar state (optional: open first section)
-    window.onload = ()=>{
-      openSidebarSection("pages");
-    };
-  </script>
-</body>
-</html>
