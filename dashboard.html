@@ -166,7 +166,7 @@
     padding-right:4px;
   }
 
-  /* NEW: Accordion-style sections on left */
+  /* Accordion-style sections on left */
   .sidebar-section{
     margin-bottom:10px;
   }
@@ -194,7 +194,7 @@
     opacity:0.7;
     transition:transform .18s ease, opacity .18s ease;
   }
-  /* rotated = OPEN (arrow up) */
+  /* rotated = OPEN (arrow up / left-rotated) */
   .sidebar-chevron.rotated{
     transform:rotate(-90deg);
     opacity:0.8;
@@ -758,8 +758,8 @@
 ======================= */
 
 /*
-  IMPORTANT CHANGE:
-  No more baked-in default pages or menu here.
+  IMPORTANT:
+  No baked-in default pages or menu here.
   site-data.json (and whatever you publish) is the single source of truth.
 */
 let site = {
@@ -1697,6 +1697,7 @@ renderInspectorTab();
 </script>
 </body>
 </html>
+
 
 
 
