@@ -1,12 +1,14 @@
 // modules/main.js
 // Main controller: initializes dashboard, loads modules, handles UI toggles
 
+import { loadCMSData, getPages, getMenu, exportData } from "./dataService.js";
 import { setPages } from "./pages.js";
 import { renderMenuPanel } from "./menu.js";
 import { renderInspector } from "./inspector.js";
 import { renderCanvas } from "./canvas.js";
 import { initContainers } from "./containers.js";
 import { renderTextEditor } from "./textEditor.js";
+
 
 // ---------- UI ELEMENTS ----------
 const leftPanel = document.getElementById("leftPanel");
