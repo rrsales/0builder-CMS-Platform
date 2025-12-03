@@ -37,6 +37,144 @@ html, body {
 /* -------------------------------------
    HEADER
 -------------------------------------- */
+/* HEADER / NAV LAYOUT */
+.hn-header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:rgba(15,23,42,0.96);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(148,163,184,.35);
+}
+
+.hn-header-inner{
+  max-width:1200px;
+  margin:0 auto;
+  padding:.75rem 1.25rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:2rem;
+}
+
+.hn-logo{
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  font-size:.9rem;
+  color:#e5e7eb;
+  text-decoration:none;
+}
+
+.hn-nav{
+  display:flex;
+  align-items:center;
+  gap:1.25rem;
+  font-size:.9rem;
+}
+
+.hn-nav-link{
+  color:#e5e7eb;
+  text-decoration:none;
+  padding:.35rem 0;
+  position:relative;
+}
+
+.hn-nav-link::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:0;
+  height:2px;
+  background:#0ea5e9;
+  transition:width .2s ease;
+}
+
+.hn-nav-link:hover::after{
+  width:100%;
+}
+
+/* MEGA MENU CORE */
+.hn-nav-item{
+  position:relative;
+}
+
+.hn-mega{
+  position:absolute;
+  left:50%;
+  transform:translate(-50%, 10px);
+  top:100%;
+  background:#020617;
+  border-radius:1rem;
+  border:1px solid rgba(148,163,184,.4);
+  box-shadow:0 22px 60px rgba(15,23,42,.9);
+  padding:1.25rem 1.5rem;
+  min-width:540px;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+}
+
+.hn-mega-row{
+  display:flex;
+  gap:2rem;
+}
+
+.hn-mega-col{
+  flex:1;
+}
+
+.hn-mega-col h4{
+  font-size:.8rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:#9ca3af;
+  margin:0 0 .5rem;
+}
+
+.hn-mega-col a{
+  display:block;
+  font-size:.88rem;
+  color:#e5e7eb;
+  text-decoration:none;
+  padding:.18rem 0;
+}
+
+.hn-mega-col a:hover{
+  color:#0ea5e9;
+}
+
+/* SHOW MEGA ON HOVER (DESKTOP) */
+.hn-nav-item.hn-has-mega:hover .hn-mega{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translate(-50%, 0);
+  transition:opacity .18s ease, transform .18s ease, visibility 0s;
+}
+
+/* RESPONSIVE: STACK MEGA ON SMALL SCREENS */
+@media (max-width: 800px){
+  .hn-nav{
+    gap:.75rem;
+    font-size:.85rem;
+  }
+
+  .hn-mega{
+    position:fixed;
+    left:50%;
+    top:60px;
+    transform:translate(-50%,0);
+    min-width:90vw;
+    max-width:480px;
+  }
+
+  .hn-mega-row{
+    flex-direction:column;
+  }
+}
 header {
   position: fixed;
   top: 0;
