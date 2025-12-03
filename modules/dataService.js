@@ -6,12 +6,13 @@ let cmsData = { menu: [], pages: [] };
 // ----------- Load -----------
 export async function loadCMSData() {
   try {
-    const res = await fetch("../data.json?cachebust=" + Date.now());
+    // ✅ Correct path — dashboard.html and data.json are in the same folder
+    const res = await fetch("./data.json?cachebust=" + Date.now());
     cmsData = await res.json();
     console.log("✅ CMS data loaded", cmsData);
     return cmsData;
   } catch (err) {
-    console.error("Failed to load data.json:", err);
+    console.error("❌ Failed to load data.json:", err);
     return cmsData;
   }
 }
@@ -39,3 +40,4 @@ export function loadFromLocal() {
   const saved = localStorage.getItem("hn_data");
   if (saved) cmsData = JSON.parse(saved);
 }
+
