@@ -90,3 +90,41 @@ style.textContent = `
 ::-webkit-scrollbar-thumb { background:#1e293b;border-radius:3px; }
 `;
 document.head.appendChild(style);
+// Add this to the bottom of modules/main.js
+
+import { exportData } from "./dataService.js";
+
+function injectPublishButton() {
+  const header = document.querySelector("header");
+  if (!header) return;
+
+  const publishBtn = document.createElement("button");
+  publishBtn.textContent = "Publish to data.json";
+  publishBtn.style.cssText = `
+    margin-left:1rem;
+    padding:.4rem .8rem;
+    border:none;
+    border-radius:.4rem;
+    background:var(--accent);
+    color:#fff;
+    cursor:pointer;
+    font-weight:600;
+  `;
+
+  publishBtn.onclick = () => {
+    const blob = new Blob([exportData()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "data.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  header.appendChild(publishBtn);
+}
+
+// Call it after everything loads
+window.addEventListener("load", () => {
+  injectPublishButton();
+});
