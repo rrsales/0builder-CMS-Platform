@@ -1,14 +1,31 @@
 {
-  "title": "Home",
-  "slug": "home",
-  "theme": "light",
-  "hero": {
-    "bg": "...",
-    "overlay": "Honest News Network",
-    "sub": "Everything You Need for Biblical Truth",
-    "transparentMenu": true,
-    "behavior": "parallax-medium",
-    "size": "custom",
-    "customHeight": ""
-  }
+  "menu": [
+    { "label": "Home", "url": "index.html", "type": "link" },
+    { "label": "About", "url": "about.html", "type": "link" },
+    {
+      "label": "Resources",
+      "type": "mega",
+      "subItems": [
+        { "label": "Articles", "url": "articles.html" },
+        { "label": "Podcasts", "url": "podcasts.html" }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "title": "Home",
+      "slug": "home",
+      "theme": "light",
+      "hero": {
+        "bg": "...",
+        "overlay": "Honest News Network",
+        "sub": "Everything You Need for Biblical Truth",
+        "transparentMenu": true,
+        "behavior": "parallax-medium",
+        "size": "custom",
+        "customHeight": ""
+      }
+    }
+    // ...other pages
+  ]
 }
