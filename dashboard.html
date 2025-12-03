@@ -194,7 +194,7 @@
     opacity:0.7;
     transition:transform .18s ease, opacity .18s ease;
   }
-  /* rotated = OPEN (arrow up / left-rotated) */
+  /* rotated = OPEN (arrow up) */
   .sidebar-chevron.rotated{
     transform:rotate(-90deg);
     opacity:0.8;
@@ -663,12 +663,13 @@
     <!-- NAVIGATION SECTION (accordion, default CLOSED) -->
     <div class="sidebar-section">
       <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('nav')">
-        <span class="label">Navigation</span>
+        <span class="label">Navigation (raw)</span>
         <i class="fa-solid fa-chevron-right sidebar-chevron" id="navChevron"></i>
       </button>
       <div class="sidebar-section-body closed" id="navSection">
         <p class="field-hint" style="margin-top:4px;">
-          One per line: <code>Title | URL</code>
+          One per line: <code>Title | URL</code><br>
+          <strong>Tip:</strong> If you use the Menu tab + mega menu, avoid editing this.
         </p>
         <textarea id="menuRaw" class="textarea-small" oninput="menuFromRaw(this.value)"></textarea>
       </div>
@@ -698,7 +699,7 @@
               <div id="heroPreviewOverlay"></div>
               <div id="heroPreviewInner">
                 <h1>Pick a page on the left</h1>
-                <p>Then use the sliding panel to edit Page, Hero, and Blocks.</p>
+                <p>Then use the sliding panel to edit Page, Hero, Blocks, and Menu.</p>
               </div>
             </div>
             <div id="blockPreview"></div>
@@ -728,6 +729,7 @@
     <button class="inspect-tab active" data-inspect="page">Page</button>
     <button class="inspect-tab" data-inspect="hero">Hero</button>
     <button class="inspect-tab" data-inspect="blocks">Blocks</button>
+    <button class="inspect-tab" data-inspect="menu">Menu</button>
     <button class="inspect-tab" data-inspect="site">Site</button>
   </div>
 
@@ -759,8 +761,7 @@
 
 /*
   IMPORTANT:
-  No baked-in default pages or menu here.
-  site-data.json (and whatever you publish) is the single source of truth.
+  site-data.json is the single source of truth.
 */
 let site = {
   menu: [],
@@ -796,7 +797,6 @@ const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
     if (res.ok) {
       const data = await res.json();
       if (data && typeof data === "object") {
-        // Server (GitHub) is the source of truth.
         site = Object.assign({}, site, data);
         loadedFromServer = true;
       }
@@ -805,7 +805,6 @@ const SAVE_ENDPOINT = "https://honest-news.onrender.com/save";
     console.warn("Could not load site-data.json, will try local draft instead", e);
   }
 
-  // Only fall back to draft if we couldn't load from server
   if (!loadedFromServer) {
     restoreDraftIfAny();
   }
@@ -1004,7 +1003,7 @@ function deletePage(index){
 }
 
 /* =======================
-   MENU EDITOR
+   MENU EDITOR (RAW)
 ======================= */
 function rawFromMenu(){
   const ta = document.getElementById("menuRaw");
@@ -1030,6 +1029,132 @@ function menuFromRaw(text){
 }
 
 /* =======================
+   MENU EDITOR (GRAPHIC TAB)
+======================= */
+function ensureMenuArray(){
+  if (!Array.isArray(site.menu)) {
+    site.menu = [];
+  }
+}
+
+function addMenuItem(){
+  ensureMenuArray();
+  const newItem = {
+    id: "item-" + Date.now(),
+    label: "New item",
+    url: "#",
+    type: "link",
+    showOn: "both",
+    subItems: []
+  };
+  site.menu.push(newItem);
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function removeMenuItem(index){
+  ensureMenuArray();
+  const item = site.menu[index];
+  if (!item) return;
+  if (!confirm(`Remove menu item "${item.label || item.title || 'Item'}"?`)) return;
+  site.menu.splice(index,1);
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function moveMenuItem(i,d){
+  ensureMenuArray();
+  const arr = site.menu;
+  const item = arr.splice(i,1)[0];
+  let newIndex = i + d;
+  if (newIndex < 0) newIndex = 0;
+  if (newIndex > arr.length) newIndex = arr.length;
+  arr.splice(newIndex,0,item);
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function changeMenuType(index,type){
+  ensureMenuArray();
+  const item = site.menu[index];
+  if (!item) return;
+  item.type = type;
+  if (type === "mega" && !Array.isArray(item.subItems)) {
+    item.subItems = [];
+  }
+  if (type !== "mega") {
+    item.subItems = [];
+  }
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function updateMenuField(index, field, value){
+  ensureMenuArray();
+  const item = site.menu[index];
+  if (!item) return;
+
+  if (field === "label") {
+    item.label = value;
+    // keep id loosely in sync on first edits (optional)
+    if (!item.id || item.id.startsWith("item-")) {
+      item.id = value.toLowerCase().replace(/\s+/g,"-") || ("item-"+index);
+    }
+  } else if (field === "url") {
+    item.url = value;
+  } else if (field === "showOn") {
+    item.showOn = value;
+  }
+
+  markDirty();
+  rawFromMenu();
+}
+
+function addSubItem(menuIndex){
+  ensureMenuArray();
+  const item = site.menu[menuIndex];
+  if (!item) return;
+  if (!Array.isArray(item.subItems)) item.subItems = [];
+  item.subItems.push({
+    label: "New link",
+    url: "#",
+    description: ""
+  });
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function removeSubItem(menuIndex, subIndex){
+  ensureMenuArray();
+  const item = site.menu[menuIndex];
+  if (!item || !Array.isArray(item.subItems)) return;
+  item.subItems.splice(subIndex,1);
+  markDirty();
+  rawFromMenu();
+  renderInspectorTab();
+}
+
+function updateSubItemField(menuIndex, subIndex, field, value){
+  ensureMenuArray();
+  const item = site.menu[menuIndex];
+  if (!item || !Array.isArray(item.subItems)) return;
+  const sub = item.subItems[subIndex];
+  if (!sub) return;
+
+  if (field === "label") sub.label = value;
+  else if (field === "url") sub.url = value;
+  else if (field === "description") sub.description = value;
+
+  markDirty();
+  rawFromMenu();
+}
+
+/* =======================
    SELECT PAGE
 ======================= */
 function selectPage(i){
@@ -1038,7 +1163,6 @@ function selectPage(i){
   updatePreviewHeader();
   renderPreview();
   renderInspectorTab(); // refresh panel content
-  // When you pick a page, auto-open inspector (unless manual mode)
   if (panelBehavior === "auto" || panelBehavior === "pinned" || panelBehavior === "smart"){
     openPanel("auto");
   }
@@ -1178,7 +1302,7 @@ document.querySelectorAll(".inspect-tab").forEach(tab=>{
 
 function renderInspectorTab(){
   const body = document.getElementById("inspectorBody");
-  if (!current && activeInspectorTab!=="site"){
+  if (!current && activeInspectorTab!=="site" && activeInspectorTab!=="menu"){
     body.innerHTML = `<p style="color:#9ca3af;">Select a page on the left to edit.</p>`;
     return;
   }
@@ -1188,6 +1312,8 @@ function renderInspectorTab(){
     body.innerHTML = renderHeroTabHtml(current);
   } else if (activeInspectorTab === "blocks"){
     body.innerHTML = renderBlocksTabHtml(current);
+  } else if (activeInspectorTab === "menu"){
+    body.innerHTML = renderMenuTabHtml();
   } else {
     body.innerHTML = renderSiteTabHtml();
     wirePanelBehaviorRadios();
@@ -1530,13 +1656,136 @@ function handleImageUpload(e,index){
 }
 
 /* =======================
+   MENU TAB HTML
+======================= */
+function renderMenuTabHtml(){
+  ensureMenuArray();
+  const menu = site.menu;
+  let html = `
+    <div class="panelSection">
+      <div class="panelLabel">Main navigation</div>
+      <p class="field-hint">
+        Desktop header + mobile menu. Use <strong>Mega</strong> type for wide dropdown.
+      </p>
+      <button class="btn secondary" type="button" onclick="addMenuItem()">+ Add menu item</button>
+    </div>
+    <div class="panelSection">
+  `;
+
+  if (!menu.length){
+    html += `<p class="field-hint">No menu items yet. Click “Add menu item” to get started.</p>`;
+  }
+
+  menu.forEach((item,i)=>{
+    const type   = item.type   || "link";
+    const showOn = item.showOn || "both";
+    const label  = escapeHtml(item.label || item.title || "");
+    const url    = escapeHtml(item.url || "");
+    html += `
+      <div class="block">
+        <div class="block-header-line">
+          <span class="block-type">ITEM ${i+1}</span>
+          <span>
+            Type:
+            <select class="motion-select"
+              onchange="changeMenuType(${i}, this.value)">
+              <option value="link" ${type==='link'?'selected':''}>Link</option>
+              <option value="mega" ${type==='mega'?'selected':''}>Mega</option>
+            </select>
+          </span>
+        </div>
+
+        <div class="field-group">
+          <div class="field-label">Label</div>
+          <input type="text" value="${label}"
+            onchange="updateMenuField(${i}, 'label', this.value)">
+        </div>
+
+        <div class="field-group">
+          <div class="field-label">URL</div>
+          <input type="text" value="${url}"
+            onchange="updateMenuField(${i}, 'url', this.value)">
+          <div class="field-hint">
+            Example: <code>index.html</code>, <code>podcast.html</code>, <code>#</code>, or full URL.
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-label">Show on</div>
+          <select onchange="updateMenuField(${i}, 'showOn', this.value)">
+            <option value="both" ${showOn==='both'?'selected':''}>Desktop + mobile</option>
+            <option value="desktop" ${showOn==='desktop'?'selected':''}>Desktop only</option>
+            <option value="mobile" ${showOn==='mobile'?'selected':''}>Mobile only</option>
+          </select>
+        </div>
+
+        <div class="tools">
+          <button onclick="moveMenuItem(${i},-1)">↑</button>
+          <button onclick="moveMenuItem(${i},1)">↓</button>
+          <button onclick="removeMenuItem(${i})">×</button>
+        </div>
+    `;
+
+    if (type === "mega"){
+      const subs = Array.isArray(item.subItems) ? item.subItems : [];
+      html += `
+        <div class="section">
+          <div class="panelLabel">Mega links</div>
+          <p class="field-hint">
+            Shown in the wide dropdown panel on desktop. Stacked on mobile.
+          </p>
+          <button class="btn secondary" type="button" onclick="addSubItem(${i})">+ Add mega link</button>
+      `;
+      subs.forEach((s,j)=>{
+        const sLabel = escapeHtml(s.label || s.title || "");
+        const sUrl   = escapeHtml(s.url || "");
+        const sDesc  = escapeHtml(s.description || "");
+        html += `
+          <div class="block" style="margin-top:8px;">
+            <div class="block-header-line">
+              <span class="block-type">LINK ${j+1}</span>
+              <button class="page-delete-btn" title="Remove link"
+                onclick="removeSubItem(${i},${j});return false;">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Label</div>
+              <input type="text" value="${sLabel}"
+                onchange="updateSubItemField(${i},${j},'label',this.value)">
+            </div>
+            <div class="field-group">
+              <div class="field-label">URL</div>
+              <input type="text" value="${sUrl}"
+                onchange="updateSubItemField(${i},${j},'url',this.value)">
+            </div>
+            <div class="field-group">
+              <div class="field-label">Description (optional)</div>
+              <textarea rows="2"
+                onchange="updateSubItemField(${i},${j},'description',this.value)">${sDesc}</textarea>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+/* =======================
    UTIL
 ======================= */
 function escapeHtml(str){
   return String(str || "")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;");
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
 }
 
 /* =======================
@@ -1692,11 +1941,12 @@ function wirePanelBehaviorRadios(){
   });
 }
 
-/* initial inspector content (in case no page yet) */
+/* initial inspector content */
 renderInspectorTab();
 </script>
 </body>
 </html>
+
 
 
 
