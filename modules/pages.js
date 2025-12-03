@@ -1,10 +1,18 @@
 // modules/pages.js
-// Handles the Pages panel in the left sidebar
+// CMS-connected Page Manager
+
+import { getPages, updatePages } from "./dataService.js";
 
 const pagesPanel = document.getElementById("pagesPanel");
+let pages = [];
 
-// ---------- Render Panel ----------
-export function renderPagesPanel(pages = []) {
+// ---------- Render ----------
+export function setPages(data) {
+  pages = data || getPages();
+  renderPagesPanel();
+}
+
+function renderPagesPanel() {
   pagesPanel.innerHTML = `
     <div class="panelHeader">
       <h2>Pages</h2>
@@ -29,13 +37,12 @@ export function renderPagesPanel(pages = []) {
   attachPageListeners();
 }
 
-// ---------- Event Handlers ----------
+// ---------- Listeners ----------
 function attachPageListeners() {
   const addBtn = document.getElementById("addPageBtn");
   const list = document.getElementById("pagesList");
-  if (!addBtn || !list) return;
 
-  addBtn.onclick = () => {
+  if (addBtn) addBtn.onclick = () => {
     const title = prompt("New page title:");
     if (title) addPage(title);
   };
@@ -43,8 +50,8 @@ function attachPageListeners() {
   list.querySelectorAll(".renamePage").forEach(btn => {
     btn.onclick = e => {
       const li = e.target.closest("li");
-      const index = li.dataset.index;
-      const title = prompt("Rename page:", li.querySelector(".pageTitle").textContent);
+      const index = parseInt(li.dataset.index);
+      const title = prompt("Rename page:", pages[index].title);
       if (title) renamePage(index, title);
     };
   });
@@ -52,7 +59,7 @@ function attachPageListeners() {
   list.querySelectorAll(".deletePage").forEach(btn => {
     btn.onclick = e => {
       const li = e.target.closest("li");
-      const index = li.dataset.index;
+      const index = parseInt(li.dataset.index);
       if (confirm("Delete this page?")) deletePage(index);
     };
   });
@@ -66,56 +73,46 @@ function attachPageListeners() {
 }
 
 // ---------- CRUD ----------
-let pageData = [];
-
-export function setPages(data) {
-  pageData = data;
-  renderPagesPanel(pageData);
-}
-
 function addPage(title) {
   const slug = title.toLowerCase().replace(/\s+/g, "-");
-  pageData.push({ title, slug, hero: {}, blocks: [] });
-  renderPagesPanel(pageData);
-  savePages();
+  const newPage = {
+    title,
+    slug,
+    theme: "light",
+    hero: {
+      bg: "",
+      overlay: "",
+      sub: "",
+      transparentMenu: true,
+      behavior: "parallax-medium",
+      size: "custom",
+      customHeight: ""
+    }
+  };
+  pages.push(newPage);
+  updatePages(pages);
+  renderPagesPanel();
 }
 
 function renamePage(index, title) {
-  pageData[index].title = title;
-  pageData[index].slug = title.toLowerCase().replace(/\s+/g, "-");
-  renderPagesPanel(pageData);
-  savePages();
+  pages[index].title = title;
+  pages[index].slug = title.toLowerCase().replace(/\s+/g, "-");
+  updatePages(pages);
+  renderPagesPanel();
 }
 
 function deletePage(index) {
-  pageData.splice(index, 1);
-  renderPagesPanel(pageData);
-  savePages();
+  pages.splice(index, 1);
+  updatePages(pages);
+  renderPagesPanel();
 }
 
 function selectPage(index) {
-  const event = new CustomEvent("pageSelected", { detail: pageData[index] });
+  const event = new CustomEvent("pageSelected", { detail: pages[index] });
   window.dispatchEvent(event);
 }
 
-// ---------- Save ----------
-function savePages() {
-  localStorage.setItem("hn_pages", JSON.stringify(pageData));
-}
-
-// ---------- Init ----------
-window.addEventListener("load", () => {
-  const saved = localStorage.getItem("hn_pages");
-  if (saved) {
-    pageData = JSON.parse(saved);
-    renderPagesPanel(pageData);
-  } else {
-    // Default page
-    setPages([{ title: "Home", slug: "index", hero: {}, blocks: [] }]);
-  }
-});
-
-// ---------- Basic Styling ----------
+// ---------- Style ----------
 const style = document.createElement("style");
 style.textContent = `
 #pagesPanel {padding:1rem;border-bottom:1px solid var(--border);}
@@ -129,3 +126,4 @@ style.textContent = `
 #pagesPanel .actions button {margin-left:.3rem;}
 `;
 document.head.appendChild(style);
+
