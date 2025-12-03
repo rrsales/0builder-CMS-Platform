@@ -1,9 +1,10 @@
 // assets/js/live.js
 // Front-end "live engine": menu + mega menu + hero + blocks
-// Uses site-data.json that you edit from the Dashboard.
+// Tries site-data.json first, then falls back to data.json.
+// This is what the Dashboard edits via your Render → GitHub pipeline.
 
 (function () {
-  const SITE_JSON = "site-data.json";
+  const JSON_CANDIDATES = ["site-data.json", "data.json"];
 
   const FALLBACK_SITE = {
     menu: [],
@@ -13,6 +14,7 @@
   };
 
   let site = FALLBACK_SITE;
+  let siteJsonUsed = null;
 
   function escapeHtml(str) {
     return String(str || "")
@@ -24,21 +26,48 @@
 
   function getCurrentSlug() {
     const body = document.body;
-    return (body && body.getAttribute("data-page")) || "home";
+    const explicit = body && body.getAttribute("data-page");
+    if (explicit) return explicit;
+
+    // Fallback: derive from path (e.g. /about.html → "about")
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname.split("/").pop() || "index.html";
+      if (path === "index.html" || path === "") return "home";
+      const m = path.match(/^([^\.]+)\.html$/);
+      if (m) return m[1];
+    }
+    return "home";
   }
 
+  /* =========================
+     LOAD site-data.json / data.json
+  ========================== */
   async function loadSiteData() {
-    try {
-      const res = await fetch(SITE_JSON + "?v=" + Date.now());
-      if (res.ok) {
+    let lastError = null;
+
+    for (const name of JSON_CANDIDATES) {
+      try {
+        const res = await fetch(name + "?v=" + Date.now());
+        if (!res.ok) {
+          lastError = new Error(name + " HTTP " + res.status);
+          continue;
+        }
         const data = await res.json();
         if (data && typeof data === "object") {
           site = Object.assign({}, FALLBACK_SITE, data);
+          siteJsonUsed = name;
+          console.log("[Honest News] Loaded site data from:", name);
+          return;
         }
+      } catch (e) {
+        lastError = e;
       }
-    } catch (e) {
-      console.warn("Could not load site-data.json, using defaults", e);
     }
+
+    console.warn(
+      "[Honest News] Could not load site-data.json or data.json, using FALLBACK_SITE",
+      lastError
+    );
   }
 
   function applyTheme(page) {
@@ -193,13 +222,13 @@
 
     if (desktopUL) {
       desktopUL.innerHTML = menu
-        .filter((m) => m.showOn !== "mobile") // default: both/desktop
+        .filter((m) => (m.showOn || "both") !== "mobile") // keep both + desktop
         .map((m) => renderDesktopItem(m, currentSlug))
         .join("");
     }
     if (mobileUL) {
       mobileUL.innerHTML = menu
-        .filter((m) => m.showOn !== "desktop") // default: both/mobile
+        .filter((m) => (m.showOn || "both") !== "desktop") // keep both + mobile
         .map((m) => renderMobileItem(m, currentSlug))
         .join("");
     }
@@ -265,6 +294,7 @@
     const p = heroInner.querySelector("p");
 
     if (eyebrowEl) {
+      // Keep this as a small brand label; change/remove if you decide later
       eyebrowEl.textContent = "Honest News";
     }
     if (h1) {
@@ -447,12 +477,22 @@
     const currentPage =
       pages.find((p) => p.slug === slug) || pages[0] || null;
 
+    if (!currentPage) {
+      console.warn(
+        "[Honest News] No matching page in JSON for slug:",
+        slug,
+        "Pages array:",
+        pages
+      );
+    }
+
     applyTheme(currentPage);
     buildMenus(slug);
     renderHero(currentPage);
     renderBlocks(currentPage);
   });
 })();
+
 
 
 
