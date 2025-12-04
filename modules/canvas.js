@@ -1,39 +1,16 @@
 // modules/canvas.js
-// Handles the central canvas preview and live updates
-
 const canvas = document.getElementById("canvasContent");
-
-let currentPage = null;
-
-// ---------- Render Canvas ----------
-export function renderCanvas(page = null) {
-  if (!page) {
-    canvas.innerHTML = `<div class="placeholder">Select a page to preview its content.</div>`;
-    return;
-  }
-
-  currentPage = page;
-  const hero = page.hero || {};
-  const behavior = hero.behavior || "still";
-  const size = hero.size || "medium";
-  const transparent = hero.transparentHeader ? "On" : "Off";
-
-  canvas.innerHTML = `
-    <div class="canvasInner">
-      <section class="hero hero-${behavior} hero-${size}">
-        <div class="heroInfo">
-          <h1>${page.title}</h1>
-          <p>Hero behavior: <strong>${behavior}</strong></p>
-          <p>Hero size: <strong>${size}</strong></p>
-          <p>Transparent header: <strong>${transparent}</strong></p>
-        </div>
-      </section>
-      <section class="contentBlocks">
-        <p>This is where content blocks will appear.</p>
-      </section>
-    </div>
-  `;
+export function renderCanvas(page=null){
+  if(!page){canvas.innerHTML="<p>No page selected</p>";return;}
+  canvas.innerHTML=`
+    <h2>${page.title}</h2>
+    <p>Theme: ${page.theme}</p>
+    <p>Menu transparent? ${page.hero.transparentMenu}</p>`;
 }
+window.addEventListener("pageSelected",e=>renderCanvas(e.detail));
+window.addEventListener("pageUpdated",e=>renderCanvas(e.detail));
+window.addEventListener("load",()=>renderCanvas(null));
+
 
 // ---------- Respond to Page Selection ----------
 window.addEventListener("pageSelected", e => renderCanvas(e.detail));
