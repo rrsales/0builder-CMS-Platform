@@ -1,4 +1,5 @@
 {
+  
   "menu": [
     { "label": "Home", "url": "index.html", "type": "link" },
     { "label": "About", "url": "about.html", "type": "link" },
@@ -28,4 +29,5 @@
       }
     }
   ]
+  , "dubug" : on
 }
