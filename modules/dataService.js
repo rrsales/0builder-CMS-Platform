@@ -11,21 +11,11 @@ export async function loadCMSData() {
   }
 }
 
-export function getMenu() {
-  return cmsData.menu || [];
-}
-export function getPages() {
-  return cmsData.pages || [];
-}
-export function updateMenu(m) {
-  cmsData.menu = m;
-}
-export function updatePages(p) {
-  cmsData.pages = p;
-}
-export function exportData() {
-  return JSON.stringify(cmsData, null, 2);
-}
+export function getMenu() { return cmsData.menu || []; }
+export function getPages() { return cmsData.pages || []; }
+export function updateMenu(m) { cmsData.menu = m; }
+export function updatePages(p) { cmsData.pages = p; }
+export function exportData() { return JSON.stringify(cmsData, null, 2); }
 
 
 
