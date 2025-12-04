@@ -29,5 +29,5 @@
       }
     }
   ]
-  , "dubug" : on
+  , "dubug" : "on"
 }
