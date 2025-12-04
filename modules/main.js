@@ -8,7 +8,6 @@ import { renderCanvas } from "./canvas.js";
 async function init() {
   console.log("🚀 Honest News CMS loading…");
   await loadCMSData();
-
   setPages(getPages());
   renderMenuPanel(getMenu());
   renderInspector(null);
@@ -21,7 +20,7 @@ function injectPublish() {
   const btn = document.createElement("button");
   btn.textContent = "Publish JSON";
   btn.onclick = () => {
-    const blob = new Blob([exportData()], { type: "application/json" });
+    const blob = new Blob([exportData()],{type:"application/json"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "data.json";
@@ -31,9 +30,8 @@ function injectPublish() {
 }
 
 window.addEventListener("load", init);
-document.getElementById("toggleLeft").onclick = () =>
-  document.getElementById("leftPanel").classList.toggle("show");
-document.getElementById("toggleRight").onclick = () =>
-  document.getElementById("rightPanel").classList.toggle("show");
+document.getElementById("toggleLeft").onclick = () => document.getElementById("leftPanel").classList.toggle("show");
+document.getElementById("toggleRight").onclick = () => document.getElementById("rightPanel").classList.toggle("show");
+
 
 
