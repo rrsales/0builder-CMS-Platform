@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>0Builder CMS Platform 1.0 – 0Builder.LLC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Protect dashboard -->
+  <script>
+    if (localStorage.getItem("hn_logged") !== "yes") {
+      location.href = "admin.html";
+    }
+  </script>
+  <!-- CSS: You can inline, link, or use external -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <style>
+    /* ... your CSS here ... */
+  </style>
+</head>
+<body>
+  <!-- Header, panels, preview, footer, all markup goes here -->
+  <div class="top-welcome"> ... </div>
+  <div class="main">
+    <aside class="sidebar"> ... </aside>
+    <section class="content"> ... </section>
+  </div>
+  <div id="panelHandle">◂</div>
+  <div id="inspectorPanel"> ... </div>
+  <footer>
+    &copy; 2025 0Builder.LLC &bull; 0Builder CMS Platform 1.0
+  </footer>
+
+  <!-- MODULE IMPORTS (order: core first, rest can be in any order) -->
+  <script type="module" src="modules/core.js"></script>
+  <script type="module" src="modules/left-panel.js"></script>
+  <script type="module" src="modules/right-panel.js"></script>
+  <script type="module" src="modules/preview.js"></script>
+  <script type="module" src="modules/menu.js"></script>
+  <script type="module" src="modules/text-editor.js"></script>
+  <script type="module" src="modules/tools.js"></script>
+  <script type="module" src="modules/pages.js"></script>
+</body>
+</html>
