@@ -14,30 +14,16 @@
 
   <!-- CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <link rel="stylesheet" href="assets/css/main.css">
 
   <style>
-    /* ... your existing CSS here (top-welcome, panels, preview, right panel, etc.) ... */
-    :root{
-      --bg: #02040a;
-      --card-bg: #05070c;
-      --border: #1f2937;
-      --shadow-soft: 0 20px 45px rgba(0,0,0,0.75);
-      --accent: #0ea5e9;
-      --accent-soft: #0369a1;
-      --accent-soft-bg: rgba(14,165,233,.12);
-      --text-main: #e5e7eb;
-      --text-soft: #9ca3af;
-      --radius-lg: 20px;
-      --radius-md: 12px;
-      --radius-pill: 999px;
-    }
-    /* ... rest of your CSS ... */
+    /* You can keep your existing CSS or inline any needed overrides */
   </style>
 </head>
+
 <body>
 
-<!-- TOP WELCOME -->
 <div class="top-welcome">
   <div class="top-left">
     <span class="label">0Builder CMS Platform 1.0</span>
@@ -60,7 +46,6 @@
 
   <!-- LEFT PANEL -->
   <aside class="sidebar" id="leftSidebar">
-    <!-- Pages -->
     <div class="sidebar-section">
       <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('pages')">
         <span class="label">Pages</span>
@@ -71,7 +56,7 @@
         <button class="btn secondary" style="width:100%;margin-top:8px;" onclick="newPage()">+ New Page</button>
       </div>
     </div>
-    <!-- Navigation -->
+
     <div class="sidebar-section">
       <button class="sidebar-section-header" type="button" onclick="toggleSidebarSection('nav')">
         <span class="label">Navigation</span>
@@ -100,6 +85,7 @@
           <button class="device-btn" data-device="mobile"><i class="fa-solid fa-mobile"></i></button>
         </div>
       </div>
+
       <div id="previewInnerWrap">
         <div id="previewFrame" class="desktop">
           <div class="preview-wrap">
@@ -161,30 +147,32 @@
   </div>
 </div>
 
-<footer style="padding:20px;text-align:center;color:var(--text-soft);font-size:.75rem;border-top:1px solid var(--border);">
+<footer style="padding:20px;text-align:center;color:#9ca3af;font-size:.75rem;border-top:1px solid #1f2937;">
   &copy; 2025 0Builder.LLC • 0Builder CMS Platform 1.0
 </footer>
 
 <!-- LEFT PANEL TOGGLE FUNCTION -->
 <script>
 function toggleLeftPanel() {
-  const sidebar = document.getElementById('leftSidebar');
-  const main = document.getElementById('main');
-  sidebar.classList.toggle('open');
-  main.classList.toggle('has-left-open');
+  const sidebar = document.getElementById("leftSidebar");
+  const main = document.getElementById("main");
+  sidebar.classList.toggle("open");
+  main.classList.toggle("has-left-open");
 }
 
-// Optional: close left panel when clicking outside
-document.addEventListener('click', (e) => {
-  const sidebar = document.getElementById('leftSidebar');
-  const handle = document.getElementById('leftPanelHandle');
-  if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !handle.contains(e.target)) {
+// Outside-click to close
+document.addEventListener("click", (e) => {
+  const sidebar = document.getElementById("leftSidebar");
+  const handle = document.getElementById("leftPanelHandle");
+  if (sidebar.classList.contains("open") &&
+      !sidebar.contains(e.target) &&
+      !handle.contains(e.target)) {
     toggleLeftPanel();
   }
 });
 </script>
 
-<!-- MODULE IMPORTS (order: core first) -->
+<!-- MODULE IMPORTS -->
 <script type="module" src="modules/core.js"></script>
 <script type="module" src="modules/left-panel.js"></script>
 <script type="module" src="modules/right-panel.js"></script>
@@ -196,6 +184,7 @@ document.addEventListener('click', (e) => {
 
 </body>
 </html>
+
 
 
 
